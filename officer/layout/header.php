@@ -556,6 +556,34 @@ body.sidebar-collapsed .sidebar-toggle-icon {
   .main-wrap{margin-left:0}
   .hamburger{display:flex}
   .stats-row{grid-template-columns:1fr}
+
+  /* Responsive Flash alerts on mobile */
+  .flash {
+    padding: 20px 24px !important;
+    width: 92% !important;
+    max-width: 320px !important;
+    gap: 12px !important;
+    border-radius: 12px !important;
+  }
+  .flash-icon {
+    font-size: 38px !important;
+  }
+  .flash-msg {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+  .flash-close-btn {
+    padding: 8px 16px !important;
+    font-size: 12px !important;
+  }
+  
+  /* Responsive Toasts on mobile */
+  .toast {
+    padding: 16px 20px !important;
+    width: 92% !important;
+    max-width: 320px !important;
+    gap: 12px !important;
+  }
 }
 </style>
 <script>

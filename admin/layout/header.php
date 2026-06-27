@@ -549,6 +549,46 @@ try {
       .hamburger { display:block; }
       .grid-2, .grid-3, .form-row { grid-template-columns:1fr; }
       .stats-grid { grid-template-columns:1fr; }
+
+      /* Centering bell icon in topbar on mobile */
+      #notifBellContainer {
+        position: absolute !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        margin-right: 0 !important;
+        z-index: 1001;
+      }
+      #notifBellContainer > span:first-child {
+        font-size: 22px !important;
+      }
+      /* Centering and scaling bell dropdown on mobile */
+      #notifDropdown {
+        position: fixed !important;
+        left: 50% !important;
+        top: 60px !important;
+        transform: translateX(-50%) !important;
+        width: 90% !important;
+        max-width: 340px !important;
+        right: auto !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+        border-radius: 12px !important;
+      }
+      /* Prevent title overlap on mobile */
+      .topbar-title {
+        max-width: 40%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      /* Responsive admin badge on mobile */
+      .topbar-badge span {
+        display: none;
+      }
+      .topbar-badge {
+        padding: 4px;
+        background: none;
+        border: none;
+      }
     }
   </style>
 </head>
