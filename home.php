@@ -16,6 +16,7 @@ $nav_items = [
     ["label" => "Lokasi Kami",          "url" => "lokasi_kami.php",              "active" => false],
     ["label" => "DIY",                  "url" => "diy.php",                        "active" => false],
     ["label" => "Kuesioner",            "url" => "kuesioner.php",                  "active" => false],
+    ["label" => "Login",                "url" => "login.php",                      "active" => false],
 ];
 
 
@@ -166,6 +167,26 @@ $card_image_url   = "Footer.jpeg";
         .nav-links .active a {
             font-weight: 700;
             border-bottom: 2px solid #1c1c1c;
+        }
+
+        .nav-links a.nav-login-btn {
+            background-color: var(--primary-green);
+            color: var(--text-light) !important;
+            border-radius: 6px;
+            padding: 8px 18px;
+            transition: background-color 0.25s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-links a.nav-login-btn:hover {
+            background-color: #155229;
+            color: #ffffff !important;
+            opacity: 1;
+            box-shadow: 0 4px 10px rgba(28,100,52,0.25);
+            transform: translateY(-1px);
+        }
+
+        .nav-links a.nav-login-btn:active {
+            transform: translateY(0);
         }
 
         /* Mobile hamburger */
@@ -603,6 +624,20 @@ $card_image_url   = "Footer.jpeg";
             }
             .nav-links li { width: 100%; }
             .nav-links a { display: block; padding: 8px 4px; color: #1c1c1c; }
+            .nav-links a.nav-login-btn {
+                display: inline-block;
+                color: var(--text-light) !important;
+                background-color: var(--primary-green);
+                margin: 8px 4px;
+                padding: 8px 20px;
+                border-radius: 6px;
+                width: auto;
+                text-align: center;
+            }
+            .nav-links a.nav-login-btn:hover {
+                background-color: #155229;
+                opacity: 1;
+            }
 
             .hero-section {
                 height: 80vh;
@@ -671,19 +706,12 @@ $card_image_url   = "Footer.jpeg";
             <li <?php if ($item['active']) echo 'class="active"'; ?> role="none">
                 <a href="<?php echo htmlspecialchars($item['url']); ?>"
                    role="menuitem"
+                   <?php if ($item['label'] === 'Login') echo 'class="nav-login-btn"'; ?>
                    <?php if ($item['active']) echo 'aria-current="page"'; ?>>
                     <?php echo htmlspecialchars($item['label']); ?>
                 </a>
             </li>
             <?php endforeach; ?>
-            <li role="none">
-                <a href="#" role="menuitem" aria-label="Cari" style="display: inline-flex; align-items: center; padding: 6px 14px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                </a>
-            </li>
         </ul>
 
     </nav>
