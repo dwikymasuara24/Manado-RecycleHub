@@ -1051,6 +1051,21 @@ require_once __DIR__ . '/layout/header.php';
     margin-top: 0;
     margin-bottom: 16px;
 }
+@media (max-width: 768px) {
+    .grid-2 {
+        grid-template-columns: 1fr !important;
+    }
+    .preview-row-flex {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 4px !important;
+    }
+    .preview-row-flex > span {
+        text-align: left !important;
+        margin-left: 0 !important;
+        min-width: auto !important;
+    }
+}
 </style>
 
 <?php
@@ -1328,13 +1343,13 @@ async function previewRecord(id) {
                         <table style="width:100%; font-size:12px; border-collapse:collapse; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; margin-top:6px;">
                             <thead>
                                 <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
-                                    <th style="padding:8px 12px; text-align:left; font-weight:700; white-space:normal; line-height:1.2;">Kategori</th>
-                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:normal; line-height:1.2;">Estimasi (kg)</th>
-                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:normal; line-height:1.2;">Aktual (kg)</th>
-                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:normal; line-height:1.2;">Harga/kg</th>
-                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:normal; line-height:1.2;">Total</th>
-                                    <th style="padding:8px 12px; text-align:left; font-weight:700; white-space:normal; line-height:1.2;">Catatan</th>
-                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:normal; line-height:1.2;">Edit</th>
+                                    <th style="padding:8px 12px; text-align:left; font-weight:700; white-space:nowrap; line-height:1.2;">Kategori</th>
+                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:nowrap; line-height:1.2;">Estimasi (kg)</th>
+                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:nowrap; line-height:1.2;">Aktual (kg)</th>
+                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:nowrap; line-height:1.2;">Harga/kg</th>
+                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:nowrap; line-height:1.2;">Total</th>
+                                    <th style="padding:8px 12px; text-align:left; font-weight:700; white-space:nowrap; line-height:1.2;">Catatan</th>
+                                    <th style="padding:8px 12px; text-align:center; font-weight:700; white-space:nowrap; line-height:1.2;">Edit</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1412,25 +1427,25 @@ async function previewRecord(id) {
             let totalAktPrice = totalAkt * price;
 
             content.innerHTML = `
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                <div class="grid-2" style="margin-bottom:16px;">
                     
                     <!-- Kolom Kiri: Informasi Pemohon & Lokasi -->
                     <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:4px;">
                         <div style="font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin-bottom:10px; letter-spacing:0.5px;">👤 Informasi Pemohon</div>
                         
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Kode Request</span>
                             <span style="font-weight:900; color:#2e7d32; font-size:13px; text-align:right;">${data.request_code || '-'}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Nama Entitas</span>
                             <span style="font-weight:600; color:#1e293b; text-align:right;">${escapeHtml(data.nama_entitas || '-')}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Nama Pemohon</span>
                             <span style="font-weight:600; color:#1e293b; text-align:right;">${escapeHtml(data.nama_pemohon || '-')}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Nomor WA</span>
                             <span style="font-weight:600; color:#1e293b; text-align:right;">
                                 <a href="https://wa.me/${(data.nomor_wa || '').replace(/[^0-9]/g, '')}" target="_blank" style="color:#1976d2; text-decoration:none;">
@@ -1438,15 +1453,15 @@ async function previewRecord(id) {
                                 </a>
                             </span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Kecamatan</span>
                             <span style="font-weight:600; color:#1e293b; text-align:right;">${escapeHtml(data.kecamatan || '-')}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Kelurahan</span>
                             <span style="font-weight:600; color:#1e293b; text-align:right;">${escapeHtml(data.kelurahan || '-')}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Alamat Lengkap</span>
                             <span style="font-weight:600; color:#1e293b; text-align:right; flex:1; margin-left:12px; word-break:break-word;">${escapeHtml(data.alamat_jemput || '-')}</span>
                         </div>
@@ -1456,28 +1471,28 @@ async function previewRecord(id) {
                     <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:4px;">
                         <div style="font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin-bottom:10px; letter-spacing:0.5px;">⚙️ Layanan & Hasil Timbang</div>
                         
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Tipe Layanan</span>
                             <span style="font-weight:700; color:#1e293b; text-align:right;">${data.pickup_request_id ? '♻️ Pickup Daur Ulang' : '🧹 Clean Up Service'}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Status</span>
                             <span style="font-weight:700; color:#16a34a; text-align:right;">${escapeHtml(data.status ? data.status.toUpperCase() : '-')}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Petugas Lapangan</span>
                             <span style="font-weight:700; color:#1e293b; text-align:right;">${escapeHtml(data.officer_nama || '-')}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Berat Total</span>
                             <span style="font-weight:900; color:#b45309; font-size:13px; text-align:right;">${totalAkt.toFixed(2)} kg</span>
                         </div>
                         ${!isCleanup ? `
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Harga per Kg</span>
                             <span style="font-weight:700; color:#1e293b; text-align:right;">Rp ${price.toLocaleString('id-ID')}</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px;">
+                        <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Total Nilai</span>
                             <span style="font-weight:900; color:#16a34a; font-size:13px; text-align:right;">Rp ${totalAktPrice.toLocaleString('id-ID')}</span>
                         </div>

@@ -422,6 +422,16 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .empty-state{text-align:center;padding:48px 0;color:#94a3b8}
 .empty-state .es-icon{font-size:40px;margin-bottom:10px}
 .empty-state .es-text{font-weight:600;font-size:13px}
+@media (max-width: 768px) {
+  .preview-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+  .preview-row .pl {
+    min-width: auto !important;
+  }
+}
 </style>
 
 <div class="page-header">

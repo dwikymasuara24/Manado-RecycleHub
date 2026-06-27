@@ -443,7 +443,7 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 .items-section{margin-top:16px}
 .items-section-title{font-size:10px;font-weight:800;color:#64748b;margin-bottom:8px;letter-spacing:.6px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
 .items-table{width:100%;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0}
-.items-table thead th{background:#f1f5f9;padding:9px 12px;text-align:left;color:#64748b;font-size:10px;font-weight:800;letter-spacing:.5px;border-bottom:2px solid #e2e8f0;white-space:normal;line-height:1.2}
+.items-table thead th{background:#f1f5f9;padding:9px 12px;text-align:left;color:#64748b;font-size:10px;font-weight:800;letter-spacing:.5px;border-bottom:2px solid #e2e8f0;white-space:nowrap;line-height:1.2}
 .items-table thead th:not(:first-child){text-align:center}
 .items-table tbody tr{border-bottom:1px solid #f1f5f9;transition:background .15s}
 .items-table tbody tr:last-child{border-bottom:none}
@@ -563,11 +563,20 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 /* ═══════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════ */
-@media(max-width:700px){
+@media(max-width:768px){
   .form-row{grid-template-columns:1fr}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
-  thead th:nth-child(3),tbody td:nth-child(3),
-  thead th:nth-child(5),tbody td:nth-child(5){display:none}
+  #modalPreview .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+  .preview-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+  .preview-row .pl {
+    min-width: auto !important;
+  }
 }
 </style>
 
@@ -1135,7 +1144,7 @@ function renderRow(array $r, bool $isDone = false): string {
           : '<span style="color:#cbd5e1;font-style:italic;font-size:12px">Belum ditugaskan</span>';
       ?>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+      <div class="grid-2" style="margin-bottom: 16px;">
         
         <!-- Kolom Kiri: Informasi Pemohon & Lokasi -->
         <div>

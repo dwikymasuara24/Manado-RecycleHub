@@ -612,6 +612,26 @@ require_once __DIR__ . '/layout/header.php';
     font-size: 10px;
     font-weight: 700;
 }
+.grid-span-2 { grid-column: span 2; }
+@media (max-width: 768px) {
+    .modal-body.grid-2 {
+        grid-template-columns: 1fr !important;
+    }
+    .grid-span-2 {
+        grid-column: span 1 !important;
+    }
+    .doc-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .pv-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 4px !important;
+    }
+    .pv-lbl {
+        min-width: auto !important;
+    }
+}
 </style>
 <div class="modal-overlay" style="display:flex">
     <div class="modal" style="max-width:1100px; width:95%">
@@ -619,7 +639,7 @@ require_once __DIR__ . '/layout/header.php';
             <h3>👁️ Detail Request: <?= htmlspecialchars($previewData['request_code']) ?></h3>
             <a href="cleanup_management.php" class="modal-close">✕</a>
         </div>
-        <div class="modal-body" style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="modal-body grid-2" style="gap: 16px;">
             
             <div>
                 <div class="preview-card">
@@ -662,7 +682,7 @@ require_once __DIR__ . '/layout/header.php';
             </div>
 
             <!-- Dokumentasi Foto Grid Spanned Full Width -->
-            <div class="preview-card" style="grid-column: span 2; margin-bottom: 0;">
+            <div class="preview-card grid-span-2" style="margin-bottom: 0;">
                 <div class="preview-title">📸 Dokumentasi Layanan</div>
                 <div class="doc-grid">
                     <!-- Card 1: Foto Lokasi -->
