@@ -1,1 +1,6 @@
-// Cleaned up
+ID=1, nama=Super Admin MRH, email=admin@manadurecyclehub.id, role=1
+ID=2, nama=Demo Warga, email=warga.demo@manadorecyclehub.id, role=3
+ID=3, nama=Jeksen, email=jeksen@mail.com, role=2
+ID=4, nama=Jeksen2, email=jeksen2@mail.com, role=1
+ID=5, nama=Esa Massing, email=esa@gmail.com, role=1
+ID=6, nama=Regina Sepang, email=egisepang@gmail.com, role=2

@@ -84,52 +84,10 @@
 
 <!-- ══ SHARED JAVASCRIPT ══ -->
 <script>
-const OFFICER_ID = <?= $officerId ?? 0 ?>;
-const DEPOT_LAT  = <?= defined('DEPOT_LAT') ? DEPOT_LAT : 1.476362 ?>;
-const DEPOT_LNG  = <?= defined('DEPOT_LNG') ? DEPOT_LNG : 124.832498 ?>;
+var OFFICER_ID = <?= $officerId ?? 0 ?>;
+var DEPOT_LAT  = <?= defined('DEPOT_LAT') ? DEPOT_LAT : 1.476362 ?>;
+var DEPOT_LNG  = <?= defined('DEPOT_LNG') ? DEPOT_LNG : 124.832498 ?>;
 
-// ── Sidebar ────────────────────────────────────────────────────
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('open'); }
-function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('open'); }
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSidebar(); });
-
-const SIDEBAR_COLLAPSED_KEY = 'mrh_officer_sidebar_collapsed';
-function toggleSidebarCollapse() {
-  const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
-  try { localStorage.setItem(SIDEBAR_COLLAPSED_KEY, isCollapsed ? '1' : '0'); } catch(e) {}
-}
-
-// ── Collapsible Nav Groups ──
-const NAV_STATE_KEY = 'mrh_officer_nav_state';
-function toggleNavGroup(groupId) {
-  const group = document.getElementById(groupId);
-  if (!group) return;
-  group.classList.toggle('collapsed');
-  saveNavState();
-}
-function saveNavState() {
-  const state = {};
-  document.querySelectorAll('.nav-group').forEach(g => { state[g.id] = g.classList.contains('collapsed'); });
-  try { localStorage.setItem(NAV_STATE_KEY, JSON.stringify(state)); } catch(e) {}
-}
-function restoreNavState() {
-  let state = {};
-  try { state = JSON.parse(localStorage.getItem(NAV_STATE_KEY) || '{}'); } catch(e) {}
-  const activeLink = document.querySelector('.nav-group-items .nav-item.active');
-  let activeGroupId = null;
-  if (activeLink) {
-    const parentGroup = activeLink.closest('.nav-group');
-    if (parentGroup) activeGroupId = parentGroup.id;
-  }
-  document.querySelectorAll('.nav-group').forEach(g => {
-    if (g.id === activeGroupId) {
-      g.classList.remove('collapsed');
-    } else if (state[g.id] === true) {
-      g.classList.add('collapsed');
-    }
-  });
-}
-document.addEventListener('DOMContentLoaded', restoreNavState);
 
 // ── Toast ──────────────────────────────────────────────────────
 function showToast(type, msg){
@@ -321,22 +279,39 @@ async function submitKendala(){
   }catch(e){showToast('danger','Error: '+e.message);}
 }
 
-// ── GPS Tracking ───────────────────────────────────────────────
-let myLatLng=null, gpsLastSent=0;
+// ── GPS Tracking & Heartbeat ───────────────────────────────────
+let myLatLng = null;
+
+function sendHeartbeat() {
+  const fd = new FormData();
+  fd.append('ajax', 'update_location');
+  if (myLatLng && myLatLng.lat && myLatLng.lng) {
+    fd.append('lat', myLatLng.lat);
+    fd.append('lng', myLatLng.lng);
+  }
+  fetch('api.php?oid=' + OFFICER_ID, { method: 'POST', body: fd })
+    .catch(err => console.log("Heartbeat error:", err));
+}
+
 function startGPS(){
+  // Kirim heartbeat pertama kali halaman dimuat
+  sendHeartbeat();
+  
+  // Kirim heartbeat setiap 30 detik untuk menjaga status tetap online/aktif
+  setInterval(sendHeartbeat, 30000);
+
   if(!navigator.geolocation) return;
   navigator.geolocation.watchPosition(pos=>{
     myLatLng={lat:pos.coords.latitude,lng:pos.coords.longitude};
     const dot=document.getElementById('gpsDot');
     if(dot) dot.style.background='#4ade80';
-    if(Date.now()-gpsLastSent>60000){
-      gpsLastSent=Date.now();
-      const fd=new FormData(); fd.append('ajax','update_location'); fd.append('lat',myLatLng.lat); fd.append('lng',myLatLng.lng);
-      fetch('api.php?oid='+OFFICER_ID,{method:'POST',body:fd});
-    }
-  },()=>{const dot=document.getElementById('gpsDot'); if(dot) dot.style.background='#f59e0b';},{enableHighAccuracy:true,maximumAge:30000,timeout:10000});
+  },()=>{
+    const dot=document.getElementById('gpsDot'); 
+    if(dot) dot.style.background='#f59e0b';
+  },{enableHighAccuracy:true,maximumAge:30000,timeout:10000});
 }
 startGPS();
+
 
 // ── PWA Service Worker Registration ────────────────────────────
 if ('serviceWorker' in navigator) {

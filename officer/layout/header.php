@@ -20,6 +20,11 @@ if (!$officerId) {
         if ($officerId) $_SESSION['officer_id'] = $officerId;
     }
     if (!$officerId) { session_destroy(); header('Location: '.baseUrl('login.php')); exit; }
+    
+    // Update last_seen_at immediately when officer opens any page
+    try {
+        $db->prepare("UPDATE officers SET last_seen_at = NOW() WHERE id = ?")->execute([$officerId]);
+    } catch (Exception $e) {}
 }
 
 // ── Shared data (tersedia di semua halaman officer) ───────────
@@ -106,7 +111,7 @@ a{text-decoration:none;color:inherit}
 .sidebar{
   position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
   background:var(--dark);display:flex;flex-direction:column;
-  overflow-y:auto;z-index:200;
+  overflow-y:auto;z-index:1200;
   transition:width .35s var(--spring-transit), transform .35s var(--spring-transit);
 }
 .sidebar-brand{
@@ -194,7 +199,7 @@ a{text-decoration:none;color:inherit}
 
 /* ── TOPBAR ── */
 .topbar{
-  position:fixed;top:0;left:var(--sidebar-w);right:0;height:58px;z-index:100;
+  position:fixed;top:0;left:var(--sidebar-w);right:0;height:58px;z-index:1000;
   background:#fff;border-bottom:1px solid #e5e7eb;
   display:flex;align-items:center;padding:0 24px;gap:16px;box-shadow:var(--shadow);
   transition:left .35s var(--spring-transit);
@@ -206,7 +211,7 @@ a{text-decoration:none;color:inherit}
 .hamburger span{width:22px;height:2px;background:#333;border-radius:2px}
 .topbar-title{font-size:16px;font-weight:700;color:#1c1c1c;flex:1}
 .topbar-sub{font-size:11px;color:#888;font-family:var(--ui)}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100}
 .sidebar-overlay.open{display:block}
 
 /* ── MAIN ── */
@@ -215,6 +220,7 @@ a{text-decoration:none;color:inherit}
   transition:margin-left .35s var(--spring-transit);
   /* React-style page transition */
   animation: pageFadeIn 0.5s var(--smooth-transit) both;
+  min-width: 0;
 }
 .page-header{margin-bottom:20px}
 .page-header h1{font-size:20px;font-weight:700;color:#1c1c1c}
@@ -227,7 +233,9 @@ a{text-decoration:none;color:inherit}
 
 /* ── CARD ── */
 .card{
-  background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px;overflow:hidden;
+  background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px;
+  max-width: 100%;
+  overflow-x: auto;
   transition:transform .25s var(--spring-transit), box-shadow .25s ease;
 }
 .card:hover {
@@ -310,7 +318,7 @@ textarea.form-input{resize:vertical;min-height:72px}
 .badge-blue{background:#dbeafe;color:#1e40af}
 
 /* ── TABLE ── */
-.table-wrap{overflow-x:auto}
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--ui)}
 thead th{padding:9px 10px;text-align:left;font-weight:700;color:#888;border-bottom:2px solid #f0f0f0;white-space:nowrap;text-transform:uppercase;font-size:10px;letter-spacing:.04em}
 tbody td{padding:9px 10px;border-bottom:1px solid #f5f5f5;vertical-align:middle;transition:background-color .15s}
@@ -319,7 +327,7 @@ tbody tr:hover{background:#fafafa;transform:scale(1.002)}
 
 /* ── MODAL ── */
 .modal-backdrop{
-  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-end;
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1300;display:none;align-items:flex-end;
   backdrop-filter:blur(2px);transition:opacity .3s var(--smooth-transit);
 }
 .modal-backdrop.open{display:flex}
@@ -489,7 +497,7 @@ body.sidebar-collapsed {
 body.sidebar-collapsed .sidebar-brand div,
 body.sidebar-collapsed .officer-pill .info,
 body.sidebar-collapsed .officer-pill .gps-dot,
-body.sidebar-collapsed .nav-section-label,
+body.sidebar-collapsed .nav-group-header,
 body.sidebar-collapsed .nav-text,
 body.sidebar-collapsed .nav-badge {
   display: none !important;
@@ -503,12 +511,20 @@ body.sidebar-collapsed .officer-pill {
   margin: 14px 4px 0;
   padding: 8px;
 }
-body.sidebar-collapsed .nav-section {
-  padding: 16px 4px 4px;
+body.sidebar-collapsed .nav-group {
+  padding: 0 4px;
+}
+body.sidebar-collapsed .nav-group-items {
+  max-height: 500px;
+  opacity: 1;
 }
 body.sidebar-collapsed .nav-item {
   justify-content: center;
   padding: 12px 0;
+}
+body.sidebar-collapsed .nav-item:hover {
+  padding-left: 0 !important;
+  transform: none !important;
 }
 body.sidebar-collapsed .sidebar-footer {
   padding: 16px 4px;
@@ -522,6 +538,15 @@ body.sidebar-collapsed .sidebar-toggle-icon {
   body.sidebar-collapsed {
     --sidebar-w: 260px;
   }
+  body.sidebar-collapsed .sidebar-brand div { display: block !important; }
+  body.sidebar-collapsed .officer-pill .info { display: block !important; }
+  body.sidebar-collapsed .officer-pill .gps-dot { display: block !important; }
+  body.sidebar-collapsed .nav-group-header { display: flex !important; }
+  body.sidebar-collapsed .nav-text { display: inline-block !important; }
+  body.sidebar-collapsed .nav-badge { display: inline-block !important; }
+  body.sidebar-collapsed .nav-group { padding: 0 10px !important; }
+  body.sidebar-collapsed .nav-item { justify-content: flex-start !important; padding: 10px 12px !important; }
+  body.sidebar-collapsed .nav-item:hover { padding-left: 16px !important; transform: translateX(2px) !important; }
   .btn-sidebar-toggle {
     display: none !important;
   }
@@ -530,17 +555,72 @@ body.sidebar-collapsed .sidebar-toggle-icon {
   .topbar{left:0}
   .main-wrap{margin-left:0}
   .hamburger{display:flex}
-  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .stats-row{grid-template-columns:1fr}
 }
 </style>
 <script>
+// ── Sidebar Collapse & Nav State Restorer (Early Execution) ──
+const SIDEBAR_COLLAPSED_KEY = 'mrh_officer_sidebar_collapsed';
+const NAV_STATE_KEY = 'mrh_officer_nav_state';
+
 (function() {
   try {
-    if (localStorage.getItem('mrh_officer_sidebar_collapsed') === '1' && window.innerWidth > 768) {
+    if (localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1' && window.innerWidth > 768) {
       document.body.classList.add('sidebar-collapsed');
     }
   } catch(e) {}
 })();
+
+function toggleSidebarCollapse() {
+  const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem(SIDEBAR_COLLAPSED_KEY, isCollapsed ? '1' : '0'); } catch(e) {}
+  
+  // Recalculate map container size if map exists
+  if (typeof mapInstance !== 'undefined' && mapInstance) {
+    setTimeout(() => {
+      if (typeof mapInstance.invalidateSize === 'function') {
+        mapInstance.invalidateSize();
+      } else if (typeof google !== 'undefined' && google.maps && typeof google.maps.event !== 'undefined') {
+        google.maps.event.trigger(mapInstance, 'resize');
+      }
+    }, 400); // 400ms matches the transition duration
+  }
+}
+
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('open'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('open'); }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSidebar(); });
+
+// ── Collapsible Nav Groups ──
+function toggleNavGroup(groupId) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.classList.toggle('collapsed');
+  saveNavState();
+}
+function saveNavState() {
+  const state = {};
+  document.querySelectorAll('.nav-group').forEach(g => { state[g.id] = g.classList.contains('collapsed'); });
+  try { localStorage.setItem(NAV_STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+function restoreNavState() {
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(NAV_STATE_KEY) || '{}'); } catch(e) {}
+  const activeLink = document.querySelector('.nav-group-items .nav-item.active');
+  let activeGroupId = null;
+  if (activeLink) {
+    const parentGroup = activeLink.closest('.nav-group');
+    if (parentGroup) activeGroupId = parentGroup.id;
+  }
+  document.querySelectorAll('.nav-group').forEach(g => {
+    if (g.id === activeGroupId) {
+      g.classList.remove('collapsed');
+    } else if (state[g.id] === true) {
+      g.classList.add('collapsed');
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', restoreNavState);
 </script>
 </head>
 <body>

@@ -86,11 +86,15 @@ if ($action === 'update_status') {
 
 // ── Update lokasi GPS ─────────────────────────────────────────
 if ($action === 'update_location') {
-    $lat = (float)($_POST['lat'] ?? 0);
-    $lng = (float)($_POST['lng'] ?? 0);
-    if ($lat && $lng) {
-        try { $db->prepare("UPDATE officers SET last_lat=?,last_lng=?,last_seen_at=NOW() WHERE id=?")->execute([$lat,$lng,$officerId]); } catch(Exception $e){}
-    }
+    $lat = isset($_POST['lat']) && $_POST['lat'] !== '' ? (float)$_POST['lat'] : null;
+    $lng = isset($_POST['lng']) && $_POST['lng'] !== '' ? (float)$_POST['lng'] : null;
+    try {
+        if ($lat && $lng) {
+            $db->prepare("UPDATE officers SET last_lat=?, last_lng=?, last_seen_at=NOW() WHERE id=?")->execute([$lat, $lng, $officerId]);
+        } else {
+            $db->prepare("UPDATE officers SET last_seen_at=NOW() WHERE id=?")->execute([$officerId]);
+        }
+    } catch(Exception $e){}
     echo json_encode(['ok'=>true]); exit;
 }
 

@@ -99,8 +99,8 @@ $geoCount = count(array_filter($mapTasks, fn($t)=>floatval($t['latitude']) != 0 
 
 <script>
 // Data tugas untuk peta
-const DEPOT_LAT = <?= DEPOT_LAT ?>;
-const DEPOT_LNG = <?= DEPOT_LNG ?>;
+var DEPOT_LAT = <?= DEPOT_LAT ?>;
+var DEPOT_LNG = <?= DEPOT_LNG ?>;
 const MAP_TASKS = <?= json_encode($mapTasks, JSON_UNESCAPED_UNICODE) ?>;
 const DB_ROUTE  = [];
 const gmapsActive = false;
@@ -117,7 +117,15 @@ function initMap() {
   if (gmapsActive && typeof google !== 'undefined' && google.maps) {
     initGoogleMap();
   } else {
-    initLeafletMap();
+    if (typeof L !== 'undefined') {
+      initLeafletMap();
+    } else {
+      console.error("Leaflet library not loaded.");
+      const mapEl = document.getElementById('officerMap');
+      if (mapEl) {
+        mapEl.innerHTML = '<div style="padding:20px;color:#ef4444;font-weight:bold;text-align:center;">Gagal memuat peta: pustaka Leaflet tidak tersedia.</div>';
+      }
+    }
   }
 }
 
@@ -149,7 +157,7 @@ function initGoogleMap() {
   });
 
   // Plot Task Markers
-  const geoT = MAP_TASKS.filter(t => parseFloat(t.latitude) !== 0 && parseFloat(t.longitude) !== 0);
+  const geoT = MAP_TASKS.filter(t => t.latitude && t.longitude && !isNaN(parseFloat(t.latitude)) && !isNaN(parseFloat(t.longitude)) && parseFloat(t.latitude) !== 0 && parseFloat(t.longitude) !== 0);
   geoT.forEach((t, i) => {
     const lat = parseFloat(t.latitude);
     const lng = parseFloat(t.longitude);
@@ -217,7 +225,7 @@ function initLeafletMap() {
     .bindPopup('<strong style="color:#1c6434">🏭 Depot MRH</strong>');
 
   // Task markers
-  const geoT = MAP_TASKS.filter(t => parseFloat(t.latitude) !== 0 && parseFloat(t.longitude) !== 0);
+  const geoT = MAP_TASKS.filter(t => t.latitude && t.longitude && !isNaN(parseFloat(t.latitude)) && !isNaN(parseFloat(t.longitude)) && parseFloat(t.latitude) !== 0 && parseFloat(t.longitude) !== 0);
   geoT.forEach((t, i) => {
     const pinColor = t.tipe_layanan === 'cleanup' ? '#f59e0b' : '#3b82f6';
     const icon = L.divIcon({
@@ -340,7 +348,7 @@ function centerOnMe() {
 
 function fitAllTasks() {
   if (!mapInstance) return;
-  const geo = MAP_TASKS.filter(t => t.latitude && t.longitude);
+  const geo = MAP_TASKS.filter(t => t.latitude && t.longitude && !isNaN(parseFloat(t.latitude)) && !isNaN(parseFloat(t.longitude)) && parseFloat(t.latitude) !== 0 && parseFloat(t.longitude) !== 0);
   
   if (gmapsActive) {
     const bounds = new google.maps.LatLngBounds();
@@ -455,7 +463,7 @@ function drawLeafletRoute(waypoints) {
 }
 
 function calcRouteNN() {
-  const geo = MAP_TASKS.filter(t => t.latitude && t.longitude);
+  const geo = MAP_TASKS.filter(t => t.latitude && t.longitude && !isNaN(parseFloat(t.latitude)) && !isNaN(parseFloat(t.longitude)) && parseFloat(t.latitude) !== 0 && parseFloat(t.longitude) !== 0);
   if (!geo.length) {
     showToast('danger', 'Tidak ada titik GPS');
     return;
@@ -516,7 +524,7 @@ function openGoogleMapsTraffic() {
   } else if (DB_ROUTE && DB_ROUTE.length > 0) {
     routeToUse = DB_ROUTE.map(r => ({ lat: parseFloat(r.latitude), lng: parseFloat(r.longitude) }));
   } else {
-    const geo = MAP_TASKS.filter(t => t.latitude && t.longitude);
+    const geo = MAP_TASKS.filter(t => t.latitude && t.longitude && !isNaN(parseFloat(t.latitude)) && !isNaN(parseFloat(t.longitude)) && parseFloat(t.latitude) !== 0 && parseFloat(t.longitude) !== 0);
     if (geo.length > 0) {
       routeToUse = [{ lat: DEPOT_LAT, lng: DEPOT_LNG }, ...geo.map(t => ({ lat: parseFloat(t.latitude), lng: parseFloat(t.longitude) })), { lat: DEPOT_LAT, lng: DEPOT_LNG }];
     }
@@ -534,7 +542,11 @@ function openGoogleMapsTraffic() {
   window.open(mapsUrl, '_blank');
 }
 
-window.addEventListener('load', initMap);
+if (document.readyState === 'complete') {
+  initMap();
+} else {
+  window.addEventListener('load', initMap);
+}
 </script>
 
 <?php require_once __DIR__ . '/layout/footer.php'; ?>

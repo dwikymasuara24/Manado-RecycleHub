@@ -199,6 +199,7 @@ try {
       transition:margin-left .35s var(--spring-transit);
       /* React-style entry fade transition */
       animation: pageFadeIn 0.5s var(--smooth-transit) both;
+      min-width: 0;
     }
 
     /* ── Centered Flash Notification Overlay Style ── */
@@ -275,6 +276,8 @@ try {
     .card { 
       background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:16px; 
       transition: transform .25s var(--spring-transit), box-shadow .25s ease;
+      max-width: 100%;
+      overflow-x: auto;
     }
     .card:hover {
       transform: translateY(-2px);
@@ -334,7 +337,7 @@ try {
     .badge-orange { background:#ffedd5; color:#9a3412; }
     .badge-gray   { background:#f3f4f6; color:#374151; }
 
-    .table-wrap { overflow-x:auto; }
+    .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
     table { width:100%; border-collapse:collapse; font-size:12px; }
     thead th { padding:10px 12px; text-align:left; font-weight:700; color:#888; border-bottom:2px solid #f0f0f0; white-space:nowrap; text-transform:uppercase; font-size:10px; letter-spacing:.05em; }
     tbody td { padding:10px 12px; border-bottom:1px solid #f5f5f5; vertical-align:middle; transition: background-color .15s; }
@@ -545,7 +548,7 @@ try {
       .main-wrap { margin-left:0; }
       .hamburger { display:block; }
       .grid-2, .grid-3, .form-row { grid-template-columns:1fr; }
-      .stats-grid { grid-template-columns:1fr 1fr; }
+      .stats-grid { grid-template-columns:1fr; }
     }
   </style>
 </head>

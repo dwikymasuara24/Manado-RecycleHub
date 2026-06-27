@@ -18,13 +18,7 @@ if (isset($_GET['ajax_action']) && $_GET['ajax_action'] === 'get_live_location')
     $type = $_GET['type'] ?? 'cleanup';
     $canSeeLiveLocation = isLoggedIn() && in_array(currentUserRole() ?? '', ['admin', 'officer'], true);
     if ($id) {
-        if (!$canSeeLiveLocation) {
-            if ($type === 'daur_ulang') {
-                $stmt = $pdo->prepare("SELECT pr.status, pr.latitude, pr.longitude, NULL AS officer_nama, NULL AS last_lat, NULL AS last_lng, NULL AS last_seen_at FROM pickup_requests pr WHERE pr.id = ?");
-            } else {
-                $stmt = $pdo->prepare("SELECT cr.status, cr.latitude, cr.longitude, NULL AS officer_nama, NULL AS last_lat, NULL AS last_lng, NULL AS last_seen_at FROM cleanup_requests cr WHERE cr.id = ?");
-            }
-        } elseif ($type === 'daur_ulang') {
+        if ($type === 'daur_ulang') {
             $stmt = $pdo->prepare("
                 SELECT pr.status, pr.latitude, pr.longitude,
                        o.nama AS officer_nama, o.last_lat, o.last_lng, o.last_seen_at
@@ -44,6 +38,16 @@ if (isset($_GET['ajax_action']) && $_GET['ajax_action'] === 'get_live_location')
         $stmt->execute([$id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($data) {
+            // Jika bukan admin/petugas, pastikan status tugas sedang aktif agar bisa dilacak oleh warga/mitra
+            if (!$canSeeLiveLocation) {
+                $allowedStatus = ['dalam_perjalanan', 'sedang_diproses', 'sedang_cleanup'];
+                if (!in_array($data['status'], $allowedStatus, true)) {
+                    $data['officer_nama'] = null;
+                    $data['last_lat'] = null;
+                    $data['last_lng'] = null;
+                    $data['last_seen_at'] = null;
+                }
+            }
             echo json_encode(['ok' => true, 'data' => $data]);
             exit;
         }
@@ -1570,9 +1574,55 @@ window.initGoogleMap = function() {
         setStatus('found', '✅', 'Lokasi diperbarui.');
     });
 
+    function getIPLocationFallback(successCallback, errorCallback) {
+        setStatus('detecting', '⏳', 'Mencoba deteksi lokasi alternatif via IP…');
+        fetch('https://ipapi.co/json/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data && data.latitude && data.longitude) {
+                    successCallback(data.latitude, data.longitude, 'IP-based (Estimasi)');
+                } else {
+                    throw new Error('Invalid data');
+                }
+            })
+            .catch(function() {
+                fetch('https://ipinfo.io/json')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data && data.loc) {
+                            var parts = data.loc.split(',');
+                            var lat = parseFloat(parts[0]);
+                            var lng = parseFloat(parts[1]);
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                successCallback(lat, lng, 'IP-based (Estimasi)');
+                            } else {
+                                throw new Error('Invalid format');
+                            }
+                        } else {
+                            throw new Error('Invalid data');
+                        }
+                    })
+                    .catch(function(e) {
+                        errorCallback(e);
+                    });
+            });
+    }
+
     if (btnGPS) btnGPS.addEventListener('click', function() {
         if (!navigator.geolocation) {
-            setStatus('denied', '🚫', 'Browser tidak mendukung GPS. Pilih dari peta.');
+            getIPLocationFallback(function(lat, lng, source) {
+                setCoords(lat, lng, 0);
+                var latLng = new google.maps.LatLng(lat, lng);
+                marker.setPosition(latLng);
+                map.setCenter(latLng);
+                map.setZoom(15);
+                setStatus('found', '✅', 'Lokasi terdeteksi via IP (Estimasi)!');
+                renderCoords(lat, lng, source);
+                setLoading(false, 'ok');
+            }, function(err) {
+                setLoading(false, 'fail');
+                setStatus('denied', '🚫', 'Browser tidak mendukung GPS & gagal deteksi IP. Pilih dari peta.');
+            });
             return;
         }
         setLoading(true);
@@ -1588,10 +1638,21 @@ window.initGoogleMap = function() {
             renderCoords(lat, lng, '±' + acc + ' m');
             setLoading(false, 'ok');
         }, function(err) {
-            setLoading(false, 'fail');
-            var msgs = {1:'Akses lokasi ditolak.', 2:'Posisi tidak tersedia.', 3:'Waktu habis — coba lagi.'};
-            setStatus('gpsfail', '⚠️', (msgs[err.code] || 'GPS error.') + ' Pilih lokasi dari peta.');
-        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+            getIPLocationFallback(function(lat, lng, source) {
+                setCoords(lat, lng, 0);
+                var latLng = new google.maps.LatLng(lat, lng);
+                marker.setPosition(latLng);
+                map.setCenter(latLng);
+                map.setZoom(15);
+                setStatus('found', '✅', 'Lokasi terdeteksi via IP (Estimasi)!');
+                renderCoords(lat, lng, source);
+                setLoading(false, 'ok');
+            }, function() {
+                setLoading(false, 'fail');
+                var msgs = {1:'Akses lokasi ditolak.', 2:'Posisi tidak tersedia.', 3:'Waktu habis — coba lagi.'};
+                setStatus('gpsfail', '⚠️', (msgs[err.code] || 'GPS error.') + ' Pilih lokasi dari peta.');
+            });
+        }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
     });
 
     function setCoords(lat, lng, manual) {
@@ -1688,6 +1749,40 @@ window.initLeafletMapFallback = function() {
         setStatus('found', '✅', 'Lokasi diperbarui.');
     });
 
+    function getIPLocationFallback(successCallback, errorCallback) {
+        setStatus('detecting', '⏳', 'Mencoba deteksi lokasi alternatif via IP…');
+        fetch('https://ipapi.co/json/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data && data.latitude && data.longitude) {
+                    successCallback(data.latitude, data.longitude, 'IP-based (Estimasi)');
+                } else {
+                    throw new Error('Invalid data');
+                }
+            })
+            .catch(function() {
+                fetch('https://ipinfo.io/json')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data && data.loc) {
+                            var parts = data.loc.split(',');
+                            var lat = parseFloat(parts[0]);
+                            var lng = parseFloat(parts[1]);
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                successCallback(lat, lng, 'IP-based (Estimasi)');
+                            } else {
+                                throw new Error('Invalid format');
+                            }
+                        } else {
+                            throw new Error('Invalid data');
+                        }
+                    })
+                    .catch(function(e) {
+                        errorCallback(e);
+                    });
+            });
+    }
+
     if (btnGPS) {
         var newBtnGPS = btnGPS.cloneNode(true);
         btnGPS.parentNode.replaceChild(newBtnGPS, btnGPS);
@@ -1695,7 +1790,17 @@ window.initLeafletMapFallback = function() {
         
         btnGPS.addEventListener('click', function() {
             if (!navigator.geolocation) {
-                setStatus('denied', '🚫', 'Browser tidak mendukung GPS. Pilih dari peta.');
+                getIPLocationFallback(function(lat, lng, source) {
+                    setCoords(lat, lng, 0);
+                    marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 15);
+                    setStatus('found', '✅', 'Lokasi terdeteksi via IP (Estimasi)!');
+                    renderCoords(lat, lng, source);
+                    setLoading(false, 'ok');
+                }, function(err) {
+                    setLoading(false, 'fail');
+                    setStatus('denied', '🚫', 'Browser tidak mendukung GPS & gagal deteksi IP. Pilih dari peta.');
+                });
                 return;
             }
             setLoading(true);
@@ -1709,10 +1814,19 @@ window.initLeafletMapFallback = function() {
                 renderCoords(lat, lng, '±' + acc + ' m');
                 setLoading(false, 'ok');
             }, function(err) {
-                setLoading(false, 'fail');
-                var msgs = {1:'Akses lokasi ditolak.', 2:'Posisi tidak tersedia.', 3:'Waktu habis — coba lagi.'};
-                setStatus('gpsfail', '⚠️', (msgs[err.code] || 'GPS error.') + ' Pilih lokasi dari peta.');
-            }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+                getIPLocationFallback(function(lat, lng, source) {
+                    setCoords(lat, lng, 0);
+                    marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 15);
+                    setStatus('found', '✅', 'Lokasi terdeteksi via IP (Estimasi)!');
+                    renderCoords(lat, lng, source);
+                    setLoading(false, 'ok');
+                }, function() {
+                    setLoading(false, 'fail');
+                    var msgs = {1:'Akses lokasi ditolak.', 2:'Posisi tidak tersedia.', 3:'Waktu habis — coba lagi.'};
+                    setStatus('gpsfail', '⚠️', (msgs[err.code] || 'GPS error.') + ' Pilih lokasi dari peta.');
+                });
+            }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
         });
     }
 
@@ -2000,6 +2114,7 @@ setTimeout(function() {
             .bindPopup('<b>Lokasi Anda</b>').openPopup();
 
         var officerMarker = null;
+        var routeLine = null;
 
         function updateLiveLocation() {
             var url = (reqType === 'cleanup' ? 'cleanup_service.php' : 'daur_ulang.php') + '?ajax_action=get_live_location&id=' + reqId + '&type=' + reqType;
@@ -2026,6 +2141,17 @@ setTimeout(function() {
                             } else {
                                 officerMarker.setLatLng(oPos);
                             }
+
+                            // Gambarkan garis rute/koneksi antara petugas dengan lokasi penjemputan warga
+                            if (routeLine) {
+                                map.removeLayer(routeLine);
+                            }
+                            routeLine = L.polyline([oPos, [custLat, custLng]], {
+                                color: '#1c6434',
+                                weight: 4,
+                                opacity: 0.8,
+                                dashArray: '8, 8'
+                            }).addTo(map);
 
                             var bounds = L.latLngBounds([custMarker.getLatLng(), officerMarker.getLatLng()]);
                             map.fitBounds(bounds, { padding: [40, 40] });
