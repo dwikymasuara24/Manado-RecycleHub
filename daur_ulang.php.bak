@@ -1,0 +1,1361 @@
+<?php
+// ============================================================
+//  daur_ulang_form.php — Form Permintaan Jemput Sampah
+//  Manado Recycle Hub — User Console
+//  Sinkron penuh dengan admin req_management.php
+//  Kolom berat: berat_total_kg (DECIMAL) — tampil langsung di admin
+//  v3: Koordinat GPS tanpa alamat terformat / reverse geocode
+// ============================================================
+require_once __DIR__ . '/include/config.php';
+// Manado Recycle Hub - Daur Ulang Sekarang
+$pageTitle = "Manado Recycle Hub - Daur Ulang Sekarang";
+$siteTitle = "Manado Recycle Hub";
+
+// ── Koneksi Database ─────────────────────────────────────────
+try {
+    $pdo = new PDO('mysql:host=localhost;dbname=hub;charset=utf8mb4', 'root', '', [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+    ]);
+} catch (PDOException $e) {
+    die('Database connection failed: ' . $e->getMessage());
+}
+
+
+// ── Auto-migrasi: pastikan semua kolom ada ───────────────────
+$migrationQueries = [
+    "ALTER TABLE pickup_requests ADD COLUMN kecamatan        VARCHAR(100)   NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN kelurahan        VARCHAR(100)   NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN alamat_jemput    TEXT           NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN berat_total_kg   DECIMAL(10,2)  NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN berat_kg         VARCHAR(50)    NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN tanggal_jemput   DATE           NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN jam_jemput       TIME           NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN catatan          TEXT           NULL",
+    // ── Fields based on Excel Upload ──────────────────────────
+    "ALTER TABLE pickup_requests ADD COLUMN place_name       VARCHAR(255)   NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN place_type       VARCHAR(100)   NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN partner_name     VARCHAR(255)   NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN pickup_type      VARCHAR(50)    NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN service_type     VARCHAR(50)    NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN price_per_kg     DECIMAL(10,2)  NULL",
+    // ── GPS Koordinat ────────────────────────────────────────
+    "ALTER TABLE pickup_requests ADD COLUMN latitude         DECIMAL(10,8)  NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN longitude        DECIMAL(11,8)  NULL",
+    "ALTER TABLE pickup_requests ADD COLUMN koordinat_manual TINYINT(1)     NOT NULL DEFAULT 0",
+    // Pastikan pickup_request_items punya kolom yang dibutuhkan admin preview
+    "ALTER TABLE pickup_request_items ADD COLUMN estimasi_kg DECIMAL(10,2)  NULL",
+    "ALTER TABLE pickup_request_items ADD COLUMN aktual_kg   DECIMAL(10,2)  NULL",
+    "ALTER TABLE pickup_request_items ADD COLUMN catatan     TEXT           NULL",
+];
+foreach ($migrationQueries as $mq) {
+    try { $pdo->exec($mq); } catch (PDOException $e) {
+        if (strpos($e->getMessage(), '1060') === false) {
+            error_log('[MRH Migration] ' . $e->getMessage());
+        }
+    }
+}
+
+// ── Load kategori aktif dari DB ───────────────────────────────
+$dbCategories = $pdo->query(
+    "SELECT kode, name AS label, ikon_emoji AS icon FROM waste_categories WHERE is_active = 1 ORDER BY id ASC"
+)->fetchAll();
+
+$barang_options = [];
+foreach ($dbCategories as $cat) {
+    $barang_options[$cat['kode']] = [
+        'label' => $cat['label'],
+        'icon'  => $cat['icon'],
+    ];
+}
+if (empty($barang_options)) {
+    $barang_options = [
+        'kertas_hvs'      => ['label' => 'Kertas HVS',     'icon' => '📄'],
+        'kardus'          => ['label' => 'Kardus',          'icon' => '📦'],
+        'botol_plastik'   => ['label' => 'Botol Plastik',   'icon' => '🍶'],
+        'gelas_plastik'   => ['label' => 'Gelas Plastik',   'icon' => '🥤'],
+        'plastik_lain'    => ['label' => 'Plastik Lain',    'icon' => '🛍️'],
+        'buku_bekas'      => ['label' => 'Buku Bekas',      'icon' => '📚'],
+        'furniture_bekas' => ['label' => 'Furniture Bekas', 'icon' => '🪑'],
+    ];
+}
+
+// ── Daftar Kecamatan Kota Manado ─────────────────────────────
+$kecamatan_options = [
+    'bunaken'           => 'Bunaken',
+    'bunaken_kepulauan' => 'Bunaken Kepulauan',
+    'malalayang'        => 'Malalayang',
+    'mapanget'          => 'Mapanget',
+    'paal_dua'          => 'Paal Dua',
+    'paal_empat'        => 'Paal Empat',
+    'sario'             => 'Sario',
+    'singkil'           => 'Singkil',
+    'tikala'            => 'Tikala',
+    'tuminting'         => 'Tuminting',
+    'wanea'             => 'Wanea',
+    'wenang'            => 'Wenang',
+];
+
+// ── State ─────────────────────────────────────────────────────
+$submitted    = false;
+$errors       = [];
+// Single-page mode — no steps needed
+$step         = 1;
+$db_error_msg = '';
+$request_code = '';
+$total_steps  = 8;
+
+// ── POST Handler (single-page) ────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // ── Validasi semua field sekaligus ─────────────────────────
+    if (empty($_POST['barang']))                         $errors[] = 'barang';
+    if (empty(trim($_POST['nama']          ?? '')))      $errors[] = 'nama';
+    if (empty(trim($_POST['nomor_wa']      ?? '')))      $errors[] = 'nomor_wa';
+    if (empty(trim($_POST['kecamatan']     ?? '')))      $errors[] = 'kecamatan';
+    if (empty(trim($_POST['kelurahan']     ?? '')))      $errors[] = 'kelurahan';
+    if (empty(trim($_POST['alamat_jemput'] ?? '')))      $errors[] = 'alamat_jemput';
+    if (empty(trim($_POST['berat_kg']      ?? '')))      $errors[] = 'berat_kg';
+
+    // Koordinat GPS — opsional tapi jika diisi harus valid
+    $lat_raw = trim($_POST['latitude']  ?? '');
+    $lng_raw = trim($_POST['longitude'] ?? '');
+    if ($lat_raw !== '') {
+        if (!is_numeric($lat_raw) || floatval($lat_raw) < -90  || floatval($lat_raw) > 90)
+            $errors[] = 'latitude';
+    }
+    if ($lng_raw !== '') {
+        if (!is_numeric($lng_raw) || floatval($lng_raw) < -180 || floatval($lng_raw) > 180)
+            $errors[] = 'longitude';
+    }
+
+    if (empty($errors)) {
+        // ── Tidak ada steps, langsung simpan ─────────────────
+        if (true) {
+            // ── Simpan ke database ────────────────────────────
+            try {
+                $pdo->beginTransaction();
+
+                $pickup_type   = trim(clean($_POST['pickup_type']   ?? ''));
+                $type_pfx      = !empty($pickup_type) ? $pickup_type : 'S'; // Default S if empty (Sack)
+                $request_code = generateSmartCode($pdo, 'pickup_requests', 'request_code', 'MRH-' . $type_pfx);
+
+                $nama          = trim(clean($_POST['nama']          ?? ''));
+                $area_code     = trim(clean($_POST['area_code']     ?? '+62'));
+                $nomor_wa      = trim(clean($_POST['nomor_wa']      ?? ''));
+                $kecamatan     = trim(clean($_POST['kecamatan']     ?? ''));
+                $kelurahan     = trim(clean($_POST['kelurahan']     ?? ''));
+                $alamat_jemput = trim(clean($_POST['alamat_jemput'] ?? ''));
+                $catatan       = trim(clean($_POST['catatan']       ?? ''));
+
+                // ── DATA PICKUP ──
+                $place_name    = trim(clean($_POST['place_name']    ?? ''));
+                $place_type    = trim(clean($_POST['place_type']    ?? ''));
+                $partner_name  = trim(clean($_POST['partner_name']  ?? ''));
+                $pickup_type   = trim(clean($_POST['pickup_type']   ?? ''));
+                $service_type  = trim(clean($_POST['service_type']  ?? 'Free'));
+                $price_per_kg  = trim(clean($_POST['price_per_kg']  ?? ''));
+                $price_val     = ($price_per_kg !== '') ? (float)str_replace(',', '.', $price_per_kg) : null;
+
+                // ── GPS ──
+                $lat_raw          = trim($_POST['latitude']           ?? '');
+                $lng_raw          = trim($_POST['longitude']          ?? '');
+                $koordinat_manual = intval($_POST['koordinat_manual'] ?? 0);
+                $latitude  = ($lat_raw !== '' && is_numeric($lat_raw)) ? floatval($lat_raw) : null;
+                $longitude = ($lng_raw !== '' && is_numeric($lng_raw)) ? floatval($lng_raw) : null;
+
+                // ── Berat ──
+                $berat_raw     = trim(clean($_POST['berat_kg'] ?? ''));
+                $berat_numeric = preg_replace('/[^\d.]/', '', str_replace(',', '.', $berat_raw));
+                $berat_decimal = ($berat_numeric !== '') ? (float)$berat_numeric : null;
+
+                // ── Tanggal ──
+                $tanggal_raw    = trim($_POST['tanggal_jemput'] ?? '');
+                $tanggal_jemput = null;
+                if ($tanggal_raw !== '') {
+                    $dt = DateTime::createFromFormat('Y-m-d', $tanggal_raw);
+                    $tanggal_jemput = ($dt !== false) ? $dt->format('Y-m-d') : null;
+                }
+
+                // ── Jam ──
+                $jam_raw    = trim($_POST['jam_jemput'] ?? '');
+                $jam_jemput = null;
+                if ($jam_raw !== '') {
+                    $jam_jemput = (strlen($jam_raw) === 5) ? $jam_raw . ':00' : $jam_raw;
+                }
+
+                // ── INSERT pickup_requests ───────────────────────
+                $sql = "INSERT INTO pickup_requests
+                            (request_code, nama_pemohon, area_code, nomor_wa,
+                             kecamatan, kelurahan, alamat_jemput,
+                             place_name, place_type, partner_name, pickup_type, service_type, price_per_kg,
+                             latitude, longitude, koordinat_manual,
+                             berat_total_kg, berat_kg,
+                             tanggal_jemput, jam_jemput, catatan,
+                             status, created_at, updated_at)
+                        VALUES
+                            (:request_code, :nama, :area_code, :nomor_wa,
+                             :kecamatan, :kelurahan, :alamat_jemput,
+                             :place_name, :place_type, :partner_name, :pickup_type, :service_type, :price_per_kg,
+                             :latitude, :longitude, :koordinat_manual,
+                             :berat_total_kg, :berat_kg,
+                             :tanggal_jemput, :jam_jemput, :catatan,
+                             'menunggu', NOW(), NOW())";
+
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    ':request_code'      => $request_code,
+                    ':nama'              => $nama,
+                    ':area_code'         => $area_code,
+                    ':nomor_wa'          => $nomor_wa,
+                    ':kecamatan'         => $kecamatan,
+                    ':kelurahan'         => $kelurahan,
+                    ':alamat_jemput'     => $alamat_jemput,
+                    ':place_name'        => $place_name,
+                    ':place_type'        => $place_type,
+                    ':partner_name'      => $partner_name,
+                    ':pickup_type'       => $pickup_type,
+                    ':service_type'      => $service_type,
+                    ':price_per_kg'      => $price_val,
+                    ':latitude'          => $latitude,
+                    ':longitude'         => $longitude,
+                    ':koordinat_manual'  => $koordinat_manual,
+                    ':berat_total_kg'    => $berat_decimal,
+                    ':berat_kg'          => $berat_raw,
+                    ':tanggal_jemput'    => $tanggal_jemput,
+                    ':jam_jemput'        => $jam_jemput,
+                    ':catatan'           => ($catatan !== '') ? $catatan : null,
+                ]);
+                $pickup_id = (int)$pdo->lastInsertId();
+
+                // ── INSERT pickup_request_items ───────────────────
+                if (!empty($_POST['barang'])) {
+                    $jumlah_barang     = count($_POST['barang']);
+                    $estimasi_per_item = ($berat_decimal !== null && $jumlah_barang > 0)
+                        ? round($berat_decimal / $jumlah_barang, 2)
+                        : null;
+
+                    $stmtItem = $pdo->prepare("
+                        INSERT INTO pickup_request_items
+                            (pickup_id, category_id, estimasi_kg, aktual_kg, catatan)
+                        SELECT :pickup_id, id, :estimasi_kg, NULL, NULL
+                        FROM   waste_categories
+                        WHERE  kode = :kode AND is_active = 1
+                        LIMIT  1
+                    ");
+                    foreach ($_POST['barang'] as $barang_kode) {
+                        $kode = trim(clean($barang_kode));
+                        if ($kode !== '') {
+                            $stmtItem->execute([
+                                ':pickup_id'   => $pickup_id,
+                                ':kode'        => $kode,
+                                ':estimasi_kg' => $estimasi_per_item,
+                            ]);
+                        }
+                    }
+                }
+
+                $pdo->commit();
+                $submitted = true;
+
+            } catch (PDOException $e) {
+                if ($pdo->inTransaction()) $pdo->rollBack();
+                $errors[]     = 'database_error';
+                $db_error_msg = $e->getMessage();
+                error_log('[MRH] PDOException: ' . $e->getMessage());
+            } catch (Exception $e) {
+                if ($pdo->inTransaction()) $pdo->rollBack();
+                $errors[]     = 'database_error';
+                $db_error_msg = $e->getMessage();
+                error_log('[MRH] Exception: ' . $e->getMessage());
+            }
+
+        }
+    }
+
+}
+
+// ── Nilai form dipertahankan setelah POST ────────────────────
+$selected_barang      = $_POST['barang']             ?? [];
+$nama_value           = clean($_POST['nama']          ?? '');
+$area_code_value      = clean($_POST['area_code']     ?? '+62');
+$nomor_wa_value       = clean($_POST['nomor_wa']      ?? '');
+$kecamatan_value      = clean($_POST['kecamatan']     ?? '');
+$kelurahan_value      = clean($_POST['kelurahan']     ?? '');
+$alamat_jemput_value  = clean($_POST['alamat_jemput'] ?? '');
+$latitude_value       = clean($_POST['latitude']      ?? '');
+$longitude_value      = clean($_POST['longitude']     ?? '');
+$koordinat_manual_val = intval($_POST['koordinat_manual'] ?? 0);
+$berat_kg_value       = clean($_POST['berat_kg']      ?? '');
+$catatan_value        = clean($_POST['catatan']       ?? '');
+$place_name_value     = clean($_POST['place_name']    ?? '');
+$place_type_value     = clean($_POST['place_type']    ?? '');
+$partner_name_value   = clean($_POST['partner_name']  ?? '');
+$pickup_type_value    = clean($_POST['pickup_type']   ?? '');
+$service_type_value   = clean($_POST['service_type']  ?? 'Free');
+$price_per_kg_value   = clean($_POST['price_per_kg']  ?? '');
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daur Ulang Sekarang — Manado Recycle Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --green-dark:  #2e7d32;
+            --green-main:  #43a047;
+            --green-light: #e8f5e9;
+            --green-mid:   #c8e6c9;
+            --red:         #e53935;
+            --blue:        #1976d2;
+            --blue-light:  #e3f2fd;
+            --blue-mid:    #bbdefb;
+            --text-dark:   #1b2b1c;
+            --text-mid:    #4a6649;
+            --text-light:  #7a9b7a;
+            --white:       #ffffff;
+            --bg:          #f4faf4;
+            --shadow:      0 4px 24px rgba(46,125,50,0.10);
+            --radius:      18px;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 520px;
+            overflow: hidden;
+            animation: fadeUp .4s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── STEP INDICATOR ── */
+        .step-bar {
+            display: flex;
+            gap: 6px;
+            padding: 18px 24px 0;
+        }
+        .step-dot {
+            flex: 1;
+            height: 4px;
+            border-radius: 99px;
+            background: var(--green-mid);
+            transition: background .3s;
+        }
+        .step-dot.active { background: var(--green-main); }
+
+        .step-label {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-light);
+            padding: 6px 0 0;
+            letter-spacing: .04em;
+        }
+
+        /* ── CARD BODY ── */
+        .card-body {
+            padding: 36px 32px 28px;
+            text-align: center;
+        }
+
+        .icon-wrap {
+            font-size: 56px;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+        .subtitle {
+            color: var(--text-mid);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .question-count {
+            color: var(--text-light);
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        /* ── REVIEW SUMMARY ── */
+        .review-summary {
+            background: var(--green-light);
+            border: 1.5px solid var(--green-mid);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            text-align: left;
+            font-size: 0.82rem;
+        }
+        .review-summary .rs-title {
+            font-weight: 800;
+            font-size: 0.78rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 8px;
+        }
+        .review-summary .rs-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 3px 0;
+            border-bottom: 1px solid var(--green-mid);
+            font-size: 0.82rem;
+        }
+        .review-summary .rs-row:last-child { border-bottom: none; }
+        .review-summary .rs-label { color: var(--text-light); font-weight: 700; flex-shrink: 0; }
+        .review-summary .rs-val   { color: var(--text-dark);  font-weight: 700; text-align: right; }
+
+        /* ── BARANG GRID ── */
+        .barang-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0 0;
+            text-align: center;
+        }
+        .barang-item {
+            position: relative;
+            cursor: pointer;
+        }
+        .barang-item input[type="checkbox"] {
+            position: absolute;
+            top: 8px; left: 8px;
+            width: 16px; height: 16px;
+            accent-color: var(--green-main);
+            cursor: pointer;
+        }
+        .barang-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 2px solid var(--green-mid);
+            border-radius: 12px;
+            padding: 12px 6px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-mid);
+            background: var(--green-light);
+            transition: border-color .2s, background .2s, transform .15s;
+            cursor: pointer;
+            min-height: 88px;
+        }
+        .barang-label .item-icon { font-size: 1.9rem; }
+        .barang-item input:checked + .barang-label {
+            border-color: var(--green-dark);
+            background: var(--green-mid);
+            color: var(--green-dark);
+            transform: scale(1.04);
+        }
+        .barang-item:hover .barang-label { border-color: var(--green-main); }
+
+        /* ── INPUT FIELDS ── */
+        .field-wrap {
+            margin-top: 16px;
+            text-align: left;
+        }
+        .field-wrap:first-of-type { margin-top: 0; }
+
+        .field-wrap label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+        .field-wrap input[type="text"],
+        .field-wrap input[type="tel"],
+        .field-wrap input[type="date"],
+        .field-wrap input[type="time"],
+        .field-wrap input[type="number"],
+        .field-wrap select,
+        .field-wrap textarea {
+            width: 100%;
+            border: 2px solid var(--green-mid);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            background: var(--green-light);
+            outline: none;
+            transition: border-color .2s, background .2s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .field-wrap input:focus,
+        .field-wrap select:focus,
+        .field-wrap textarea:focus {
+            border-color: var(--green-main);
+            background: #fff;
+        }
+        .field-wrap input.error,
+        .field-wrap select.error,
+        .field-wrap textarea.error {
+            border-color: var(--red);
+            background: #fff5f5;
+        }
+        .field-wrap textarea {
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.55;
+        }
+
+        /* Select custom arrow */
+        .select-wrap { position: relative; }
+        .select-wrap::after {
+            content: '▾';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--green-main);
+            font-size: 1rem;
+            pointer-events: none;
+        }
+        .select-wrap select { padding-right: 36px; cursor: pointer; }
+
+        /* Input dengan suffix (KG) */
+        .input-suffix-wrap { position: relative; }
+        .input-suffix-wrap input { padding-right: 52px; }
+        .input-suffix {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--green-main);
+            pointer-events: none;
+            letter-spacing: .04em;
+        }
+
+        /* Hint text */
+        .field-hint {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Row: dua kolom sejajar */
+        .field-row {
+            display: flex;
+            gap: 14px;
+            margin-top: 16px;
+        }
+        .field-row .field-wrap { flex: 1; margin-top: 0; }
+
+        /* WA row */
+        .wa-row { display: flex; gap: 8px; }
+        .wa-row input:first-child { width: 90px; flex-shrink: 0; }
+
+        /* ── ERROR ── */
+        .error-msg {
+            display: inline-block;
+            background: var(--red);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        /* ── FOOTER BUTTONS ── */
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--green-main);
+            padding: 0;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 18px 28px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            color: var(--white);
+            transition: background .2s;
+        }
+        .btn:hover  { background: rgba(0,0,0,0.08); }
+        .btn-prev   { color: rgba(255,255,255,0.85); }
+        .btn-next,
+        .btn-submit { margin-left: auto; }
+        .btn-full   { width: 100%; justify-content: center; font-size: 1rem; }
+        .btn svg    { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ════════════════════════════════
+           GPS STYLES — Step 7
+        ════════════════════════════════ */
+
+        /* Tombol deteksi otomatis */
+        .btn-gps-detect {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 13px 18px;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            cursor: pointer;
+            transition: background .2s, transform .15s;
+            margin-bottom: 12px;
+        }
+        .btn-gps-detect:hover  { background: #1565c0; transform: scale(1.01); }
+        .btn-gps-detect:active { transform: scale(0.99); }
+        .btn-gps-detect svg    { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .btn-gps-detect.loading   { background: #64b5f6; cursor: wait; }
+        .btn-gps-detect.success   { background: var(--green-main); }
+        .btn-gps-detect.gps-error { background: var(--red); }
+
+        /* Status bar GPS */
+        .gps-status {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 9px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            line-height: 1.45;
+        }
+        .gps-status.show       { display: flex; }
+        .gps-status.detecting  { background: var(--blue-light); color: var(--blue); }
+        .gps-status.found      { background: var(--green-light); color: var(--green-dark); border: 1px solid var(--green-mid); }
+        .gps-status.denied     { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+        .gps-status.gps-failed { background: #ffebee; color: var(--red); border: 1px solid #ffcdd2; }
+
+        /* Kotak tampil koordinat hasil deteksi */
+        .koordinat-display {
+            display: none;
+            background: var(--blue-light);
+            border: 1.5px solid var(--blue-mid);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+        .koordinat-display.show { display: block; }
+        .koordinat-display .kd-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            font-size: 0.82rem;
+        }
+        .koordinat-display .kd-label { color: var(--blue); font-weight: 700; }
+        .koordinat-display .kd-val   { color: #0d47a1; font-weight: 800; font-family: monospace; font-size: 0.85rem; }
+
+        /* Link Google Maps */
+        .gps-maps-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--blue);
+            text-decoration: none;
+            margin-top: 8px;
+            padding: 5px 12px;
+            background: #fff;
+            border: 1.5px solid var(--blue-mid);
+            border-radius: 6px;
+            transition: background .2s;
+        }
+        .gps-maps-link:hover { background: var(--blue-mid); }
+
+        /* Divider teks */
+        .gps-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 14px 0;
+            font-size: 0.74rem;
+            font-weight: 800;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+        .gps-divider::before,
+        .gps-divider::after { content: ''; flex: 1; height: 1px; background: var(--green-mid); }
+        
+        /* Container Peta Leaflet */
+        #pickerMap {
+            height: 250px;
+            width: 100%;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            border-radius: 12px;
+            border: 2px solid var(--blue-mid);
+            z-index: 1; /* Supaya tidak menimpa elemen lain yang fixed */
+        }
+        .map-hint {
+            font-size: 0.75rem;
+            color: var(--text-mid);
+            margin-bottom: 15px;
+        }
+
+        /* Input lat / lng — warna biru agar konteks berbeda */
+        .gps-inputs .field-wrap input[type="text"] {
+            border-color: var(--blue-mid);
+            background: var(--blue-light);
+        }
+        .gps-inputs .field-wrap input[type="text"]:focus {
+            border-color: var(--blue);
+            background: #fff;
+        }
+        .gps-inputs .field-wrap input.error {
+            border-color: var(--red);
+            background: #fff5f5;
+        }
+        .gps-inputs .field-wrap label { color: #5c85d6; }
+
+        /* Row lat/lng sejajar */
+        .latlng-row          { display: flex; gap: 12px; }
+        .latlng-row .field-wrap { flex: 1; margin-top: 0; }
+
+        /* Catatan opsional bawah */
+        .gps-skip-note {
+            font-size: 0.76rem;
+            color: var(--text-light);
+            font-weight: 600;
+            text-align: center;
+            margin-top: 14px;
+            padding: 9px 12px;
+            background: #f9fbe7;
+            border-radius: 8px;
+            border: 1px dashed #c5ca7a;
+            line-height: 1.5;
+        }
+
+        /* ── MAP PICKER ── */
+        #pickerMap {
+            width: 100%;
+            height: 260px;
+            border-radius: 10px;
+            border: 1.5px solid var(--blue-mid);
+            margin-bottom: 14px;
+            background: var(--blue-light);
+        }
+        .map-hint {
+            font-size: 0.74rem;
+            color: var(--text-light);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        /* Badge opsional di judul */
+        .badge-opt {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            border: 1px solid #ffe0b2;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 20px;
+            vertical-align: middle;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        /* ── SUCCESS ── */
+        .success-body {
+            padding: 52px 32px 48px;
+            text-align: center;
+            background: #f0f7f0;
+        }
+        .success-body .icon-wrap   { font-size: 64px; margin-bottom: 18px; }
+        .success-body h1           { color: var(--green-dark); margin-bottom: 10px; }
+        .success-body p            { color: var(--green-main); font-size: 1rem; font-weight: 700; line-height: 1.6; }
+        .success-body .request-code-box {
+            display: inline-block;
+            margin: 16px auto 0;
+            background: var(--green-mid);
+            border: 2px solid var(--green-main);
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--green-dark);
+            letter-spacing: .08em;
+        }
+        .success-body .note {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        .success-body .detail-recap {
+            margin-top: 20px;
+            background: var(--white);
+            border: 1.5px solid var(--green-mid);
+            border-radius: 12px;
+            padding: 12px 16px;
+            text-align: left;
+        }
+        .success-body .detail-recap .dr-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--green-light);
+            font-size: 0.82rem;
+            gap: 8px;
+        }
+        .success-body .detail-recap .dr-row:last-child { border-bottom: none; }
+        .success-body .detail-recap .dr-label { color: var(--text-light); font-weight: 700; flex-shrink: 0; }
+        .success-body .detail-recap .dr-val   { color: var(--text-dark);  font-weight: 800; text-align: right; }
+        .success-body .detail-recap .dr-val.gps-val {
+            color: var(--blue);
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+        .success-body .maps-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--blue);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 9px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            margin-top: 14px;
+            transition: background .2s;
+        }
+        .success-body .maps-btn:hover { background: #1565c0; }
+
+        /* ── DB ERROR ── */
+        .db-error-box {
+            background: #fff3f3;
+            border: 2px solid var(--red);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 16px 24px 0;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--red);
+            text-align: left;
+            line-height: 1.5;
+        }
+        .db-error-box .db-error-title {
+            font-size: 0.92rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .db-error-box .db-error-detail {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #b71c1c;
+            background: #ffebee;
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin-top: 8px;
+            word-break: break-word;
+            font-family: monospace;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 420px) {
+            .barang-grid { grid-template-columns: repeat(3, 1fr); }
+            .card-body   { padding: 28px 18px 20px; }
+            h1           { font-size: 1.5rem; }
+            h2           { font-size: 1.25rem; }
+            .field-row   { flex-direction: column; gap: 14px; }
+            .latlng-row  { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<?php if ($submitted): ?>
+<!-- ══════════════════════════════════════════
+     SUCCESS
+══════════════════════════════════════════ -->
+<div class="card">
+    <div class="success-body">
+        <div class="icon-wrap">♻️</div>
+        <h1>Terima Kasih!</h1>
+        <p>Permintaan Anda sudah kami terima!<br>Tim kami akan segera menghubungi Anda.</p>
+        <?php if ($request_code): ?>
+        <div class="request-code-box"><?= htmlspecialchars($request_code) ?></div>
+        <div class="note">Nomor Request — simpan sebagai referensi</div>
+        <?php endif; ?>
+
+        <div class="detail-recap">
+            <div class="dr-row">
+                <span class="dr-label">Nama</span>
+                <span class="dr-val"><?= htmlspecialchars($nama_value) ?></span>
+            </div>
+            <div class="dr-row">
+                <span class="dr-label">WhatsApp</span>
+                <span class="dr-val"><?= htmlspecialchars($area_code_value . $nomor_wa_value) ?></span>
+            </div>
+            <div class="dr-row">
+                <span class="dr-label">Kecamatan</span>
+                <span class="dr-val"><?= htmlspecialchars($kecamatan_options[$kecamatan_value] ?? $kecamatan_value) ?></span>
+            </div>
+            <div class="dr-row">
+                <span class="dr-label">Kelurahan</span>
+                <span class="dr-val"><?= htmlspecialchars($kelurahan_value) ?></span>
+            </div>
+            <?php if ($latitude_value !== '' && $longitude_value !== ''): ?>
+            <div class="dr-row">
+                <span class="dr-label">📍 Koordinat GPS</span>
+                <span class="dr-val gps-val">
+                    <?= htmlspecialchars($latitude_value) ?>,
+                    <?= htmlspecialchars($longitude_value) ?>
+                </span>
+            </div>
+            <?php endif; ?>
+            
+            <?php if (!empty($catatan_value)): ?>
+            <div class="dr-row">
+                <span class="dr-label">Catatan</span>
+                <span class="dr-val"><?= htmlspecialchars($catatan_value) ?></span>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <?php if ($latitude_value !== '' && $longitude_value !== ''): ?>
+        <a class="maps-btn"
+           href="https://www.google.com/maps?q=<?= urlencode($latitude_value) ?>,<?= urlencode($longitude_value) ?>"
+           target="_blank" rel="noopener">
+            📍 Lihat Lokasi di Google Maps
+        </a>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php else: ?>
+<!-- ══════════════════════════════════════════
+     FORM SINGLE-PAGE
+══════════════════════════════════════════ -->
+<div class="card" style="max-width:640px">
+
+    <?php if (in_array('database_error', $errors)): ?>
+    <div class="db-error-box">
+        <div class="db-error-title">⚠️ Gagal menyimpan data. Silakan coba lagi.</div>
+        <?php if (!empty($db_error_msg)): ?>
+        <div class="db-error-detail"><?= htmlspecialchars($db_error_msg) ?></div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
+    <div class="card-body" style="text-align:left; padding-bottom:8px">
+        <div class="icon-wrap" style="text-align:center">♻️</div>
+        <h1 style="text-align:center; font-size:1.6rem">Daur Ulang Sekarang</h1>
+        <p class="subtitle" style="text-align:center; margin-bottom:20px">Isi formulir di bawah — kami jemput sampahnya!</p>
+
+        <form method="POST" action="" id="singleForm">
+
+            <!-- ══ JENIS SAMPAH ══ -->
+            <div class="field-wrap">
+                <label>Jenis Sampah yang Akan Diangkut *</label>
+                <?php if (in_array('barang', $errors)): ?>
+                    <span class="error-msg" style="display:block;margin-bottom:8px">Pilih minimal 1 jenis sampah.</span>
+                <?php endif; ?>
+                <div class="barang-grid" style="margin-top:10px">
+                    <?php foreach ($barang_options as $key => $opt): ?>
+                    <div class="barang-item">
+                        <input type="checkbox"
+                            name="barang[]"
+                            id="barang_<?= htmlspecialchars($key) ?>"
+                            value="<?= htmlspecialchars($key) ?>"
+                            <?= in_array($key, $selected_barang) ? 'checked' : '' ?>>
+                        <label class="barang-label" for="barang_<?= htmlspecialchars($key) ?>">
+                            <span class="item-icon"><?= htmlspecialchars($opt['icon']) ?></span>
+                            <?= htmlspecialchars($opt['label']) ?>
+                        </label>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- ══ IDENTITAS ══ -->
+            <div class="field-row" style="margin-top:20px">
+                <div class="field-wrap">
+                    <label for="nama">Nama Lengkap *</label>
+                    <input type="text" id="nama" name="nama"
+                           value="<?= htmlspecialchars($nama_value) ?>"
+                           placeholder="Nama lengkap Anda"
+                           class="<?= in_array('nama', $errors) ? 'error' : '' ?>"
+                           autocomplete="name">
+                    <?php if (in_array('nama', $errors)): ?>
+                        <span class="error-msg">Nama wajib diisi.</span>
+                    <?php endif; ?>
+                </div>
+                <div class="field-wrap">
+                    <label>Nomor WhatsApp *</label>
+                    <div class="wa-row">
+                        <input type="text" name="area_code"
+                               value="<?= htmlspecialchars($area_code_value) ?>"
+                               placeholder="+62" autocomplete="tel-country-code"
+                               style="width:76px;flex-shrink:0">
+                        <input type="tel" id="nomor_wa" name="nomor_wa"
+                               value="<?= htmlspecialchars($nomor_wa_value) ?>"
+                               placeholder="81234567890"
+                               class="<?= in_array('nomor_wa', $errors) ? 'error' : '' ?>"
+                               autocomplete="tel-national">
+                    </div>
+                    <?php if (in_array('nomor_wa', $errors)): ?>
+                        <span class="error-msg">Nomor WA wajib diisi.</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- ══ DATA PICKUP ══ -->
+            <div class="field-row" style="margin-top:20px">
+                <div class="field-wrap">
+                    <label for="place_name">Place Name (Nama Tempat)</label>
+                    <input type="text" id="place_name" name="place_name"
+                           value="<?= htmlspecialchars($place_name_value) ?>"
+                           placeholder="Contoh: Rm Nyuknyang, Sekolah, Kantor">
+                </div>
+                <div class="field-wrap">
+                    <label for="place_type">Place Type (Tipe Tempat)</label>
+                    <div class="select-wrap">
+                        <select id="place_type" name="place_type">
+                            <option value="">— Pilih Tipe —</option>
+                            <option value="F&B" <?= $place_type_value==='F&B'?'selected':'' ?>>F&B (Tempat Makan)</option>
+                            <option value="Household" <?= $place_type_value==='Household'?'selected':'' ?>>Household (Rumah Tangga)</option>
+                            <option value="Public" <?= $place_type_value==='Public'?'selected':'' ?>>Public (Tempat Umum)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row" style="margin-top:4px">
+                <div class="field-wrap">
+                    <label for="partner_name">Partner Name (Nama Orang/Toko)</label>
+                    <input type="text" id="partner_name" name="partner_name"
+                           value="<?= htmlspecialchars($partner_name_value) ?>"
+                           placeholder="Contoh: Budi, Toko Maju, PT ABC">
+                </div>
+                <div class="field-wrap">
+                    <label for="pickup_type">Type (B/P/R)</label>
+                    <div class="select-wrap">
+                        <select id="pickup_type" name="pickup_type">
+                            <option value="">— Pilih Tipe —</option>
+                            <option value="B" <?= $pickup_type_value==='B'?'selected':'' ?>>B (Business)</option>
+                            <option value="P" <?= $pickup_type_value==='P'?'selected':'' ?>>P (Public)</option>
+                            <option value="R" <?= $pickup_type_value==='R'?'selected':'' ?>>R (Residential)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row" style="margin-top:4px">
+                <div class="field-wrap">
+                    <label for="service_type">Service Type (Layanan)</label>
+                    <div class="select-wrap">
+                        <select id="service_type" name="service_type">
+                            <option value="Free" <?= $service_type_value==='Free'?'selected':'' ?>>Free (Gratis)</option>
+                            <option value="Paid" <?= $service_type_value==='Paid'?'selected':'' ?>>Paid (Berbayar)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ LOKASI ══ -->
+            <div class="field-row" style="margin-top:20px">
+                <div class="field-wrap">
+                    <label for="kecamatan">Kecamatan *</label>
+                    <div class="select-wrap">
+                        <select id="kecamatan" name="kecamatan"
+                                class="<?= in_array('kecamatan', $errors) ? 'error' : '' ?>">
+                            <option value="" <?= $kecamatan_value === '' ? 'selected' : '' ?> disabled>— Pilih Kecamatan —</option>
+                            <?php foreach ($kecamatan_options as $kode => $label): ?>
+                            <option value="<?= htmlspecialchars($kode) ?>"
+                                <?= $kecamatan_value === $kode ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($label) ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <?php if (in_array('kecamatan', $errors)): ?>
+                        <span class="error-msg">Kecamatan wajib dipilih.</span>
+                    <?php endif; ?>
+                </div>
+                <div class="field-wrap">
+                    <label for="kelurahan">Kelurahan *</label>
+                    <input type="text" id="kelurahan" name="kelurahan"
+                           value="<?= htmlspecialchars($kelurahan_value) ?>"
+                           placeholder="Nama kelurahan"
+                           class="<?= in_array('kelurahan', $errors) ? 'error' : '' ?>"
+                           autocomplete="address-level3">
+                    <?php if (in_array('kelurahan', $errors)): ?>
+                        <span class="error-msg">Kelurahan wajib diisi.</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="field-wrap" style="margin-top:4px">
+                <label for="alamat_jemput">Nama Jalan / Alamat Lengkap *</label>
+                <textarea id="alamat_jemput" name="alamat_jemput"
+                          placeholder="Contoh: Jl. Piere Tendean No. 12, depan toko biru"
+                          class="<?= in_array('alamat_jemput', $errors) ? 'error' : '' ?>"
+                          rows="2"><?= htmlspecialchars($alamat_jemput_value) ?></textarea>
+                <?php if (in_array('alamat_jemput', $errors)): ?>
+                    <span class="error-msg">Alamat wajib diisi.</span>
+                <?php endif; ?>
+            </div>
+
+            <!-- ══ GPS MAP PICKER ══ -->
+            <div class="field-wrap" style="margin-top:4px">
+                <label>📍 Lokasi Jemput di Peta <span style="font-size:0.75rem;font-weight:600;color:var(--text-light);text-transform:none;letter-spacing:0">(opsional — seret pin atau klik peta)</span></label>
+
+                <button type="button" class="btn-gps-detect" id="btnDetectGPS" style="margin-bottom:10px">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><path d="M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/></svg>
+                    <span id="btnGPSText">Deteksi Lokasi Saya</span>
+                </button>
+
+                <div class="gps-status" id="gpsStatus">
+                    <span id="gpsStatusIcon"></span>
+                    <span id="gpsStatusText"></span>
+                </div>
+
+                <div id="pickerMap"></div>
+                <div class="map-hint">Klik peta atau geser pin untuk menentukan titik jemput yang tepat</div>
+
+                <div class="koordinat-display" id="koordinatDisplay">
+                    <div class="kd-row"><span class="kd-label">Latitude</span><span class="kd-val" id="kdLat">—</span></div>
+                    <div class="kd-row"><span class="kd-label">Longitude</span><span class="kd-val" id="kdLng">—</span></div>
+                    <div class="kd-row"><span class="kd-label">Akurasi</span><span class="kd-val" id="kdAcc">—</span></div>
+                    <a class="gps-maps-link" id="gpsMapLink" href="#" target="_blank" rel="noopener">📍 Buka di Google Maps</a>
+                </div>
+
+                <!-- Hidden inputs — terisi otomatis dari peta -->
+                <input type="hidden" id="latitude"  name="latitude"  value="<?= htmlspecialchars($latitude_value) ?>">
+                <input type="hidden" id="longitude" name="longitude" value="<?= htmlspecialchars($longitude_value) ?>">
+                <input type="hidden" id="koordinatManualFlag" name="koordinat_manual" value="<?= htmlspecialchars($koordinat_manual_val) ?>">
+
+                <?php if (in_array('latitude', $errors) || in_array('longitude', $errors)): ?>
+                    <span class="error-msg">Format koordinat tidak valid. Gunakan pin peta.</span>
+                <?php endif; ?>
+            </div>
+
+            <!-- ══ BERAT & CATATAN ══ -->
+            <div class="field-row" style="margin-top:4px">
+                <div class="field-wrap">
+                    <label for="berat_kg">Perkiraan Berat Sampah *</label>
+                    <div class="input-suffix-wrap">
+                        <input type="text" id="berat_kg" name="berat_kg"
+                               value="<?= htmlspecialchars($berat_kg_value) ?>"
+                               placeholder="Contoh: 5 atau 2.5"
+                               class="<?= in_array('berat_kg', $errors) ? 'error' : '' ?>"
+                               autocomplete="off" inputmode="decimal">
+                        <span class="input-suffix">KG</span>
+                    </div>
+                    <?php if (in_array('berat_kg', $errors)): ?>
+                        <span class="error-msg">Berat sampah wajib diisi.</span>
+                    <?php endif; ?>
+                </div>
+                <div class="field-wrap">
+                    <label for="catatan">Catatan <span style="font-size:0.75rem;font-weight:600;text-transform:none;letter-spacing:0;color:var(--text-light)">(opsional)</span></label>
+                    <textarea id="catatan" name="catatan"
+                              placeholder="Catatan untuk tim kami, misal: akses jalan, lantai, dll."
+                              rows="3"><?= htmlspecialchars($catatan_value) ?></textarea>
+                </div>
+            </div>
+
+            <!-- ══ SUBMIT ══ -->
+        </form>
+    </div>
+    <div class="card-footer">
+        <button type="submit" form="singleForm" class="btn btn-submit btn-full">
+            KIRIM PERMINTAAN ✓
+        </button>
+    </div>
+
+</div>
+<?php endif; ?>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    'use strict';
+    if (document.getElementById('pickerMap') === null) return;
+
+    var btnDetect  = document.getElementById('btnDetectGPS');
+    var btnText    = document.getElementById('btnGPSText');
+    var statusBox  = document.getElementById('gpsStatus');
+    var statusIcon = document.getElementById('gpsStatusIcon');
+    var statusTxt  = document.getElementById('gpsStatusText');
+    var kdDisplay  = document.getElementById('koordinatDisplay');
+    var kdLat      = document.getElementById('kdLat');
+    var kdLng      = document.getElementById('kdLng');
+    var kdAcc      = document.getElementById('kdAcc');
+    var mapLink    = document.getElementById('gpsMapLink');
+    var inpLat     = document.getElementById('latitude');
+    var inpLng     = document.getElementById('longitude');
+    var inpManual  = document.getElementById('koordinatManualFlag');
+
+    var pickerMap = null, pickerMarker = null;
+
+    var defaultCenter = [1.4748, 124.8421]; // Pusat Manado
+    var defaultZoom   = 13;
+
+    if (inpLat.value !== '' && inpLng.value !== '') {
+        defaultCenter = [parseFloat(inpLat.value), parseFloat(inpLng.value)];
+        defaultZoom   = 16;
+    }
+
+    pickerMap = L.map('pickerMap', { center: defaultCenter, zoom: defaultZoom });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap', maxZoom: 19
+    }).addTo(pickerMap);
+
+    pickerMarker = L.marker(defaultCenter, {
+        draggable: true,
+        title: 'Seret pin ke lokasi penjemputan'
+    });
+
+    if (inpLat.value !== '' && inpLng.value !== '') {
+        pickerMarker.addTo(pickerMap);
+        renderKoordinat(parseFloat(inpLat.value), parseFloat(inpLng.value), null);
+        setStatus('found', '✅', 'Koordinat sudah tersimpan.');
+    }
+
+    pickerMap.on('click', function (e) {
+        var lat = e.latlng.lat, lng = e.latlng.lng;
+        pickerMarker.setLatLng(e.latlng).addTo(pickerMap);
+        setCoords(lat, lng, 1, 'Dipilih dari peta');
+        setStatus('found', '✅', 'Lokasi dipilih dari peta.');
+    });
+
+    pickerMarker.on('dragend', function () {
+        var pos = pickerMarker.getLatLng();
+        setCoords(pos.lat, pos.lng, 1, 'Digeser pada peta');
+        setStatus('found', '✅', 'Lokasi diperbarui dari peta.');
+    });
+
+    function setCoords(lat, lng, manual, accLabel) {
+        inpLat.value    = lat.toFixed(8);
+        inpLng.value    = lng.toFixed(8);
+        inpManual.value = manual;
+        renderKoordinat(lat, lng, accLabel);
+    }
+
+    function moveMapTo(lat, lng) {
+        var pos = L.latLng(lat, lng);
+        pickerMarker.setLatLng(pos).addTo(pickerMap);
+        pickerMap.setView(pos, 17);
+    }
+
+    btnDetect.addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            setStatus('denied', '🚫', 'Browser tidak mendukung GPS. Pilih lokasi di peta.');
+            return;
+        }
+        setLoading(true);
+        setStatus('detecting', '⏳', 'Mendeteksi lokasi Anda…');
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                var lat = pos.coords.latitude, lng = pos.coords.longitude, acc = Math.round(pos.coords.accuracy);
+                setCoords(lat, lng, 0, '±' + acc + ' m');
+                moveMapTo(lat, lng);
+                setStatus('found', '✅', 'Lokasi terdeteksi! Akurasi ±' + acc + ' meter.');
+                setLoading(false, 'success');
+            },
+            function (err) {
+                setLoading(false, 'fail');
+                var msg = {1:'Akses lokasi ditolak.', 2:'Posisi tidak tersedia.', 3:'Waktu habis — coba lagi.'}[err.code] || 'GPS error.';
+                setStatus('gps-failed', '⚠️', msg + ' Pilih lokasi langsung di peta.');
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    });
+
+    function renderKoordinat(lat, lng, acc) {
+        kdLat.textContent = lat.toFixed(7);
+        kdLng.textContent = lng.toFixed(7);
+        kdAcc.textContent = acc !== null ? acc : '—';
+        mapLink.href      = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+        kdDisplay.classList.add('show');
+    }
+
+    function setStatus(type, icon, text) {
+        statusBox.className    = 'gps-status show ' + type;
+        statusIcon.textContent = icon;
+        statusTxt.textContent  = text;
+    }
+
+    function setLoading(isLoading, result) {
+        btnDetect.disabled = isLoading;
+        btnDetect.classList.toggle('loading', isLoading);
+        if (isLoading) { btnText.textContent = 'Mendeteksi…'; return; }
+        if (result === 'success') { btnDetect.classList.add('success'); btnText.textContent = 'Lokasi Terdeteksi ✓'; }
+        else if (result === 'fail') {
+            btnDetect.classList.add('gps-error'); btnText.textContent = 'Gagal — Coba Lagi';
+            setTimeout(function () { btnDetect.classList.remove('gps-error'); btnText.textContent = 'Deteksi Lokasi Saya'; }, 3000);
+        }
+    }
+})();
+</script>
+
+</body>
+</html>

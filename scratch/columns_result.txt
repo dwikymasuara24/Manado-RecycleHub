@@ -1,0 +1,143 @@
+Array
+(
+    [0] => Array
+        (
+            [Field] => id
+            [Type] => bigint unsigned
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => auto_increment
+        )
+
+    [1] => Array
+        (
+            [Field] => user_id
+            [Type] => bigint unsigned
+            [Null] => NO
+            [Key] => UNI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [2] => Array
+        (
+            [Field] => officer_code
+            [Type] => varchar(20)
+            [Null] => YES
+            [Key] => UNI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [3] => Array
+        (
+            [Field] => nama
+            [Type] => varchar(150)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [4] => Array
+        (
+            [Field] => nip
+            [Type] => varchar(50)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [5] => Array
+        (
+            [Field] => zona_tugas
+            [Type] => varchar(150)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [6] => Array
+        (
+            [Field] => kendaraan
+            [Type] => varchar(100)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [7] => Array
+        (
+            [Field] => status
+            [Type] => enum('aktif','cuti','nonaktif')
+            [Null] => NO
+            [Key] => 
+            [Default] => aktif
+            [Extra] => 
+        )
+
+    [8] => Array
+        (
+            [Field] => tanggal_bergabung
+            [Type] => date
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [9] => Array
+        (
+            [Field] => catatan
+            [Type] => text
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [10] => Array
+        (
+            [Field] => created_at
+            [Type] => timestamp
+            [Null] => NO
+            [Key] => 
+            [Default] => CURRENT_TIMESTAMP
+            [Extra] => DEFAULT_GENERATED
+        )
+
+    [11] => Array
+        (
+            [Field] => updated_at
+            [Type] => timestamp
+            [Null] => NO
+            [Key] => 
+            [Default] => CURRENT_TIMESTAMP
+            [Extra] => DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+        )
+
+    [12] => Array
+        (
+            [Field] => officer_type
+            [Type] => varchar(20)
+            [Null] => YES
+            [Key] => 
+            [Default] => Collector
+            [Extra] => 
+        )
+
+    [13] => Array
+        (
+            [Field] => nomor_wa
+            [Type] => varchar(20)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+)

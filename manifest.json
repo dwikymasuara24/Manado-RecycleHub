@@ -1,0 +1,25 @@
+{
+  "name": "Manado Recycle Hub",
+  "short_name": "MRH",
+  "description": "Sistem Pengelolaan & Daur Ulang Sampah Terpadu Kota Manado",
+  "start_url": "./login.php",
+  "display": "standalone",
+  "background_color": "#1c6434",
+  "theme_color": "#1c6434",
+  "orientation": "portrait-primary",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "./logo_square.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./logo_square.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

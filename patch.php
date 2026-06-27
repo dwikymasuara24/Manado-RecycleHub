@@ -1,0 +1,1 @@
+<?php // Patch applied successfully. ?>

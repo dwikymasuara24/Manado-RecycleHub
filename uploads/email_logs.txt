@@ -1,0 +1,2113 @@
+[2026-05-26 18:01:12] EMAIL SENT TO: admin@manadurecyclehub.id
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006
+Nama Pemesan     : Dika
+Kecamatan Pickup : Sario
+Kelurahan        : Sario
+Alamat Jemput    : Sario
+Tanggal & Jam    : 26 May 2026 18:01:08 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-26 18:21:51] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-007
+Nama Pemesan     : Dwika
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : wenang
+Tanggal & Jam    : 26 May 2026 18:21:50 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-26 18:25:39] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-007
+Nama Pemesan     : Dwi
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : Wenang
+Tanggal & Jam    : 26 May 2026 18:25:39 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-26 18:35:48] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-007
+Nama Pemesan     : Dwi
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : jalang
+Tanggal & Jam    : 26 May 2026 18:35:48 WITA
+Estimasi Berat   : 2 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-26 18:41:21] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006
+Nama Pemesan     : Dwiky Masuara TI 4
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : Wenang
+Tanggal & Jam    : 26 May 2026 18:41:14 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-26 18:51:19] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006
+Nama Pemesan     : Dwiky Masuara TI 4
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : ajfeai
+Tanggal & Jam    : 26 May 2026 18:51:15 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-26 18:54:01] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-004
+Nama Pemesan     : Dwiky Masuara TI 4
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : xG
+Tanggal & Jam    : 26 May 2026 18:53:56 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-26 19:01:03] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-005
+Nama Pemesan     : Dwiky Masuara TI 4
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : sgag
+Tanggal & Jam    : 26 May 2026 19:00:58 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-26 19:26:18] CLEANUP EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Sario - 26 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-003
+Nama Pemesan     : siane
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Sario
+Kelurahan        : Sario kota baru
+Alamat Lokasi    : bsj
+Tanggal & Jam    : 26 May 2026 19:26:14 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-27 06:03:43] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 27 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006
+Nama Pemesan     : Josch
+Kecamatan Pickup : Wenang
+Kelurahan        : Calaca
+Alamat Jemput    : Pegadaian
+Tanggal & Jam    : 27 May 2026 06:03:38 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-27 06:09:39] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 27 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-004
+Nama Pemesan     : lisye
+Kecamatan Pickup : Sario
+Kelurahan        : Sario
+Alamat Jemput    : aedai
+Tanggal & Jam    : 27 May 2026 06:09:33 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-27 06:48:20] CLEANUP EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Sario - 27 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-004
+Nama Pemesan     : fang
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Sario
+Kelurahan        : Sario
+Alamat Lokasi    : dagag
+Tanggal & Jam    : 27 May 2026 06:48:15 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-27 06:57:34] CLEANUP EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Sario - 27 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-005
+Nama Pemesan     : lala
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Sario
+Kelurahan        : Sario
+Alamat Lokasi    : sf
+Tanggal & Jam    : 27 May 2026 06:57:28 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 10:01:02] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-004DA3
+Nama Pemesan     : dfilake
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Utara
+Alamat Jemput    : fjndf
+Tanggal & Jam    : 28 May 2026 10:00:57 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 10:21:36] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-00594E
+Nama Pemesan     : Dwi
+Kecamatan Pickup : Sario
+Kelurahan        : Sario
+Alamat Jemput    : Jalan Pramuka
+Tanggal & Jam    : 28 May 2026 10:21:31 WITA
+Estimasi Berat   : 10 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 12:10:38] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-002
+Nama Pemesan     : d
+Kecamatan Pickup : Wanea
+Kelurahan        : Karombasan
+Alamat Jemput    : dag
+Tanggal & Jam    : 28 May 2026 12:10:34 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 12:30:15] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-002
+Nama Pemesan     : Dwiky Masuara TI 4
+Kecamatan Pickup : Wenang
+Kelurahan        : Calaca
+Alamat Jemput    : fnjs
+Tanggal & Jam    : 28 May 2026 12:30:11 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 12:50:13] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Malalayang - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-001
+Nama Pemesan     : Dwiky Masuara TI 4
+Kecamatan Pickup : Malalayang
+Kelurahan        : Batukota bawah
+Alamat Jemput    : jembatan
+Tanggal & Jam    : 28 May 2026 12:50:08 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 13:03:16] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Tikala - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-002
+Nama Pemesan     : Dwiky Masuara TI 4
+Kecamatan Pickup : Tikala
+Kelurahan        : Makaheret
+Alamat Jemput    : sGG
+Tanggal & Jam    : 28 May 2026 13:03:11 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 13:16:10] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Malalayang - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-003
+Nama Pemesan     : Dwiky Masuara TI 4
+Kecamatan Pickup : Malalayang
+Kelurahan        : Tanah Putih
+Alamat Jemput    : dgs
+Tanggal & Jam    : 28 May 2026 13:16:04 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 13:28:04] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-001
+Nama Pemesan     : Stary Sahiu
+Kecamatan Pickup : Mapanget
+Kelurahan        : Buha
+Alamat Jemput    : Jl.Politeknik
+Tanggal & Jam    : 28 May 2026 13:27:59 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-28 14:13:44] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 28 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-002
+Nama Pemesan     : Stary Sahiu
+Kecamatan Pickup : Mapanget
+Kelurahan        : Buha
+Alamat Jemput    : Jl.Politeknik
+Tanggal & Jam    : 28 May 2026 14:13:37 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-29 11:48:44] PASSWORD RESET EMAIL SENT TO: dwika06081012@gmail.com
+Link: http://localhost/v4/reset_password.php?token=2dcd33ff9cc39973d4c37199d17ce380
+
+[2026-05-30 08:59:16] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-003
+Nama Pemesan     : Esa Massing
+Kecamatan Pickup : Sario
+Kelurahan        : Sario kota baru
+Alamat Jemput    : Jalan Bethesda IV no 21 Kelurahan Sario Kota baru, Kecamatan Sario, Kota Manado
+Tanggal & Jam    : 30 May 2026 08:59:09 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 09:05:34] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-002
+Nama Pemesan     : Fisyan Dunggio
+Kecamatan Pickup : Sario
+Kelurahan        : Sario kota baru
+Alamat Jemput    : Sario Link III No. 29, Kelurahan Sario Kota Baru, Kecamatan Sario, Kota Manado, Sulawesi Utara.
+Tanggal & Jam    : 30 May 2026 09:05:28 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 09:15:14] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-004
+Nama Pemesan     : Gracia Tendean
+Kecamatan Pickup : Sario
+Kelurahan        : Sario
+Alamat Jemput    : Jl. Ahmad Yani, Titiwungen Sel., Kec. Sario, Kota Manado, Sulawesi Utara
+Tanggal & Jam    : 30 May 2026 09:15:08 WITA
+Estimasi Berat   : 7 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 09:20:58] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-005
+Nama Pemesan     : Rivaldo Metuak
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Tumpaan
+Alamat Jemput    : Jl. Piere Tendean
+Tanggal & Jam    : 30 May 2026 09:20:52 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 09:27:07] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006
+Nama Pemesan     : Viona S
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : Wenang Utara, Kec. Wenang, Kota Manado, Sulawesi Utara
+Tanggal & Jam    : 30 May 2026 09:27:00 WITA
+Estimasi Berat   : 7 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 09:34:15] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-007
+Nama Pemesan     : Praisy Suot
+Kecamatan Pickup : Wenang
+Kelurahan        : Calaca
+Alamat Jemput    : jln Veteran No. 5, Kel. Calaca, Kecamatan Wenang
+Tanggal & Jam    : 30 May 2026 09:34:10 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 09:41:07] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-003
+Nama Pemesan     : Anjelika Lado
+Kecamatan Pickup : Wenang
+Kelurahan        : Calaca
+Alamat Jemput    : Kelurahan Calaca bagian barat, Kecamatan Wenang, tepatnya di samping Pasar Bersehati
+Tanggal & Jam    : 30 May 2026 09:41:01 WITA
+Estimasi Berat   : 2.4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 10:00:37] CLEANUP EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Wanea - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-003
+Nama Pemesan     : Kevin Sambow
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Wanea
+Kelurahan        : Teling atas
+Alamat Lokasi    : Jl. Lingkungan 5, Teling Atas, Kec. Wanea, Kota Manado, Sulawesi Utara
+Tanggal & Jam    : 30 May 2026 10:00:32 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 10:35:50] CLEANUP EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Sario - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-004
+Nama Pemesan     : Dwi
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Sario
+Kelurahan        : Sario kota baru
+Alamat Lokasi    : Jalan Pramuka
+Tanggal & Jam    : 30 May 2026 10:35:45 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 10:59:53] CLEANUP EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Wanea - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-005
+Nama Pemesan     : Andini Hermansyah
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Wanea
+Kelurahan        : Karombasan utara
+Alamat Lokasi    : Jl. Stadion Klabat Utara
+Tanggal & Jam    : 30 May 2026 10:59:44 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-05-30 11:02:32] CLEANUP EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Malalayang - 30 Mei 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-006
+Nama Pemesan     : Enjel Soewarno
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Malalayang
+Kelurahan        : Krida
+Alamat Lokasi    : Pekuburan bantik
+Tanggal & Jam    : 30 May 2026 11:02:27 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-02 11:10:55] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 2 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-003
+Nama Pemesan     : Esa Massing
+Kecamatan Pickup : Sario
+Kelurahan        : Sario kota baru
+Alamat Jemput    : Jl. Pramuka
+Tanggal & Jam    : 02 Jun 2026 11:10:47 WITA
+Estimasi Berat   : 6.9 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-02 11:12:52] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 2 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-004
+Nama Pemesan     : Fisyan Dunggio
+Kecamatan Pickup : Sario
+Kelurahan        : Sario kota baru
+Alamat Jemput    : Jl. pramuka no 18
+Tanggal & Jam    : 02 Jun 2026 11:12:46 WITA
+Estimasi Berat   : 8.2 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-02 11:14:41] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 2 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-Lainnya-001
+Nama Pemesan     : Gracia Tendean
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Tumpaan
+Alamat Jemput    : Jl Piere Tendean
+Tanggal & Jam    : 02 Jun 2026 11:14:36 WITA
+Estimasi Berat   : 3.8 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-02 11:16:58] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 2 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-Lainnya-002
+Nama Pemesan     : Rivaldo Metuak
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Utara
+Alamat Jemput    : Sd gmim 24 manado
+Tanggal & Jam    : 02 Jun 2026 11:16:52 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-02 11:23:55] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 2 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-005
+Nama Pemesan     : Stary Sahiu
+Kecamatan Pickup : Mapanget
+Kelurahan        : Buha
+Alamat Jemput    : Jl. Politeknik
+Tanggal & Jam    : 02 Jun 2026 11:23:49 WITA
+Estimasi Berat   : 9.8 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-02 11:25:41] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 2 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006CA0
+Nama Pemesan     : Regina Sepang
+Kecamatan Pickup : Mapanget
+Kelurahan        : Buha
+Alamat Jemput    : Jl. Politeknik
+Tanggal & Jam    : 02 Jun 2026 11:25:36 WITA
+Estimasi Berat   : 4.7 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-02 12:00:57] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Paal Dua - 2 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-Lainnya-003
+Nama Pemesan     : Siane
+Kecamatan Pickup : Paal Dua
+Kelurahan        : Dendengan luar
+Alamat Jemput    : kahdakjgv
+Tanggal & Jam    : 02 Jun 2026 12:00:42 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-02 14:10:37] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 2 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-003058
+Nama Pemesan     : Yuscar Agsbastian
+Kecamatan Pickup : Wanea
+Kelurahan        : Karombasan
+Alamat Jemput    : Jalan Stadion Klabat Utara
+Tanggal & Jam    : 02 Jun 2026 14:10:30 WITA
+Estimasi Berat   : 8.5 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-06 11:13:14] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 6 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-0079C5
+Nama Pemesan     : Aprilia Kapoh
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Utara
+Alamat Jemput    : Jl. Ahmad Yani No. 17, Sario Utara, Kec. Sario, Kota Manado, Sulawesi Utara.
+Tanggal & Jam    : 06 Jun 2026 11:13:06 WITA
+Estimasi Berat   : 29 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-07 21:19:38] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 7 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-004
+Nama Pemesan     : Daniel Erikson Suruh
+Kecamatan Pickup : Wanea
+Kelurahan        : Karombasan utara
+Alamat Jemput    : Jl. Sam Ratulangi No.23, Karombasan Utara, Kec. Wanea, Kota Manado, Sulawesi Utara
+Tanggal & Jam    : 07 Jun 2026 21:19:33 WITA
+Estimasi Berat   : 5.00 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-09 10:44:21] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Malalayang - 9 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-008
+Nama Pemesan     : dwika
+Kecamatan Pickup : Malalayang
+Kelurahan        : Tanah Putih
+Alamat Jemput    : Jalan Tanah Putih Lingkungan 6
+Tanggal & Jam    : 09 Jun 2026 10:44:13 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-09 10:48:13] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Malalayang - 9 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-008
+Nama Pemesan     : Dwika
+Kecamatan Pickup : Malalayang
+Kelurahan        : Tanah Putih
+Alamat Jemput    : Jalan Tanah Putih
+Tanggal & Jam    : 09 Jun 2026 10:48:05 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-09 11:02:31] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Malalayang - 9 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-008
+Nama Pemesan     : Daniel Erikson Suruh
+Kecamatan Pickup : Malalayang
+Kelurahan        : Tanah Putih
+Alamat Jemput    : Jalan Tanah Putih
+Tanggal & Jam    : 09 Jun 2026 11:02:25 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-09 13:34:02] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 9 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006
+Nama Pemesan     : Stary Sahiu
+Kecamatan Pickup : Wanea
+Kelurahan        : Teling Bawah
+Alamat Jemput    : Jl.14 Februari 6 Teling Bawah
+Tanggal & Jam    : 09 Jun 2026 13:33:56 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-10 18:11:49] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 10 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-0069C6
+Nama Pemesan     : Charni Sumolang
+Kecamatan Pickup : Sario
+Kelurahan        : Ranotana weru
+Alamat Jemput    : Jalan Tombulu, 99
+Tanggal & Jam    : 10 Jun 2026 18:11:40 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-10 19:49:16] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 10 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-005
+Nama Pemesan     : Daniel Erikson Suruh
+Kecamatan Pickup : Wanea
+Kelurahan        : Karombasan Utara
+Alamat Jemput    : Jl. Sam Ratulangi No.23, Karombasan Utara, Kec. Wanea, Kota Manado, Sulawesi Utara
+Tanggal & Jam    : 10 Jun 2026 19:49:10 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-10 21:33:21] EMAIL SENT TO: dwika06081012@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 10 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-005
+Nama Pemesan     : Daniel Erikson Suruh
+Kecamatan Pickup : Wanea
+Kelurahan        : Karombasan Utara
+Alamat Jemput    : baik Sekarang perbaikan program. Silahkan Lakukan Perbaikan yang dimaksud dengan output seperti tampilan baru yang dijelaskan. Tolong ya.
+Tanggal & Jam    : 10 Jun 2026 21:33:15 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-16 08:58:12] EMAIL SENT TO: admin@manadurecyclehub.id
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 16 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.3.16
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-001
+Nama Pemesan     : javascript:alert(1)
+Kecamatan Pickup : Mapanget
+Kelurahan        : javascript:alert(1)
+Alamat Jemput    : javascript:alert(1)
+Tanggal & Jam    : 16 Jun 2026 08:58:10 WITA
+Estimasi Berat   : javascript:alert(1) kg
+Jumlah Titik     : 2 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-16 09:59:02] EMAIL SENT TO: admin@manadurecyclehub.id
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 16 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.3.16
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-002
+Nama Pemesan     : Crazyfun Fool
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Kotabaru
+Alamat Jemput    : SMK, Jalan Bethesda 3
+Tanggal & Jam    : 16 Jun 2026 09:59:00 WITA
+Estimasi Berat   : 3.5 kg
+Jumlah Titik     : 2 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-16 11:26:45] EMAIL SENT TO: admin@manadurecyclehub.id
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 16 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.3.16
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-003
+Nama Pemesan     : Crazyfun Fool2
+Kecamatan Pickup : Sario
+Kelurahan        : Ranotana
+Alamat Jemput    : Patung Sam Ratulangi, Jalan Sam Ratulangi
+Tanggal & Jam    : 16 Jun 2026 11:26:43 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 2 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-17 14:37:54] EMAIL SENT TO: admin@manadurecyclehub.id
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 17 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-004
+Nama Pemesan     : Mimi Pattimahu
+Kecamatan Pickup : Wanea
+Kelurahan        : Ranotana Weru
+Alamat Jemput    : SD GMIM 31 MANADO, Jalan Lingkungan II
+Tanggal & Jam    : 17 Jun 2026 14:37:52 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-18 18:37:38] EMAIL SENT TO: admin@manadurecyclehub.id
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 18 Juni 2026
+Headers: From: system@manadurecyclehub.id
+Reply-To: system@manadurecyclehub.id
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-001
+Nama Pemesan     : Yuscar
+Kecamatan Pickup : Wanea
+Kelurahan        : Karombasan Utara
+Alamat Jemput    : SMP Katolik Hati Kudus, Jalan Sam Ratulangi
+Tanggal & Jam    : 18 Jun 2026 18:37:28 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-18 18:48:56] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 18 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-005
+Nama Pemesan     : Dwi
+Kecamatan Pickup : Wanea
+Kelurahan        : Ranotana Weru
+Alamat Jemput    : SD GMIM 31 MANADO, Jalan Lingkungan II
+Tanggal & Jam    : 18 Jun 2026 18:48:50 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-18 19:04:57] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Tikala - 18 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-002
+Nama Pemesan     : Dwi
+PIC              : Yuscar Agsbastian
+Kecamatan Pickup : Tikala
+Kelurahan        : Tikala Baru
+Alamat Jemput    : SMKN 2 Manado, Jalan Pomurouw
+Tanggal & Jam    : 18 Jun 2026 19:04:50 WITA
+Estimasi Berat   : 7 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-18 19:06:16] PASSWORD RESET EMAIL SENT TO: egisepang@gmail.com
+
+[2026-06-19 16:09:05] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 19 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-003
+Nama Pemesan     : Dwiky Masuara TI 4
+PIC              : Rafael Lahiang
+Kecamatan Pickup : Wanea
+Kelurahan        : Ranotana Weru
+Alamat Jemput    : SD GMIM 31 MANADO, Jalan Lingkungan II
+Tanggal & Jam    : 19 Jun 2026 16:09:00 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-21 11:42:51] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Tikala - 21 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-006
+Nama Pemesan     : fre
+PIC              : -
+Kecamatan Pickup : Tikala
+Kelurahan        : Tikala Baru
+Alamat Jemput    : SMKN 2 Manado, Jalan Pomurouw
+Tanggal & Jam    : 21 Jun 2026 11:42:19 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:36:15] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-004
+Nama Pemesan     : Rivaldo Metuak
+PIC              : Gemilang Aloanis
+Kecamatan Pickup : Sario
+Kelurahan        : Bumi Beringin
+Alamat Jemput    : RS. Tk.II Robert Wolter Mongisidi, Jalan Katamso
+Tanggal & Jam    : 22 Jun 2026 05:36:08 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:38:21] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-006
+Nama Pemesan     : Aprilia Kapoh
+PIC              : Kevin Sambow
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Utara
+Alamat Jemput    : KONI, Sario Utara
+Tanggal & Jam    : 22 Jun 2026 05:38:15 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:40:10] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-007
+Nama Pemesan     : Charni Sumolang
+PIC              : Claudya Lahinta
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Kotabaru
+Alamat Jemput    : Aula Getsemani Hall, Jalan Pramuka
+Tanggal & Jam    : 22 Jun 2026 05:40:06 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:42:00] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-005
+Nama Pemesan     : Gracia Tendean
+PIC              : Hizkia Lengkey
+Kecamatan Pickup : Sario
+Kelurahan        : Bumi Beringin
+Alamat Jemput    : Direktorat Pamobvit POLDA Sulawesi Utara, Jalan Katamso
+Tanggal & Jam    : 22 Jun 2026 05:41:55 WITA
+Estimasi Berat   : 10 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:45:10] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-008
+Nama Pemesan     : Valdo Sumeru
+PIC              : Fisyan Dunggio
+Kecamatan Pickup : Wanea
+Kelurahan        : Ranotana Weru
+Alamat Jemput    : SD GMIM 31 MANADO, Jalan Lingkungan II
+Tanggal & Jam    : 22 Jun 2026 05:45:04 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:46:04] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006
+Nama Pemesan     : Daniel Erikson Suruh
+PIC              : Dwiky Masuara
+Kecamatan Pickup : Wanea
+Kelurahan        : Karombasan Utara
+Alamat Jemput    : SMP Katolik Hati Kudus, Jalan Sam Ratulangi
+Tanggal & Jam    : 22 Jun 2026 05:45:59 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:47:57] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Tikala - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-007
+Nama Pemesan     : Stary Sahiu
+PIC              : Yuscar Agsbastian
+Kecamatan Pickup : Tikala
+Kelurahan        : Tikala Baru
+Alamat Jemput    : SMKN 2 Manado, Jalan Pomurouw
+Tanggal & Jam    : 22 Jun 2026 05:47:51 WITA
+Estimasi Berat   : 9 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:50:44] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-009
+Nama Pemesan     : Praisy Suot
+PIC              : Carlos Jhon Wuisan
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : IT Center Manado, Jalan Piere Tendean
+Tanggal & Jam    : 22 Jun 2026 05:50:39 WITA
+Estimasi Berat   : 4.7 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 05:52:13] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-010
+Nama Pemesan     : Anjelika Lado
+PIC              : Ever Soputan
+Kecamatan Pickup : Wenang
+Kelurahan        : Calaca
+Alamat Jemput    : Pelabuhan, Jalan Boulevard 2
+Tanggal & Jam    : 22 Jun 2026 05:52:07 WITA
+Estimasi Berat   : 20 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-22 08:26:08] CLEANUP EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Wanea - 22 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-001
+Nama Pemesan     : Dwi
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Wanea
+Kelurahan        : Karombasan Utara
+Alamat Lokasi    : SMP Katolik Hati Kudus, Jalan Sam Ratulangi
+Tanggal & Jam    : 22 Jun 2026 08:26:03 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-25 08:29:04] CLEANUP EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Tikala - 25 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-CLN-002
+Nama Pemesan     : de
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Tikala
+Kelurahan        : Tikala Baru
+Alamat Lokasi    : SMKN 2 Manado, Jalan Pomurouw
+Tanggal & Jam    : 25 Jun 2026 08:28:56 WITA
+Dominan Sampah   : Gelas Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-25 13:49:00] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 25 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-007021
+Nama Pemesan     : Clau
+PIC              : Dwi
+Kecamatan Pickup : Mapanget
+Kelurahan        : Kairagi II
+Alamat Jemput    : Auditorium Politeknik Negeri Manado, Konsolidasi
+Tanggal & Jam    : 25 Jun 2026 13:48:52 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-25 15:35:03] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 25 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-008
+Nama Pemesan     : Clau
+PIC              : Dwi
+Kecamatan Pickup : Mapanget
+Kelurahan        : Kairagi II
+Alamat Jemput    : Auditorium Politeknik Negeri Manado, Konsolidasi
+Tanggal & Jam    : 25 Jun 2026 15:34:57 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-26 05:13:22] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 26 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-009
+Nama Pemesan     : Dwiky
+PIC              : Yuscar
+Kecamatan Pickup : Sario
+Kelurahan        : Sario Utara
+Alamat Jemput    : KONI, Sario Utara
+Tanggal & Jam    : 26 Jun 2026 05:13:11 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-26 05:20:01] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-005
+Nama Pemesan     : Stary Sahiu
+PIC              : Yuscar Agsbastian
+Kecamatan Pickup : Wenang
+Kelurahan        : Wenang Utara
+Alamat Jemput    : IT Center Manado, Jalan Piere Tendean
+Tanggal & Jam    : 26 Jun 2026 05:19:56 WITA
+Estimasi Berat   : 3 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-26 05:21:04] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 26 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-006
+Nama Pemesan     : Daniel Erikson Suruh
+PIC              : Dwi
+Kecamatan Pickup : Wanea
+Kelurahan        : Karombasan Utara
+Alamat Jemput    : SMP Katolik Hati Kudus, Jalan Sam Ratulangi
+Tanggal & Jam    : 26 Jun 2026 05:21:00 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 2 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-26 05:22:23] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-007
+Nama Pemesan     : Valdo Sumeru
+PIC              : Fisyan Dunggio
+Kecamatan Pickup : Wenang
+Kelurahan        : Calaca
+Alamat Jemput    : Pelabuhan, Jalan Boulevard 2
+Tanggal & Jam    : 26 Jun 2026 05:22:18 WITA
+Estimasi Berat   : 7 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-26 05:23:45] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Sario - 26 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-0086BA
+Nama Pemesan     : Anjelika Lado
+PIC              : Ever Soputan
+Kecamatan Pickup : Sario
+Kelurahan        : Bumi Beringin
+Alamat Jemput    : RS. Tk.II Robert Wolter Mongisidi, Jalan Katamso
+Tanggal & Jam    : 26 Jun 2026 05:23:37 WITA
+Estimasi Berat   : 4 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-26 05:25:58] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wenang - 26 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-009
+Nama Pemesan     : Claudya Lahinta
+PIC              : Lino Wullur
+Kecamatan Pickup : Wenang
+Kelurahan        : Komo Luar
+Alamat Jemput    : Gapura Kampoeng Komo Luar Lingkungan III, Jalan Sudirman 11
+Tanggal & Jam    : 26 Jun 2026 05:25:53 WITA
+Estimasi Berat   : 9 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-26 05:31:54] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 26 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-010
+Nama Pemesan     : Dwi
+PIC              : Esa
+Kecamatan Pickup : Wanea
+Kelurahan        : Ranotana Weru
+Alamat Jemput    : SD GMIM 31 MANADO, Jalan Lingkungan II
+Tanggal & Jam    : 26 Jun 2026 05:31:49 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-26 05:47:22] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Wanea - 26 Juni 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-011
+Nama Pemesan     : Dwi
+PIC              : Esa
+Kecamatan Pickup : Wanea
+Kelurahan        : Ranotana Weru
+Alamat Jemput    : SD GMIM 31 MANADO, Jalan Lingkungan II
+Tanggal & Jam    : 26 Jun 2026 05:47:15 WITA
+Estimasi Berat   : 6 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-06-27 14:34:27] PASSWORD RESET EMAIL SENT TO: jeksen2@mail.com
+
+[2026-06-27 14:52:11] PASSWORD RESET EMAIL SENT TO: jeksen2@mail.com
+
+[2026-06-27 16:56:54] PASSWORD RESET EMAIL SENT TO: jeksen2@mail.com
+

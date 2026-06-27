@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline — Manado Recycle Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0fdf4;
+      color: #1c6434;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      background: #ffffff;
+      padding: 40px 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(28, 100, 52, 0.08);
+      max-width: 420px;
+      width: 100%;
+      border: 1px solid #bbf7d0;
+    }
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      background: #1c6434;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background: #1e7a40;
+      transform: translateY(-1px);
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="icon">📶</div>
+  <h1>Koneksi Internet Terputus</h1>
+  <p>Anda sedang berada dalam mode offline. Manado Recycle Hub akan segera mensinkronisasi data setelah perangkat Anda terhubung kembali ke internet.</p>
+  <button class="btn" onclick="window.location.reload();">
+    🔄 Coba Hubungkan Kembali
+  </button>
+</div>
+
+</body>
+</html>
