@@ -1284,6 +1284,33 @@ body {
 .pulse-marker-icon {
     animation: map-pulse 1.8s infinite ease-in-out;
 }
+
+/* Custom styling for the simulated truck tracking as requested */
+.custom-truck-popup .leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #e0533c !important;
+  border-radius: 6px !important;
+  padding: 2px 8px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+  border: 1.5px solid #e2e8f0 !important;
+}
+
+.custom-truck-popup .leaflet-popup-content {
+  margin: 6px 10px !important;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.custom-truck-popup .leaflet-popup-tip {
+  background: #ffffff !important;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.1) !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-top: none !important;
+  border-left: none !important;
+}
+
+.custom-truck-popup .leaflet-popup-close-button {
+  display: none !important;
+}
 </style>
 </head>
 <body>
@@ -2624,11 +2651,14 @@ window.initLeafletMapFallback = function() {
                 maxZoom: 19
             }).addTo(map);
 
-            // Custom icon for customer location
-            var custIcon = L.divIcon({
-                html: '<div style="font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">📍</div>',
-                iconSize: [24, 24],
-                iconAnchor: [12, 24]
+            // Custom icon for customer location: Red Pin Marker to match admin live tracking
+            var custIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
             });
             
             var custMarker = L.marker([custLat, custLng], { icon: custIcon }).addTo(map)
@@ -2651,27 +2681,40 @@ window.initLeafletMapFallback = function() {
                                 var oPos = [oLat, oLng];
                                 
                                 var officerIcon = L.divIcon({
-                                    html: '<div class="pulse-marker-icon" style="font-size: 26px; text-shadow: 0 2px 5px rgba(0,0,0,0.4); background: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #1c6434; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">🚚</div>',
+                                    html: '<div style="position:relative; width:34px; height:34px; display:flex; align-items:center; justify-content:center;">' +
+                                          '  <div class="pulse-marker-icon" style="position:absolute; width:34px; height:34px; background:rgba(34,197,94,0.25); border-radius:50%; z-index:-1; border: 2px solid #1c6434; box-shadow: 0 2px 8px rgba(0,0,0,0.25);"></div>' +
+                                          '  <div style="font-size: 26px; transform: scaleX(-1) rotate(15deg); line-height:1;">🚚</div>' +
+                                          '</div>',
                                     iconSize: [34, 34],
                                     iconAnchor: [17, 17]
                                 });
 
+                                var popupHtml = '<div style="font-family:\'Inter\',sans-serif; padding:2px;">' +
+                                                '  <strong style="color:var(--green-700); font-size:13px;">' + oName + '</strong>' +
+                                                '  <div style="color: #e0533c; font-weight: 800; font-size: 12px; margin-top: 4px;">💬 Memproses pesanan</div>' +
+                                                '  <div style="font-size:11px; color:#475569; margin-top:4px;">Dalam perjalanan ke lokasi Anda.</div>' +
+                                                '</div>';
+
                                 if (!officerMarker) {
                                     officerMarker = L.marker(oPos, { icon: officerIcon }).addTo(map)
-                                        .bindPopup('<b>Petugas: ' + oName + '</b><br>Sedang dalam perjalanan ke lokasi Anda.').openPopup();
+                                        .bindPopup(popupHtml, {
+                                            closeButton: false,
+                                            className: 'custom-truck-popup'
+                                        }).openPopup();
                                 } else {
                                     officerMarker.setLatLng(oPos);
+                                    officerMarker.getPopup().setContent(popupHtml);
                                 }
 
-                                // Gambarkan garis rute/koneksi antara petugas dengan lokasi penjemputan warga
+                                // Gambarkan garis rute/koneksi antara petugas dengan lokasi penjemputan warga (Solid Red Line)
                                 if (routeLine) {
                                     map.removeLayer(routeLine);
                                 }
                                 routeLine = L.polyline([oPos, [custLat, custLng]], {
-                                    color: '#1c6434',
+                                    color: '#e0533c', // Red/orange route line
                                     weight: 4,
-                                    opacity: 0.8,
-                                    dashArray: '8, 8'
+                                    opacity: 0.9,
+                                    lineJoin: 'round'
                                 }).addTo(map);
 
                                 var bounds = L.latLngBounds([custMarker.getLatLng(), officerMarker.getLatLng()]);

@@ -291,33 +291,6 @@ require_once __DIR__ . '/layout/header.php';
     height: 450px;
   }
 }
-
-/* Custom styling for the simulated truck tracking as requested */
-.custom-truck-popup .leaflet-popup-content-wrapper {
-  background: #ffffff !important;
-  color: #e0533c !important;
-  border-radius: 6px !important;
-  padding: 2px 8px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-  border: 1.5px solid #e2e8f0 !important;
-}
-
-.custom-truck-popup .leaflet-popup-content {
-  margin: 6px 10px !important;
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-}
-
-.custom-truck-popup .leaflet-popup-tip {
-  background: #ffffff !important;
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.1) !important;
-  border: 1.5px solid #e2e8f0 !important;
-  border-top: none !important;
-  border-left: none !important;
-}
-
-.custom-truck-popup .leaflet-popup-close-button {
-  display: none !important;
-}
 </style>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -371,20 +344,20 @@ require_once __DIR__ . '/layout/header.php';
         <span style="font-weight:700; color:#334155;">🏭 Depot MRH</span>
       </div>
       <div class="legend-item">
-        <span style="font-size:14px; margin-right:4px;">🚚</span>
-        <span style="font-weight:700; color:#334155;">Petugas (Aktif / Online)</span>
-      </div>
-      <div class="legend-item" style="opacity: 0.6;">
-        <span style="font-size:14px; margin-right:4px; filter: grayscale(1);">🚚</span>
-        <span style="font-weight:700; color:#334155;">Petugas (Offline)</span>
+        <span class="legend-color-dot" style="background: #22c55e;"></span>
+        <span style="font-weight:700; color:#334155;">🛵 Petugas (Aktif / Online)</span>
       </div>
       <div class="legend-item">
-        <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png" style="width:12px; height:20px; margin-right:6px;" alt="Red pin">
-        <span style="font-weight:700; color:#334155;">Tugas Aktif (Lokasi Jemput)</span>
+        <span class="legend-color-dot" style="background: #94a3b8;"></span>
+        <span style="font-weight:700; color:#334155;">🛵 Petugas (Offline)</span>
       </div>
       <div class="legend-item">
-        <span style="display:inline-block; width:16px; height:4px; background:#e0533c; margin-right:6px; border-radius:2px;"></span>
-        <span style="font-weight:700; color:#334155;">Rute Perjalanan</span>
+        <span class="legend-color-dot" style="background: #3b82f6;"></span>
+        <span style="font-weight:700; color:#334155;">♻️ Tugas Daur Ulang Aktif</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color-dot" style="background: #f59e0b;"></span>
+        <span style="font-weight:700; color:#334155;">🧹 Tugas Clean Up Aktif</span>
       </div>
     </div>
   </div>
@@ -556,7 +529,6 @@ function updateUI() {
           <strong style="color:var(--green-700); font-size:13px;">${escapeHtml(c.nama)}</strong>
           <span style="font-size:9px; background:${c.is_online ? '#dcfce7' : '#f1f5f9'}; color:${c.is_online ? '#166534' : '#475569'}; padding:2px 6px; border-radius:10px; font-weight:800">${c.is_online ? 'Online' : 'Offline'}</span>
         </div>
-        ${c.is_online ? `<div style="color: #e0533c; font-weight: 800; font-size: 12px; margin-bottom: 6px;">💬 Memproses pesanan</div>` : ''}
         <div style="font-size:11px; color:#475569; margin-bottom:8px; line-height:1.4;">
           Code: <strong>${escapeHtml(c.code)}</strong><br>
           Kendaraan: ${escapeHtml(c.kendaraan || '—')}<br>
@@ -595,10 +567,7 @@ function updateUI() {
 
       const marker = L.marker(latlng, { icon })
         .addTo(mapInstance)
-        .bindPopup(popupHtml, {
-          closeButton: false,
-          className: 'custom-truck-popup'
-        });
+        .bindPopup(popupHtml);
         
       officerMarkers[c.id] = marker;
       
@@ -624,14 +593,12 @@ function updateUI() {
 // Icon helper function for online/offline styles
 function createIconHtmlForOfficer(c) {
   if (c.is_online) {
-    return `<div style="position:relative; width:30px; height:30px; display:flex; align-items:center; justify-content:center;">
-              <div class="pulse-indicator-map" style="position:absolute; width:34px; height:34px; background:rgba(34,197,94,0.25); border-radius:50%; z-index:-1;"></div>
-              <div style="font-size: 26px; transform: scaleX(-1) rotate(15deg); line-height:1;">🚚</div>
+    return `<div style="position:relative;">
+              <div class="pulse-indicator-map" style="position:absolute;top:-2px;left:-2px;width:34px;height:34px;background:rgba(34,197,94,0.35);"></div>
+              <div style="position:relative;background:#22c55e;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);font-weight:bold;">🛵</div>
             </div>`;
   } else {
-    return `<div style="position:relative; width:30px; height:30px; display:flex; align-items:center; justify-content:center; filter: grayscale(1); opacity: 0.6;">
-              <div style="font-size: 26px; transform: scaleX(-1) rotate(15deg); line-height:1;">🚚</div>
-            </div>`;
+    return `<div style="background:#94a3b8;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);font-weight:bold;">🛵</div>`;
   }
 }
 
@@ -679,14 +646,19 @@ function drawRouteAndTasksForCourier(c) {
 
   const points = [[startLat, startLng]];
 
-  // Task Icons: Red Pin Marker to match the image style
-  const redPinIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+  // Task Icons
+  const taskPickupIcon = L.divIcon({
+    className: '',
+    html: '<div style="background:#3b82f6;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)">♻️</div>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+
+  const taskCleanupIcon = L.divIcon({
+    className: '',
+    html: '<div style="background:#f59e0b;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)">🧹</div>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
   });
 
   c.tasks.forEach((t, index) => {
@@ -697,6 +669,7 @@ function drawRouteAndTasksForCourier(c) {
     
     // Tipe task
     const isCleanup = t.tipe === 'cleanup';
+    const taskIcon = isCleanup ? taskCleanupIcon : taskPickupIcon;
     const taskTypeLabel = isCleanup ? 'Clean Up' : 'Daur Ulang';
     
     const popupHtml = `
@@ -709,7 +682,7 @@ function drawRouteAndTasksForCourier(c) {
       </div>
     `;
 
-    const marker = L.marker(latlng, { icon: redPinIcon })
+    const marker = L.marker(latlng, { icon: taskIcon })
       .addTo(mapInstance)
       .bindPopup(popupHtml);
       
@@ -717,11 +690,12 @@ function drawRouteAndTasksForCourier(c) {
   });
 
   // Draw lines connecting courier to all tasks
-  // Use solid red/orange line to match the image style
+  // Use a distinct colored line with directional feel
   const polyline = L.polyline(points, {
-    color: '#e0533c', // Red/orange line
-    weight: 4,
-    opacity: 0.9,
+    color: '#3b82f6',
+    weight: 3.5,
+    opacity: 0.8,
+    dashArray: '8, 8',
     lineJoin: 'round'
   }).addTo(mapInstance);
   
@@ -755,7 +729,6 @@ function updateTimerText() {
   document.getElementById('refreshTimerText').textContent = `Update: ${secondsRemaining} detik`;
 }
 
-// manual Refresh
 function manualRefresh() {
   fetchLocations();
   startTimer(); // reset timer
