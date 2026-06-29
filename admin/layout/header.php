@@ -550,11 +550,11 @@ try {
       .grid-2, .grid-3, .form-row { grid-template-columns:1fr; }
       .stats-grid { grid-template-columns:1fr; }
 
-      /* Centering bell icon in topbar on mobile */
+      /* Aligning bell icon to the right on mobile, next to avatar */
       #notifBellContainer {
-        position: absolute !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
+        position: relative !important;
+        left: auto !important;
+        transform: none !important;
         margin-right: 0 !important;
         z-index: 1001;
       }
