@@ -22,6 +22,7 @@ if ($action === 'update_status') {
     $berat       = trim($_POST['berat_aktual'] ?? '');
     $price       = trim($_POST['price_per_kg'] ?? '');
     $pickup_type = trim($_POST['pickup_type'] ?? '');
+    $service_type = trim($_POST['service_type'] ?? '');
     $valid       = ['dijadwalkan','dalam_perjalanan','sedang_diproses','selesai','dibatalkan'];
     if ($pid && in_array($status, $valid)) {
         $isKendala = (int)($_POST['is_kendala'] ?? 0);
@@ -30,6 +31,7 @@ if ($action === 'update_status') {
             $extra .= ', completed_at=IF(completed_at IS NULL,NOW(),completed_at)';
             if ($berat !== '') { $extra .= ', berat_total_kg=?'; $params[] = (float)$berat; }
             if ($price !== '') { $extra .= ', price_per_kg=?'; $params[] = (float)$price; }
+            if ($service_type !== '') { $extra .= ', service_type=?'; $params[] = $service_type; }
         }
         if ($status === 'sedang_diproses') $extra .= ', confirmed_at=IF(confirmed_at IS NULL,NOW(),confirmed_at)';
         if (isset($_POST['catatan_officer'])) { $extra .= ', catatan_officer=?'; $params[] = $catatan; }

@@ -57,7 +57,7 @@ $slblMap = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=
       <div class="task-meta">
         <span class="task-badge" style="background:<?= $sbg ?>;color:<?= $stxt ?>"><?= $slbl ?></span>
         <?php if($t['jenis_sampah']): ?><span class="task-badge" style="background:#f0fdf4;color:#1c6434">♻️ <?= htmlspecialchars(mb_substr($t['jenis_sampah'],0,30)) ?></span><?php endif; ?>
-        <?php if($t['berat_total_kg']): ?><span class="task-badge" style="background:#f0f9ff;color:#0369a1">⚖️ <?= $t['berat_total_kg'] ?> kg</span><?php endif; ?>
+        <?php if($t['berat_total_kg'] || $t['berat_kg']): ?><span class="task-badge" style="background:#f0f9ff;color:#0369a1">⚖️ <?= htmlspecialchars($t['berat_kg'] ?: (string)(float)$t['berat_total_kg']) ?> kg</span><?php endif; ?>
       </div>
       <?php if($t['catatan']): ?>
       <div style="margin-top:7px;font-size:11px;color:#888;background:#fffde7;padding:6px 10px;border-radius:6px;border-left:3px solid #ffc107">

@@ -27,6 +27,7 @@ if (isset($_GET['ajax_detail'])) {
                COALESCE(pr.kecamatan, cr.kecamatan) AS kecamatan,
                COALESCE(pr.kelurahan, cr.kelurahan) AS kelurahan,
                pr.price_per_kg,
+               pr.berat_kg AS berat_raw,
                COALESCE(pr.status, cr.status) AS status
         FROM weighing_records wr
         LEFT JOIN officers o ON o.id = wr.officer_id
@@ -189,6 +190,7 @@ $query_str = "
            pr.partner_name,
            pr.pickup_type,
            pr.service_type,
+           pr.berat_kg AS berat_raw,
            COALESCE(pr.price_per_kg, 0) AS price_per_kg,
            COALESCE(pr.catatan, cr.catatan) AS catatan,
            COALESCE(pr.latitude, cr.latitude) AS latitude,
@@ -250,7 +252,7 @@ if (isset($_GET['export'])) {
         echo 'table { border-collapse: collapse; }';
         echo 'th { background-color: #ffffff; color: #000000; font-weight: bold; border: 1px solid #000000; padding: 6px; text-align: left; vertical-align: top; white-space: normal; }';
         echo 'td { border: 1px solid #000000; padding: 6px; text-align: left; vertical-align: top; }';
-        echo '.number { mso-number-format:"\#\,\#\#0\.00"; text-align: right; }';
+        echo '.number { mso-number-format:"General"; text-align: right; }';
         echo '.text { mso-number-format:"\@"; }';
         echo '</style></head><body>';
         echo '<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 16pt; font-weight: bold; margin: 0 0 10px 0; color: #000000;">REKAMAN HASIL TIMBANG - MANADO RECYCLE HUB</h3>';
@@ -290,7 +292,8 @@ if (isset($_GET['export'])) {
             $staff_id = htmlspecialchars($r['officer_code'] ?? '-');
             $type = htmlspecialchars($r['pickup_type'] ?? '-');
             $service_type = htmlspecialchars($r['service_type'] ?: ($r['cleanup_request_id'] ? 'Paid' : '-'));
-            $weight = number_format($r['berat_kg'], 2, '.', '');
+            $w_str = ($r['berat_raw'] !== null && $r['berat_raw'] !== '') ? $r['berat_raw'] : (string)(float)$r['berat_kg'];
+            $weight = $w_str;
             $price = number_format($r['price_per_kg'], 0, '', '');
             $notes = htmlspecialchars($r['catatan'] ?? '');
             $recycled_material = htmlspecialchars($r['jenis_sampah'] ?? '-');
@@ -311,8 +314,8 @@ if (isset($_GET['export'])) {
             echo '<td class="text">' . $staff_id . '</td>';
             echo '<td>' . $type . '</td>';
             echo '<td>' . $service_type . '</td>';
-            echo '<td class="number">' . $weight . '</td>';
-            echo '<td class="number">' . $price . '</td>';
+            echo '<td class="text">' . $weight . '</td>';
+            echo '<td class="text">' . $price . '</td>';
             echo '<td class="number">' . number_format($total_harga_val, 0, '', '') . '</td>';
             echo '<td>' . $notes . '</td>';
             echo '<td>' . $recycled_material . '</td>';
@@ -459,8 +462,9 @@ if (isset($_GET['export'])) {
                             $geo = decToDms($r['latitude'], $r['longitude']);
 
                             $is_pickup = !empty($r['pickup_request_id']);
-                            $total_harga_val = $is_pickup ? (float)$r['berat_kg'] * (float)$r['price_per_kg'] : 0;
-                            $total_harga = $is_pickup ? 'Rp ' . number_format($total_harga_val, 0, ',', '.') : '—';
+                            $w_str = ($r['berat_raw'] !== null && $r['berat_raw'] !== '') ? $r['berat_raw'] : (string)(float)$r['berat_kg'];
+                            $total_harga_val = $is_pickup ? (float)$w_str * (float)$r['price_per_kg'] : 0;
+                            $total_harga = $is_pickup ? htmlspecialchars($w_str) . ' kg x Rp ' . number_format((float)$r['price_per_kg'], 0, ',', '.') . ' = Rp ' . number_format($total_harga_val, 0, ',', '.') : '—';
                             ?>
                             <tr>
                                 <td><?= $timestamp ?></td>
@@ -474,7 +478,7 @@ if (isset($_GET['export'])) {
                                 <td><?= htmlspecialchars($r['officer_code'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($r['pickup_type'] ?? '-') ?></td>
                                 <td><?= $service_type ?></td>
-                                <td class="font-bold text-right" style="color: #b45309;"><?= number_format($r['berat_kg'], 2, ',', '.') ?> kg</td>
+                                <td class="font-bold text-right" style="color: #b45309;"><?= htmlspecialchars($w_str) ?> kg</td>
                                 <td class="text-right"><?= number_format($r['price_per_kg'], 0, ',', '.') ?></td>
                                 <td class="font-bold text-right" style="color: #0284c7;"><?= $total_harga ?></td>
                                 <td><?= htmlspecialchars($r['catatan'] ?? '-') ?></td>
@@ -959,15 +963,16 @@ require_once __DIR__ . '/layout/header.php';
                         $staff_id = htmlspecialchars($r['officer_code'] ?? '-');
                         $type = htmlspecialchars($r['pickup_type'] ?? '-');
                         $service_type = htmlspecialchars($r['service_type'] ?: ($r['cleanup_request_id'] ? 'Paid' : '-'));
-                        $weight = number_format($r['berat_kg'], 2, ',', '.') . ' kg';
+                        $w_str = ($r['berat_raw'] !== null && $r['berat_raw'] !== '') ? $r['berat_raw'] : (string)(float)$r['berat_kg'];
+                        $weight = htmlspecialchars($w_str) . ' kg';
                         $price = 'Rp ' . number_format($r['price_per_kg'], 0, ',', '.');
                         $notes = htmlspecialchars($r['catatan'] ?? '-');
                         $recycled_material = htmlspecialchars($r['jenis_sampah'] ?? '-');
                         $geo_decimal = (!empty($r['latitude']) && !empty($r['longitude'])) ? number_format((float)$r['latitude'], 4, '.', '') . ', ' . number_format((float)$r['longitude'], 4, '.', '') : '-';
 
                         $is_pickup = !empty($r['pickup_request_id']);
-                        $total_harga_val = $is_pickup ? (float)$r['berat_kg'] * (float)$r['price_per_kg'] : 0;
-                        $total_harga = $is_pickup ? 'Rp ' . number_format($total_harga_val, 0, ',', '.') : '—';
+                        $total_harga_val = $is_pickup ? (float)$w_str * (float)$r['price_per_kg'] : 0;
+                        $total_harga = $is_pickup ? htmlspecialchars($w_str) . ' kg x Rp ' . number_format((float)$r['price_per_kg'], 0, ',', '.') . ' = Rp ' . number_format($total_harga_val, 0, ',', '.') : '—';
                         ?>
                         <tr>
                             <td class="weigh-timestamp"><?= $timestamp ?></td>
@@ -1425,6 +1430,13 @@ async function previewRecord(id) {
             let isCleanup = data.cleanup_request_id ? 1 : 0;
             let totalEstPrice = totalEst * price;
             let totalAktPrice = totalAkt * price;
+            
+            let totalAktStr = '';
+            if (data.items && data.items.length > 0) {
+                totalAktStr = totalAkt.toString();
+            } else {
+                totalAktStr = (data.berat_raw !== null && data.berat_raw !== undefined && data.berat_raw !== '') ? data.berat_raw : totalAkt.toString();
+            }
 
             content.innerHTML = `
                 <div class="grid-2" style="margin-bottom:16px;">
@@ -1485,7 +1497,7 @@ async function previewRecord(id) {
                         </div>
                         <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
                             <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Berat Total</span>
-                            <span style="font-weight:900; color:#b45309; font-size:13px; text-align:right;">${totalAkt.toFixed(2)} kg</span>
+                            <span style="font-weight:900; color:#b45309; font-size:13px; text-align:right;">${escapeHtml(totalAktStr)} kg</span>
                         </div>
                         ${!isCleanup ? `
                         <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:13px;">
@@ -1493,8 +1505,8 @@ async function previewRecord(id) {
                             <span style="font-weight:700; color:#1e293b; text-align:right;">Rp ${price.toLocaleString('id-ID')}</span>
                         </div>
                         <div class="preview-row-flex" style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px;">
-                            <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Total Nilai</span>
-                            <span style="font-weight:900; color:#16a34a; font-size:13px; text-align:right;">Rp ${totalAktPrice.toLocaleString('id-ID')}</span>
+                            <span style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase; min-width:110px;">Hasil Payout</span>
+                            <span style="font-weight:900; color:#16a34a; font-size:13px; text-align:right;">${escapeHtml(totalAktStr)} kg x Rp ${price.toLocaleString('id-ID')} = Rp ${totalAktPrice.toLocaleString('id-ID')}</span>
                         </div>
                         ` : ''}
                     </div>

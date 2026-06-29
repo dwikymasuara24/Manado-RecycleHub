@@ -33,7 +33,7 @@ try {
     $s->execute([$officerId]);
     $officer = $s->fetch();
 } catch(Exception $e){ $officer = null; }
-if (!$officer) $officer = ['id'=>$officerId,'nama'=>'Petugas','officer_code'=>'OFC-0001','kendaraan'=>'-','status'=>'aktif','email'=>'','user_wa'=>''];
+if (!$officer) $officer = ['id'=>$officerId,'nama'=>'Petugas','officer_code'=>'S01','kendaraan'=>'-','status'=>'aktif','email'=>'','user_wa'=>''];
 
 $st = ['total_all'=>0,'total_selesai'=>0,'aktif'=>0,'selesai_hari_ini'=>0,'total_berat'=>0];
 try {

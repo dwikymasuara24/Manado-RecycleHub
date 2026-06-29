@@ -64,13 +64,15 @@ $kecamatans = ['Wenang','Malalayang','Tikala','Paal Dua','Bunaken','Singkil','Ma
 
 // ── Generate officer_code unik ────────────────────────────────
 function nextOfficerCode(PDO $db): string {
-    $last = $db->query("SELECT officer_code FROM officers ORDER BY id DESC LIMIT 1")->fetchColumn();
-    if ($last && preg_match('/(\d+)$/', $last, $m)) {
-        $num = (int)$m[1] + 1;
-    } else {
-        $num = 1;
-    }
-    return 'OFF' . str_pad($num, 4, '0', STR_PAD_LEFT);
+    $cnt = 1;
+    do {
+        $code = 'S' . str_pad($cnt, 2, '0', STR_PAD_LEFT);
+        $stmtExists = $db->prepare("SELECT COUNT(*) FROM officers WHERE officer_code = ?");
+        $stmtExists->execute([$code]);
+        $exists = (int)$stmtExists->fetchColumn();
+        $cnt++;
+    } while ($exists > 0);
+    return $code;
 }
 
 // ── Cek kolom yang benar-benar ada di tabel officers ─────────

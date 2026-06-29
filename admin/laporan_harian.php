@@ -39,7 +39,7 @@ if ($type === 'pickup') {
                pr.place_name, pr.place_type, pr.pickup_type, pr.service_type, 
                COALESCE(pr.price_per_kg, 0) AS price_per_kg, pr.catatan, pr.latitude, pr.longitude, pr.tanggal_jemput AS tanggal_tugas,
                (SELECT GROUP_CONCAT(wc.name SEPARATOR ', ') FROM pickup_request_items pri JOIN waste_categories wc ON wc.id=pri.category_id WHERE pri.pickup_id=pr.id) AS jenis_sampah,
-               pr.berat_total_kg, pr.status, pr.created_at, 'pickup' as req_type,
+               pr.berat_total_kg, pr.berat_kg, pr.status, pr.created_at, 'pickup' as req_type,
                o.officer_code
         FROM pickup_requests pr
         LEFT JOIN officers o ON o.id = pr.officer_id
@@ -98,7 +98,7 @@ if (isset($_GET['export'])) {
         echo 'table { border-collapse: collapse; }';
         echo 'th { background-color: #ffffff; color: #000000; font-weight: bold; border: 1px solid #000000; padding: 6px; text-align: left; vertical-align: top; white-space: normal; }';
         echo 'td { border: 1px solid #000000; padding: 6px; text-align: left; vertical-align: top; }';
-        echo '.number { mso-number-format:"\#\,\#\#0\.00"; text-align: right; }';
+        echo '.number { mso-number-format:"General"; text-align: right; }';
         echo '.text { mso-number-format:"\@"; }';
         echo '</style></head><body>';
         echo '<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 16pt; font-weight: bold; margin: 0 0 10px 0; color: #000000;">LAPORAN HARIAN ' . strtoupper($layanan) . '</h3>';
@@ -137,8 +137,10 @@ if (isset($_GET['export'])) {
             $staff_id = $r['officer_code'] ?? '-';
             $type_val = $r['pickup_type'] ?? ($r['req_type'] === 'cleanup' ? 'C' : '-');
             $service_type = $r['service_type'] ?: ($r['req_type'] === 'cleanup' ? 'Paid' : 'Free');
-            $weight = $r['berat_total_kg'] ?: '0';
-            $price = $r['price_per_kg'] ?? '0';
+            $is_pickup = $r['req_type'] === 'pickup';
+            $w_str = $is_pickup ? (($r['berat_kg'] !== null && $r['berat_kg'] !== '') ? $r['berat_kg'] : (string)(float)$r['berat_total_kg']) : (string)(float)$r['berat_total_kg'];
+            $weight = $w_str ?: '0';
+            $price = ($r['price_per_kg'] !== null && $r['price_per_kg'] !== '') ? number_format((float)$r['price_per_kg'], 0, '', '') : '0';
             $notes = $r['catatan'] ?? '-';
             $recycled_material = $r['jenis_sampah'] ?? '-';
             $geo = decToDms($r['latitude'], $r['longitude']);
@@ -158,8 +160,8 @@ if (isset($_GET['export'])) {
             echo '<td class="text">' . htmlspecialchars($staff_id) . '</td>';
             echo '<td class="text">' . htmlspecialchars($type_val) . '</td>';
             echo '<td class="text">' . htmlspecialchars($service_type) . '</td>';
-            echo '<td class="number">' . $weight . '</td>';
-            echo '<td class="number">' . $price . '</td>';
+            echo '<td class="text">' . htmlspecialchars($weight) . '</td>';
+            echo '<td class="text">' . htmlspecialchars($price) . '</td>';
             echo '<td class="number">' . number_format($total_harga_val, 0, '', '') . '</td>';
             echo '<td>' . htmlspecialchars($notes) . '</td>';
             echo '<td>' . htmlspecialchars($recycled_material) . '</td>';
@@ -167,7 +169,83 @@ if (isset($_GET['export'])) {
             echo '<td>' . htmlspecialchars($r['status']) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></body></html>';
+        echo '</tbody></table>';
+
+        if ($type === 'pickup') {
+            $pivotData = [];
+            foreach ($rows as $r) {
+                if ($r['req_type'] !== 'pickup') continue;
+                if (($r['service_type'] ?? '') !== 'Paid') continue;
+                if (($r['status'] ?? '') === 'dibatalkan') continue;
+
+                $partner = trim($r['partner_name'] ?: $r['nama_pemohon']);
+                if ($partner === '') {
+                    $partner = '-';
+                }
+
+                if (!isset($pivotData[$partner])) {
+                    $pivotData[$partner] = [
+                        'partner_name' => $partner,
+                        'kunjungan' => 0,
+                        'total_berat' => 0.0,
+                        'total_bayar' => 0.0
+                    ];
+                }
+
+                $weight = (float)($r['berat_total_kg'] ?? 0);
+                $price = (float)($r['price_per_kg'] ?? 0);
+                $bayar = $weight * $price;
+
+                $pivotData[$partner]['kunjungan'] += 1;
+                $pivotData[$partner]['total_berat'] += $weight;
+                $pivotData[$partner]['total_bayar'] += $bayar;
+            }
+            ksort($pivotData);
+
+            echo '<br><br>';
+            echo '<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: bold; margin: 0 0 10px 0; color: #000000;">RINGKASAN PEMBAYARAN MITRA (PAID SERVICE)</h3>';
+            echo '<table>';
+            echo '<thead><tr>';
+            echo '<th>No</th>';
+            echo '<th>Partner Name (Mitra/Warga)</th>';
+            echo '<th>Total Kunjungan</th>';
+            echo '<th>Total Berat (kg)</th>';
+            echo '<th>Total Pembayaran (Rp)</th>';
+            echo '</tr></thead>';
+            echo '<tbody>';
+
+            $grandKunjungan = 0;
+            $grandBerat = 0.0;
+            $grandBayar = 0.0;
+            $no = 1;
+
+            if ($pivotData) {
+                foreach ($pivotData as $p) {
+                    $grandKunjungan += $p['kunjungan'];
+                    $grandBerat += $p['total_berat'];
+                    $grandBayar += $p['total_bayar'];
+
+                    echo '<tr>';
+                    echo '<td>' . $no++ . '</td>';
+                    echo '<td>' . htmlspecialchars($p['partner_name']) . '</td>';
+                    echo '<td class="number">' . $p['kunjungan'] . '</td>';
+                    echo '<td class="text">' . (float)$p['total_berat'] . '</td>';
+                    echo '<td class="number">' . number_format($p['total_bayar'], 0, '', '') . '</td>';
+                    echo '</tr>';
+                }
+                echo '<tr style="font-weight: bold; background-color: #f2f2f2;">';
+                echo '<td colspan="2">TOTAL KESELURUHAN</td>';
+                echo '<td class="number">' . $grandKunjungan . '</td>';
+                echo '<td class="text">' . (float)$grandBerat . '</td>';
+                echo '<td class="number">' . number_format($grandBayar, 0, '', '') . '</td>';
+                echo '</tr>';
+            } else {
+                echo '<tr><td colspan="5" style="text-align: center;">Tidak ada data pembayaran (Paid) pada periode ini.</td></tr>';
+            }
+            echo '</tbody></table>';
+        }
+
+        echo '</body></html>';
         exit;
     } elseif ($export_type === 'pdf') {
         $total_weight = array_sum(array_column($rows, 'berat_total_kg'));
@@ -306,15 +384,17 @@ if (isset($_GET['export'])) {
                             $staff_id = htmlspecialchars($r['officer_code'] ?? '-');
                             $type_val = htmlspecialchars($r['pickup_type'] ?? ($r['req_type'] === 'cleanup' ? 'C' : '-'));
                             $service_type = htmlspecialchars($r['service_type'] ?: ($r['req_type'] === 'cleanup' ? 'Paid' : 'Free'));
-                            $weight = $r['berat_total_kg'] ? number_format($r['berat_total_kg'], 2, ',', '.') . ' kg' : '-';
-                            $price = 'Rp ' . number_format($r['price_per_kg'] ?? 0, 0, ',', '.');
+                            
+                            $is_pickup = $r['req_type'] === 'pickup';
+                            $w_str = $is_pickup ? (($r['berat_kg'] !== null && $r['berat_kg'] !== '') ? $r['berat_kg'] : (string)(float)$r['berat_total_kg']) : (string)(float)$r['berat_total_kg'];
+                            $weight = ($w_str !== null && $w_str !== '') ? htmlspecialchars($w_str) . ' kg' : '-';
+                            $price = number_format((float)($r['price_per_kg'] ?? 0), 0, ',', '.');
+                            $total_harga_val = $is_pickup ? (float)$w_str * (float)$r['price_per_kg'] : 0;
+                            $total_harga = $is_pickup ? htmlspecialchars($w_str) . ' kg x Rp ' . number_format((float)($r['price_per_kg'] ?? 0), 0, ',', '.') . ' = Rp ' . number_format($total_harga_val, 0, ',', '.') : '—';
+                            
                             $notes = htmlspecialchars($r['catatan'] ?? '-');
                             $recycled_material = htmlspecialchars($r['jenis_sampah'] ?? '-');
                             $geo = decToDms($r['latitude'], $r['longitude']);
-
-                            $is_pickup = $r['req_type'] === 'pickup';
-                            $total_harga_val = $is_pickup ? (float)$r['berat_total_kg'] * (float)$r['price_per_kg'] : 0;
-                            $total_harga = $is_pickup ? 'Rp ' . number_format($total_harga_val, 0, ',', '.') : '—';
                             ?>
                             <tr>
                                 <td><?= $timestamp ?></td>
@@ -340,6 +420,87 @@ if (isset($_GET['export'])) {
                     <?php endif; ?>
                 </tbody>
             </table>
+
+            <?php if ($type === 'pickup'): ?>
+                <br>
+                <h3 style="font-size: 12px; color: #1c6434; margin: 15px 0 5px 0; border-bottom: 2px solid #1c6434; padding-bottom: 3px; text-transform: uppercase;">
+                    RINGKASAN PEMBAYARAN MITRA (PAID SERVICE)
+                </h3>
+                <table style="width: 50%; min-width: 400px; margin-bottom: 20px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">No</th>
+                            <th>Partner Name (Mitra/Warga)</th>
+                            <th style="text-align: right; width: 100px;">Total Kunjungan</th>
+                            <th style="text-align: right; width: 100px;">Total Berat (kg)</th>
+                            <th style="text-align: right; width: 120px;">Total Bayar (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $pivotData = [];
+                        foreach ($rows as $r) {
+                            if ($r['req_type'] !== 'pickup') continue;
+                            if (($r['service_type'] ?? '') !== 'Paid') continue;
+                            if (($r['status'] ?? '') === 'dibatalkan') continue;
+
+                            $partner = trim($r['partner_name'] ?: $r['nama_pemohon']);
+                            if ($partner === '') {
+                                $partner = '-';
+                            }
+
+                            if (!isset($pivotData[$partner])) {
+                                $pivotData[$partner] = [
+                                    'partner_name' => $partner,
+                                    'kunjungan' => 0,
+                                    'total_berat' => 0.0,
+                                    'total_bayar' => 0.0
+                                ];
+                            }
+
+                            $weight = (float)($r['berat_total_kg'] ?? 0);
+                            $price = (float)($r['price_per_kg'] ?? 0);
+                            $bayar = $weight * $price;
+
+                            $pivotData[$partner]['kunjungan'] += 1;
+                            $pivotData[$partner]['total_berat'] += $weight;
+                            $pivotData[$partner]['total_bayar'] += $bayar;
+                        }
+                        ksort($pivotData);
+
+                        $grandKunjungan = 0;
+                        $grandBerat = 0.0;
+                        $grandBayar = 0.0;
+                        $no = 1;
+                        ?>
+                        <?php if ($pivotData): ?>
+                            <?php foreach ($pivotData as $p): 
+                                $grandKunjungan += $p['kunjungan'];
+                                $grandBerat += $p['total_berat'];
+                                $grandBayar += $p['total_bayar'];
+                            ?>
+                                <tr>
+                                    <td><?= $no++ ?></td>
+                                    <td class="font-bold"><?= htmlspecialchars($p['partner_name']) ?></td>
+                                    <td class="text-right"><?= $p['kunjungan'] ?>x</td>
+                                    <td class="font-bold text-right"><?= number_format($p['total_berat'], 2, ',', '.') ?> kg</td>
+                                    <td class="font-bold text-right" style="color: #0284c7;">Rp <?= number_format($p['total_bayar'], 0, ',', '.') ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <tr class="font-bold" style="background-color: #f8fafc;">
+                                <td colspan="2">TOTAL KESELURUHAN</td>
+                                <td class="text-right"><?= $grandKunjungan ?>x</td>
+                                <td class="text-right"><?= number_format($grandBerat, 2, ',', '.') ?> kg</td>
+                                <td class="text-right" style="color: #0284c7;">Rp <?= number_format($grandBayar, 0, ',', '.') ?></td>
+                            </tr>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 10px;">Tidak ada data pembayaran (Paid) pada periode ini.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
 
             <div class="signature-section">
                 <div class="signature-box">
@@ -664,15 +825,16 @@ require_once __DIR__ . '/layout/header.php';
         $staff_id = htmlspecialchars($r['officer_code'] ?? '-');
         $type_val = htmlspecialchars($r['pickup_type'] ?? ($r['req_type'] === 'cleanup' ? 'C' : '-'));
         $service_type = htmlspecialchars($r['service_type'] ?: ($r['req_type'] === 'cleanup' ? 'Paid' : 'Free'));
-        $weight = $r['berat_total_kg'] ? number_format($r['berat_total_kg'], 2, ',', '.') . ' kg' : '-';
-        $price = 'Rp ' . number_format($r['price_per_kg'] ?? 0, 0, ',', '.');
+        $is_pickup = $r['req_type'] === 'pickup';
+        $w_str = $is_pickup ? (($r['berat_kg'] !== null && $r['berat_kg'] !== '') ? $r['berat_kg'] : (string)(float)$r['berat_total_kg']) : (string)(float)$r['berat_total_kg'];
+        $weight = ($w_str !== null && $w_str !== '') ? htmlspecialchars($w_str) . ' kg' : '-';
+        $price = number_format((float)($r['price_per_kg'] ?? 0), 0, ',', '.');
         $notes = htmlspecialchars($r['catatan'] ?? '-');
         $recycled_material = htmlspecialchars($r['jenis_sampah'] ?? '-');
         $geo = decToDms($r['latitude'], $r['longitude']);
 
-        $is_pickup = $r['req_type'] === 'pickup';
-        $total_harga_val = $is_pickup ? (float)$r['berat_total_kg'] * (float)($r['price_per_kg'] ?? 0) : 0;
-        $total_harga = $is_pickup ? 'Rp ' . number_format($total_harga_val, 0, ',', '.') : '—';
+        $total_harga_val = $is_pickup ? (float)$w_str * (float)$r['price_per_kg'] : 0;
+        $total_harga = $is_pickup ? htmlspecialchars($w_str) . ' kg x Rp ' . number_format((float)($r['price_per_kg'] ?? 0), 0, ',', '.') . ' = Rp ' . number_format($total_harga_val, 0, ',', '.') : '—';
         ?>
         <tr>
           <td class="weigh-timestamp"><?= $timestamp ?></td>
@@ -710,6 +872,95 @@ require_once __DIR__ . '/layout/header.php';
     </table>
   </div>
 </div>
+
+<?php if ($type === 'pickup'): ?>
+<!-- Pivot Table: Total Harga Pembayaran ke Mitra/Warga -->
+<div class="card mb-24">
+  <div class="card-title"><div class="ct-icon">🪙</div> Ringkasan Pembayaran Mitra (Paid Service)</div>
+  <p style="font-size:12.5px; color:#64748b; margin:-10px 0 16px 20px;">
+    Merangkum total berat dan jumlah pembayaran otomatis per mitra yang berstatus <strong>Paid</strong> pada periode ini.
+  </p>
+  <div class="table-wrap">
+    <table class="weighing-table">
+      <thead>
+        <tr>
+          <th style="width: 50px;">No</th>
+          <th>Partner Name (Mitra/Warga)</th>
+          <th style="text-align: right;">Total Kunjungan</th>
+          <th style="text-align: right;">Total Berat (kg)</th>
+          <th style="text-align: right;">Total Bayar (Rp)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php 
+        $pivotData = [];
+        foreach ($rows as $r) {
+            if ($r['req_type'] !== 'pickup') continue;
+            if (($r['service_type'] ?? '') !== 'Paid') continue;
+            if (($r['status'] ?? '') === 'dibatalkan') continue;
+
+            $partner = trim($r['partner_name'] ?: $r['nama_pemohon']);
+            if ($partner === '') {
+                $partner = '-';
+            }
+
+            if (!isset($pivotData[$partner])) {
+                $pivotData[$partner] = [
+                    'partner_name' => $partner,
+                    'kunjungan' => 0,
+                    'total_berat' => 0.0,
+                    'total_bayar' => 0.0
+                ];
+            }
+
+            $weight = (float)($r['berat_total_kg'] ?? 0);
+            $price = (float)($r['price_per_kg'] ?? 0);
+            $bayar = $weight * $price;
+
+            $pivotData[$partner]['kunjungan'] += 1;
+            $pivotData[$partner]['total_berat'] += $weight;
+            $pivotData[$partner]['total_bayar'] += $bayar;
+        }
+        ksort($pivotData);
+
+        $grandKunjungan = 0;
+        $grandBerat = 0.0;
+        $grandBayar = 0.0;
+        $no = 1;
+        ?>
+        <?php if ($pivotData): ?>
+          <?php foreach ($pivotData as $p): 
+              $grandKunjungan += $p['kunjungan'];
+              $grandBerat += $p['total_berat'];
+              $grandBayar += $p['total_bayar'];
+          ?>
+            <tr>
+              <td><?= $no++ ?></td>
+              <td style="font-weight: 600; color: #0f172a;"><?= htmlspecialchars($p['partner_name']) ?></td>
+              <td style="text-align: right; font-weight: 600;"><?= $p['kunjungan'] ?>x kunjungan</td>
+              <td style="text-align: right; font-weight: 700; color: #b45309;"><?= number_format($p['total_berat'], 2, ',', '.') ?> kg</td>
+              <td style="text-align: right; font-weight: 700; color: #0284c7;">Rp <?= number_format($p['total_bayar'], 0, ',', '.') ?></td>
+            </tr>
+          <?php endforeach; ?>
+          <!-- Grand Total Row -->
+          <tr style="background-color: #f8fafc; font-weight: bold; border-top: 2px solid #e2e8f0;">
+            <td colspan="2" style="text-align: left; font-size: 12px; text-transform: uppercase;">Total Keseluruhan</td>
+            <td style="text-align: right; font-size: 12px; color: #0f172a;"><?= $grandKunjungan ?> kunjungan</td>
+            <td style="text-align: right; font-size: 12px; color: #b45309;"><?= number_format($grandBerat, 2, ',', '.') ?> kg</td>
+            <td style="text-align: right; font-size: 13px; color: #0284c7;">Rp <?= number_format($grandBayar, 0, ',', '.') ?></td>
+          </tr>
+        <?php else: ?>
+          <tr>
+            <td colspan="5" style="text-align: center; color: #aaa; padding: 20px;">
+              Tidak ada data pembayaran (Paid) pada periode ini.
+            </td>
+          </tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+<?php endif; ?>
 
 <!-- Per Kecamatan -->
 <?php if ($kecRows): ?>

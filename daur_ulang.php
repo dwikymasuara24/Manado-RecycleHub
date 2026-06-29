@@ -210,9 +210,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
         try {
             $pdo->beginTransaction();
 
-            $pkt  = trim(clean($_POST['pickup_type'] ?? ''));
-            $pfx  = $pkt ?: 'S';
-            $request_code = generateSmartCode($pdo, 'pickup_requests', 'request_code', 'MRH-' . $pfx);
+            $pt  = trim(clean($_POST['place_type'] ?? ''));
+            $pkt = 'R'; // default
+            if ($pt === 'Household') {
+                $pkt = 'R';
+            } elseif ($pt === 'Public') {
+                $pkt = 'P';
+            } elseif (in_array($pt, ['F&B', 'Hospitality', 'Retail'])) {
+                $pkt = 'B';
+            }
+            
+            $pfx = ($pkt === 'B') ? 'MRH-B' : 'MRH-S';
+            $request_code = generateSmartCode($pdo, 'pickup_requests', 'request_code', $pfx);
 
             $nm  = trim(clean($_POST['nama']          ?? ''));
             $ac  = trim(clean($_POST['area_code']     ?? '+62'));
@@ -1661,11 +1670,11 @@ body {
                             <div class="sel-wrap">
                                 <select id="place_type" name="place_type">
                                     <option value="">— Pilih —</option>
-                                    <option value="Mitra"        <?= $v['ptype']==='Mitra'?'selected':'' ?>>Mitra</option>
-                                    <option value="Sekolah"      <?= $v['ptype']==='Sekolah'?'selected':'' ?>>Sekolah</option>
-                                    <option value="Rumah Makan"  <?= $v['ptype']==='Rumah Makan'?'selected':'' ?>>Rumah Makan (F&B)</option>
-                                    <option value="Rumah Tangga" <?= $v['ptype']==='Rumah Tangga'?'selected':'' ?>>Rumah Tangga</option>
-                                    <option value="Umum"         <?= $v['ptype']==='Umum'?'selected':'' ?>>Umum (Public)</option>
+                                    <option value="F&B"         <?= $v['ptype']==='F&B'?'selected':'' ?>>F&B (Restoran, Kafe)</option>
+                                    <option value="Public"      <?= $v['ptype']==='Public'?'selected':'' ?>>Public (Tempat Umum)</option>
+                                    <option value="Household"   <?= $v['ptype']==='Household'?'selected':'' ?>>Household (Rumah Tangga)</option>
+                                    <option value="Hospitality" <?= $v['ptype']==='Hospitality'?'selected':'' ?>>Hospitality (Hotel, Penginapan)</option>
+                                    <option value="Retail"      <?= $v['ptype']==='Retail'?'selected':'' ?>>Retail (Toko, Swalayan)</option>
                                 </select>
                             </div>
                         </div>
@@ -1676,17 +1685,6 @@ body {
                             <input type="text" id="partner_name" name="partner_name"
                                    value="<?= htmlspecialchars($v['partner']) ?>"
                                    placeholder="Contoh: Budi, PT ABC">
-                        </div>
-                        <div class="fw">
-                            <label for="pickup_type">Tipe Pickup (Wadah/Kemasan)</label>
-                            <div class="sel-wrap">
-                                <select id="pickup_type" name="pickup_type">
-                                    <option value="">— Pilih —</option>
-                                    <option value="B" <?= $v['pkt']==='B'?'selected':'' ?>>Keranjang (Baskets)</option>
-                                    <option value="S" <?= $v['pkt']==='S'?'selected':'' ?>>Karung (Sacks)</option>
-                                    <option value="Lainnya" <?= $v['pkt']==='Lainnya'?'selected':'' ?>>Lainnya</option>
-                                </select>
-                            </div>
                         </div>
                     </div>
                     <div class="frow">

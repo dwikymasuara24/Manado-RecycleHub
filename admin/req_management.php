@@ -76,7 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $place_name   = trim($_POST['place_name']   ?? '');
         $place_type   = trim($_POST['place_type']   ?? '');
         $partner_name = trim($_POST['partner_name'] ?? '');
-        $pickup_type  = trim($_POST['pickup_type']  ?? '');
+        $pickup_type  = 'R'; // default
+        if ($place_type === 'Household') {
+            $pickup_type = 'R';
+        } elseif ($place_type === 'Public') {
+            $pickup_type = 'P';
+        } elseif (in_array($place_type, ['F&B', 'Hospitality', 'Retail'])) {
+            $pickup_type = 'B';
+        }
         $service_type = trim($_POST['service_type'] ?? 'Free');
         $price_per_kg = trim($_POST['price_per_kg'] ?? '');
         $price_val    = ($price_per_kg !== '') ? (float)str_replace(',', '.', $price_per_kg) : null;
@@ -129,17 +136,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             logActivity($db, 1, "edit_request #$id", 'pickup_requests', $id, [], ['status'=>$status]);
             flash('success', "Request diperbarui!");
         } else {
+            $pfx = ($pickup_type === 'B') ? 'MRH-B' : 'MRH-S';
+            $request_code = generateSmartCode($db, 'pickup_requests', 'request_code', $pfx);
+            
             $stmt = $db->prepare("INSERT INTO pickup_requests
-                (nama_pemohon, area_code, nomor_wa, kecamatan, kelurahan,
+                (request_code, nama_pemohon, area_code, nomor_wa, kecamatan, kelurahan,
                  alamat_jemput, catatan, status, tanggal_jemput, jam_jemput,
                  place_name, place_type, partner_name, pickup_type, service_type, price_per_kg,
                  berat_total_kg, berat_kg,
                  latitude, longitude, place_id, formatted_address,
                  catatan_officer,
                  created_at, updated_at)
-                VALUES (?,'+62',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())");
+                VALUES (?,?,'+62',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())");
             $stmt->execute([
-                $nama, $wa, $kec, $kel, $alamat, $catatan, $status,
+                $request_code, $nama, $wa, $kec, $kel, $alamat, $catatan, $status,
                 $tgl, $jam,
                 $place_name, $place_type, $partner_name, $pickup_type, $service_type, $price_val,
                 $berat, ($berat !== null ? (string)$berat : null),
@@ -636,15 +646,24 @@ function renderRow(array $r, bool $isDone = false): string {
     $showEdit = !in_array($r['status'], ['selesai', 'dibatalkan']);
 
     $beratHtml = '';
-    if ($berat !== null && (float)$berat > 0) {
-        $beratHtml = "<span class='berat-badge' id='berat-display-$id'>".number_format((float)$berat,2)." kg</span>";
-    } elseif ($beratRaw !== '') {
-        $beratHtml = "<span class='berat-badge' id='berat-display-$id' style='background:#fef9c3;color:#854d0e;border-color:#fde047'>".htmlspecialchars($beratRaw)." kg</span>";
+    if ($beratRaw !== '') {
+        $beratHtml = "<span class='berat-badge' id='berat-display-$id'>".htmlspecialchars($beratRaw)." kg</span>";
+    } elseif ($berat !== null && (float)$berat > 0) {
+        $beratHtml = "<span class='berat-badge' id='berat-display-$id'>".((float)$berat)." kg</span>";
     } else {
         $beratHtml = "<span class='berat-na' id='berat-display-$id'>belum diisi</span>";
     }
     $beratEditVal = ($berat !== null ? (float)$berat : (is_numeric($beratRaw) ? (float)$beratRaw : 'null'));
     $beratEditBtn = $showEdit ? " <button class='berat-edit-btn' title='Edit berat' onclick='inlineEditBerat($id,$beratEditVal)' style='position:static;opacity:1;padding:2px'>✏️</button>" : "";
+
+    $payoutHtml = '';
+    if ($r['price_per_kg'] !== null && ($berat !== null || $beratRaw !== '')) {
+        $w_str = ($beratRaw !== '') ? $beratRaw : (string)(float)$berat;
+        $w_val = (float)$w_str;
+        $p_val = (float)$r['price_per_kg'];
+        $tot_val = $w_val * $p_val;
+        $payoutHtml = "<div style='font-size:10px;color:#0284c7;font-weight:700;margin-top:2px;' title='Hasil Payout'>" . htmlspecialchars($w_str) . " kg x Rp" . number_format($p_val, 0, ',', '.') . " = Rp" . number_format($tot_val, 0, ',', '.') . "</div>";
+    }
 
     $tglHtml = '—';
     if (!empty($r['tanggal_jemput']) && $r['tanggal_jemput'] !== '0000-00-00') {
@@ -685,13 +704,14 @@ function renderRow(array $r, bool $isDone = false): string {
             <div style='font-weight:700;font-size:13px;color:#1e293b' title='Partner Name'>".htmlspecialchars($r['partner_name'] ?: '-')."</div>
             ".(!empty($r['place_name']) ? "<div style='font-size:11px;color:#1d4ed8;font-weight:600' title='Place Name'>".htmlspecialchars($r['place_name'])."</div>" : "")."
             ".(!empty($r['place_type']) ? "<div style='font-size:10px;color:#64748b' title='Place Type'>Type: ".htmlspecialchars($r['place_type'])."</div>" : "")."
+            <div style='font-weight:700' title='Pickup Type'>".match($r['pickup_type']){'B'=>'Business','P'=>'Public','R'=>'Residential',default=>$r['pickup_type'] ?: '-' }."</div>
             <div style='font-size:10px;color:#94a3b8;margin-top:2px;display:flex;align-items:center;flex-wrap:wrap;gap:4px'>📞 ".htmlspecialchars(($r['area_code']??'+62').$r['nomor_wa'])." $waBtnHtml</div>
         </td>
         <td><div style='font-weight:600;font-size:12px'>".htmlspecialchars($r['kecamatan']??'-')."</div>
             <div style='font-size:10px;color:#16a34a' title='Geo location'>📍 GPS Tersimpan</div>
         </td>
         <td style='font-size:11px;color:#475569'>
-            <div style='font-weight:700' title='Pickup Type'>".match($r['pickup_type']){'B'=>'Keranjang','S'=>'Karung','Keranjang'=>'Keranjang','Karung'=>'Karung',default=>$r['pickup_type'] ?: '-' }."</div>
+            <div style='font-weight:700' title='Pickup Type'>".match($r['pickup_type']){'B'=>'Business','P'=>'Public','R'=>'Residential',default=>$r['pickup_type'] ?: '-' }."</div>
             <div style='font-size:10px;color:#94a3b8' title='Service Type'>".htmlspecialchars($r['service_type'] ?: 'Free')."</div>
         </td>
         <td style='font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#64748b' title='Recycled Material'>".($r['jenis_sampah'] ? htmlspecialchars($r['jenis_sampah']) : '<span style="color:#e2e8f0">—</span>')."</td>
@@ -699,7 +719,7 @@ function renderRow(array $r, bool $isDone = false): string {
           <div style='display:flex;align-items:center;gap:6px'>
             $beratHtml$beratEditBtn
           </div>
-          ".(!empty($r['price_per_kg']) ? "<div style='font-size:10px;color:#b45309;font-weight:600' title='Price per kg'>Rp".number_format((float)$r['price_per_kg'],0,',','.')."/kg</div>" : "")."
+          $payoutHtml
         </div></td>
         <td><span class='badge $sc'>$dot $sl</span></td>
         <td style='font-size:11px;white-space:nowrap'>$tglHtml</td>
@@ -956,45 +976,36 @@ function renderRow(array $r, bool $isDone = false): string {
             <label class="form-label">Place Type</label>
             <select class="form-input" name="place_type">
               <option value="">-- Pilih Tipe Tempat --</option>
-              <option value="Mitra" <?= ($editData['place_type']??'')==='Mitra'?'selected':'' ?>>Mitra</option>
-              <option value="Sekolah" <?= ($editData['place_type']??'')==='Sekolah'?'selected':'' ?>>Sekolah</option>
-              <option value="Rumah Makan" <?= ($editData['place_type']??'')==='Rumah Makan'?'selected':'' ?>>Rumah Makan (F&B)</option>
-              <option value="Rumah Tangga" <?= ($editData['place_type']??'')==='Rumah Tangga'?'selected':'' ?>>Rumah Tangga</option>
-              <option value="Umum" <?= ($editData['place_type']??'')==='Umum'?'selected':'' ?>>Umum (Public)</option>
+              <option value="F&B" <?= ($editData['place_type']??'')==='F&B'?'selected':'' ?>>F&B</option>
+              <option value="Public" <?= ($editData['place_type']??'')==='Public'?'selected':'' ?>>Public</option>
+              <option value="Household" <?= ($editData['place_type']??'')==='Household'?'selected':'' ?>>Household</option>
+              <option value="Hospitality" <?= ($editData['place_type']??'')==='Hospitality'?'selected':'' ?>>Hospitality</option>
+              <option value="Retail" <?= ($editData['place_type']??'')==='Retail'?'selected':'' ?>>Retail</option>
             </select>
           </div>
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group" style="flex: 1 1 100%;">
             <label class="form-label">Partner Name</label>
             <input class="form-input" name="partner_name"
                    value="<?= htmlspecialchars($editData['partner_name'] ?? '') ?>"
                    placeholder="Esa Massing, Syuaib">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Type (Wadah/Kemasan)</label>
-            <select class="form-input" name="pickup_type">
-              <option value="">-- Pilih Wadah/Kemasan --</option>
-              <option value="B" <?= ($editData['pickup_type']??'')==='B'?'selected':'' ?>>Keranjang (Baskets)</option>
-              <option value="S" <?= ($editData['pickup_type']??'')==='S'?'selected':'' ?>>Karung (Sacks)</option>
-              <option value="Lainnya" <?= ($editData['pickup_type']??'')==='Lainnya'?'selected':'' ?>>Lainnya</option>
-            </select>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Service Type</label>
-            <select class="form-input" name="service_type">
+            <select class="form-input" name="service_type" id="adminServiceType" onchange="toggleAdminPrice()">
               <option value="Free" <?= ($editData['service_type']??'')==='Free'?'selected':'' ?>>Free</option>
               <option value="Paid" <?= ($editData['service_type']??'')==='Paid'?'selected':'' ?>>Paid</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="adminPriceGroup">
             <label class="form-label">Price per kg</label>
-            <input class="form-input" name="price_per_kg" type="number" step="0.01" min="0"
-                   value="<?= !empty($editData['price_per_kg']) ? $editData['price_per_kg'] : '' ?>"
+            <input class="form-input" name="price_per_kg" id="adminPrice" type="number" step="0.01" min="0"
+                   value="<?= ($editData['price_per_kg'] !== null && $editData['price_per_kg'] !== '') ? htmlspecialchars($editData['price_per_kg']) : '' ?>"
                    placeholder="0">
           </div>
         </div>
@@ -1137,6 +1148,9 @@ function renderRow(array $r, bool $isDone = false): string {
       $price = (float)($previewData['price_per_kg'] ?? 0);
       $totalEstPrice = $totalEst * $price;
       $totalAktPrice = $totalAkt * $price;
+      
+      $totalEstStr = (empty($previewItems) && isset($previewData['berat_kg']) && $previewData['berat_kg'] !== null && $previewData['berat_kg'] !== '') ? $previewData['berat_kg'] : (string)(float)$totalEst;
+      $totalAktStr = (empty($previewItems) && isset($previewData['berat_kg']) && $previewData['berat_kg'] !== null && $previewData['berat_kg'] !== '') ? $previewData['berat_kg'] : (string)(float)$totalAkt;
 
       $pOfficerHtml = !empty($previewData['officer_nama'])
           ? '<span style="font-weight:700;color:#1e293b">'.htmlspecialchars($previewData['officer_nama']).'</span>'
@@ -1250,15 +1264,13 @@ function renderRow(array $r, bool $isDone = false): string {
             <div class="preview-row">
               <span class="pl">Total Estimasi</span>
               <span class="pv" style="color:#b45309">
-                Rp <?= number_format($totalEstPrice, 0, ',', '.') ?>
-                <span style="font-weight:normal;font-size:11px;color:#94a3b8">(<?= number_format($totalEst, 2) ?> kg)</span>
+                <?= htmlspecialchars($totalEstStr) ?> kg x Rp <?= number_format($price, 0, ',', '.') ?> = Rp <?= number_format($totalEstPrice, 0, ',', '.') ?>
               </span>
             </div>
             <div class="preview-row">
-              <span class="pl">Total Aktual</span>
+              <span class="pl">Hasil Payout (Aktual)</span>
               <span class="pv" style="color:#15803d">
-                Rp <?= number_format($totalAktPrice, 0, ',', '.') ?>
-                <span style="font-weight:normal;font-size:11px;color:#94a3b8">(<?= number_format($totalAkt, 2) ?> kg)</span>
+                <?= htmlspecialchars($totalAktStr) ?> kg x Rp <?= number_format($price, 0, ',', '.') ?> = Rp <?= number_format($totalAktPrice, 0, ',', '.') ?>
               </span>
             </div>
           </div>
@@ -1770,6 +1782,22 @@ document.addEventListener('click', e => {
     hideSuggestions();
   }
 });
+
+function toggleAdminPrice() {
+  const svcEl = document.getElementById('adminServiceType');
+  if (!svcEl) return;
+  const svc = svcEl.value;
+  const priceInput = document.getElementById('adminPrice');
+  const priceGroup = document.getElementById('adminPriceGroup');
+  if (svc === 'Free') {
+    if (priceInput) priceInput.value = '0';
+    if (priceGroup) priceGroup.style.display = 'none';
+  } else {
+    if (priceGroup) priceGroup.style.display = 'block';
+  }
+}
+document.addEventListener('DOMContentLoaded', toggleAdminPrice);
+toggleAdminPrice();
 </script>
 
 <?php require_once __DIR__ . '/layout/footer.php'; ?>

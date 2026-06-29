@@ -270,8 +270,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
             $estimasi_jam_kerja = null;
             $biaya_estimasi = null;
 
-            // Generate Request Code MRH-CLN-XXX
-            $request_code = generateSmartCode($pdo, 'cleanup_requests', 'request_code', 'MRH-CLN');
+            // Generate Request Code MRH-C-XXX
+            $request_code = generateSmartCode($pdo, 'cleanup_requests', 'request_code', 'MRH-C');
 
             $st = $pdo->prepare("
                 INSERT INTO cleanup_requests

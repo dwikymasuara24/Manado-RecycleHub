@@ -28,7 +28,7 @@ if ($officerId) {
     } catch(Exception $e){}
 }
 if (!$officer) {
-    $officer = ['id'=>$officerId,'nama'=>'Petugas','officer_code'=>'OFC-0001','kendaraan'=>'-','status'=>'aktif','email'=>'','user_wa'=>''];
+    $officer = ['id'=>$officerId,'nama'=>'Petugas','officer_code'=>'S01','kendaraan'=>'-','status'=>'aktif','email'=>'','user_wa'=>''];
 }
 
 // Period & type filters
@@ -55,6 +55,7 @@ if ($type === 'all' || $type === 'pickup') {
             kelurahan,
             tanggal_jemput AS tanggal_tugas,
             berat_total_kg,
+            berat_kg,
             status,
             catatan_officer,
             created_at
@@ -126,7 +127,7 @@ if (isset($_GET['export'])) {
         echo 'table { border-collapse: collapse; }';
         echo 'th { background-color: #1c6434; color: #ffffff; font-weight: bold; border: 1px solid #000000; padding: 6px; text-align: left; }';
         echo 'td { border: 1px solid #000000; padding: 6px; text-align: left; }';
-        echo '.number { mso-number-format:"\#\,\#\#0\.00"; text-align: right; }';
+        echo '.number { mso-number-format:"General"; text-align: right; }';
         echo '.text { mso-number-format:"\@"; }';
         echo '</style></head><body>';
         echo '<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 16pt; font-weight: bold; margin: 0 0 5px 0;">LAPORAN KINERJA PETUGAS</h3>';
@@ -150,7 +151,9 @@ if (isset($_GET['export'])) {
         foreach ($rows as $r) {
             $date = $r['tanggal_tugas'] ? date('d/m/Y', strtotime($r['tanggal_tugas'])) : date('d/m/Y', strtotime($r['created_at']));
             $layanan = $r['type'] === 'pickup' ? 'Daur Ulang (Pickup)' : 'Clean Up';
-            $weight = $r['berat_total_kg'] ?: '0';
+            $is_pickup = $r['type'] === 'pickup';
+            $w_str = $is_pickup ? (($r['berat_kg'] !== null && $r['berat_kg'] !== '') ? $r['berat_kg'] : (string)(float)$r['berat_total_kg']) : (string)(float)$r['berat_total_kg'];
+            $weight = $w_str ?: '0';
             
             echo '<tr>';
             echo '<td class="text">' . htmlspecialchars($date) . '</td>';
@@ -161,7 +164,7 @@ if (isset($_GET['export'])) {
             echo '<td>' . htmlspecialchars($r['kelurahan'] ?? '-') . '</td>';
             echo '<td>' . htmlspecialchars($r['alamat'] ?? '-') . '</td>';
             echo '<td class="text">' . htmlspecialchars($r['nomor_wa']) . '</td>';
-            echo '<td class="number">' . $weight . '</td>';
+            echo '<td class="text">' . $weight . '</td>';
             echo '<td>' . htmlspecialchars($r['status']) . '</td>';
             echo '<td>' . htmlspecialchars($r['catatan_officer'] ?? '-') . '</td>';
             echo '</tr>';
@@ -270,7 +273,9 @@ if (isset($_GET['export'])) {
                             <?php 
                             $date = $r['tanggal_tugas'] ? date('d/m/Y', strtotime($r['tanggal_tugas'])) : date('d/m/Y', strtotime($r['created_at']));
                             $layanan = $r['type'] === 'pickup' ? 'Daur Ulang' : 'Clean Up';
-                            $weight = $r['berat_total_kg'] ? number_format($r['berat_total_kg'], 1, ',', '.') . ' kg' : '-';
+                            $is_pickup = $r['type'] === 'pickup';
+                            $w_str = $is_pickup ? (($r['berat_kg'] !== null && $r['berat_kg'] !== '') ? $r['berat_kg'] : (string)(float)$r['berat_total_kg']) : (string)(float)$r['berat_total_kg'];
+                            $weight = ($w_str !== null && $w_str !== '') ? htmlspecialchars($w_str) . ' kg' : '-';
                             ?>
                             <tr>
                                 <td><?= $date ?></td>
@@ -477,6 +482,8 @@ $slblMap = ['selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'];
             $sbg  = $sbgMap[$r['status']] ?? '#f5f5f5';
             $stxt = $stxtMap[$r['status']] ?? '#333';
             $slbl = $slblMap[$r['status']] ?? $r['status'];
+            $is_pickup = $r['type'] === 'pickup';
+            $w_str = $is_pickup ? (($r['berat_kg'] !== null && $r['berat_kg'] !== '') ? $r['berat_kg'] : (string)(float)$r['berat_total_kg']) : (string)(float)$r['berat_total_kg'];
           ?>
           <tr>
             <td class="weigh-date"><?= $date ?></td>
@@ -497,7 +504,7 @@ $slblMap = ['selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'];
               <span class="task-badge" style="background:<?= $sbg ?>;color:<?= $stxt ?>;padding:2px 7px;font-size:10px"><?= $slbl ?></span>
             </td>
             <td class="weigh-weight" style="text-align:right">
-              <?= $r['berat_total_kg'] ? number_format($r['berat_total_kg'], 1) . ' kg' : '-' ?>
+              <?= ($w_str !== null && $w_str !== '') ? htmlspecialchars($w_str) . ' kg' : '-' ?>
             </td>
             <td style="font-size:11px;color:#666">
               <?= htmlspecialchars($r['catatan_officer'] ?? '-') ?>

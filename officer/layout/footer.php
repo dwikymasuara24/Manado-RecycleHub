@@ -35,6 +35,13 @@
       <label class="form-label">Berat Aktual Total Sampah (kg)</label>
       <input type="number" class="form-input" id="modalBerat" step="0.01" min="0" placeholder="Contoh: 12.5">
     </div>
+    <div class="form-group" id="serviceTypeGroup" style="display:none">
+      <label class="form-label">Service Type (Layanan)</label>
+      <select class="form-input" id="modalServiceType" onchange="togglePriceField()">
+        <option value="Free">Free (Gratis)</option>
+        <option value="Paid">Paid (Berbayar)</option>
+      </select>
+    </div>
     <div class="form-group" id="priceGroup" style="display:none">
       <label class="form-label">Price per kg</label>
       <input type="number" class="form-input" id="modalPrice" step="0.01" min="0" placeholder="Contoh: 1500">
@@ -142,8 +149,9 @@ async function openUpdateModal(task){
   }
 
   document.getElementById('modalCatatan').value='';
-  document.getElementById('modalBerat').value=task.berat_total_kg || '';
-  document.getElementById('modalPrice').value=task.price_per_kg || '';
+  document.getElementById('modalBerat').value = (task.berat_total_kg !== null && task.berat_total_kg !== undefined) ? task.berat_total_kg : '';
+  document.getElementById('modalServiceType').value = task.service_type || 'Free';
+  document.getElementById('modalPrice').value = (task.price_per_kg !== null && task.price_per_kg !== undefined) ? task.price_per_kg : '';
   
   // Render empty items list first
   const itemsList = document.getElementById('modalItemsList');
@@ -206,8 +214,18 @@ function closeUpdateModal(){ document.getElementById('updateModal').classList.re
 function toggleBeratField(){ 
   const show = document.getElementById('modalStatus').value==='selesai';
   document.getElementById('beratGroup').style.display=show?'block':'none'; 
-  document.getElementById('priceGroup').style.display=show?'block':'none'; 
+  document.getElementById('serviceTypeGroup').style.display=show?'block':'none'; 
   document.getElementById('itemsGroup').style.display=show?'block':'none'; 
+  togglePriceField();
+}
+function togglePriceField(){
+  const isSelesai = document.getElementById('modalStatus').value==='selesai';
+  const svcType = document.getElementById('modalServiceType').value;
+  const showPrice = isSelesai && svcType === 'Paid';
+  document.getElementById('priceGroup').style.display = showPrice ? 'block' : 'none';
+  if (svcType === 'Free') {
+    document.getElementById('modalPrice').value = '0';
+  }
 }
 document.getElementById('updateModal').addEventListener('click',e=>{if(e.target===document.getElementById('updateModal'))closeUpdateModal();});
 
@@ -216,6 +234,7 @@ async function submitUpdate(){
   const status=document.getElementById('modalStatus').value;
   const catatan=document.getElementById('modalCatatan').value;
   const berat=document.getElementById('modalBerat').value;
+  const svcType=document.getElementById('modalServiceType').value;
   const price=document.getElementById('modalPrice').value;
   const wadah=document.getElementById('modalWadah').value;
   const btn=document.getElementById('btnSubmitUpdate');
@@ -229,8 +248,13 @@ async function submitUpdate(){
     if(catatan.trim() !== '') {
       fd.append('catatan_officer',catatan);
     }
-    if(berat) fd.append('berat_aktual',berat);
-    if(price) fd.append('price_per_kg',price);
+    if(berat !== '') fd.append('berat_aktual',berat);
+    if(status === 'selesai') {
+      fd.append('service_type', svcType);
+      fd.append('price_per_kg', svcType === 'Free' ? '0' : price);
+    } else {
+      if(price !== '') fd.append('price_per_kg',price);
+    }
     
     // Gather individual weights
     const inputs = document.querySelectorAll('.item-aktual-weight');

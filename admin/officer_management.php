@@ -58,15 +58,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                ->execute([$nama,$emailGen,$pw,$wa]);
             $uid      = (int)$db->lastInsertId();
             
-            // Generate Code: MRH-[C/B/S]-[Number]
+            // Generate Code: S01, S02, S03
             $allowedTypes = ['Collector', 'Bin', 'Sack'];
             $safeType = in_array($type, $allowedTypes, true) ? $type : 'Collector';
-            $pfxMap   = ['Collector'=>'C', 'Bin'=>'B', 'Sack'=>'S'];
-            $pfx      = $pfxMap[$safeType] ?? 'C';
-            $stmtCount = $db->prepare("SELECT COUNT(*) FROM officers WHERE officer_type = ?");
-            $stmtCount->execute([$safeType]);
-            $offCount = (int)$stmtCount->fetchColumn() + 1;
-            $code     = 'MRH-'.$pfx.'-'.str_pad($offCount, 3, '0', STR_PAD_LEFT);
+            $cnt = 1;
+            do {
+                $code = 'S' . str_pad($cnt, 2, '0', STR_PAD_LEFT);
+                $stmtExists = $db->prepare("SELECT COUNT(*) FROM officers WHERE officer_code = ?");
+                $stmtExists->execute([$code]);
+                $exists = (int)$stmtExists->fetchColumn();
+                $cnt++;
+            } while ($exists > 0);
             
             $db->prepare("INSERT INTO officers (user_id,officer_code,nama,nip,kendaraan,status,tanggal_bergabung,officer_type) VALUES (?,?,?,?,?,?,?,?)")
                ->execute([$uid,$code,$nama,$nip,$kend,$status,$tgl,$safeType]);
