@@ -988,52 +988,275 @@ require_once __DIR__ . '/layout/header.php';
 </div>
 <?php endif; ?>
 
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<?php
+// Prepare data for Chart.js
+$hariLabels = [];
+$hariCounts = [];
+$isSabtuFlags = [];
+if ($perHari) {
+    foreach ($perHari as $ph) {
+        $hariLabels[] = $ph['hari'];
+        $hariCounts[] = (int)$ph['cnt'];
+        $isSabtuFlags[] = ($ph['hari'] === 'Sabtu');
+    }
+}
+
+$kecLabels = [];
+$kecCounts = [];
+$kecWeights = [];
+if ($kecRows) {
+    foreach ($kecRows as $k) {
+        $kecLabels[] = $k['kecamatan'];
+        $kecCounts[] = (int)$k['cnt'];
+        $kecWeights[] = (float)$k['total_kg'];
+    }
+}
+?>
+
+<style>
+  .chart-card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: transform .25s var(--spring-transit), box-shadow .25s ease;
+  }
+  .chart-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  }
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 250px;
+  }
+  .doughnut-layout {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .doughnut-chart-container {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+  }
+  .doughnut-legend-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-label {
+    font-weight: 600;
+    color: #374151;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .legend-val {
+    font-weight: 700;
+    color: #111827;
+  }
+  .legend-sub {
+    font-size: 9px;
+    color: #6b7280;
+  }
+  @media (max-width: 576px) {
+    .doughnut-layout {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .doughnut-chart-container {
+      margin: 0 auto;
+    }
+  }
+</style>
+
 <div class="grid-2 mb-24">
   <!-- Per Hari -->
-  <div class="card">
-    <div class="card-title"><div class="ct-icon">📊</div> Request per Hari</div>
-    <div class="bar-chart">
-      <?php
-      $maxH = max(array_column($perHari,'cnt') ?: [1]);
-      foreach ($perHari as $ph):
-        $h = $maxH > 0 ? round(($ph['cnt']/$maxH)*120) : 0;
-        $isSat = $ph['hari'] === 'Sabtu';
-      ?>
-      <div class="bar-item">
-        <span class="bar-val"><?= $ph['cnt'] ?></span>
-        <div class="bar" style="height:<?= max($h,4) ?>px;background:<?= $isSat?'#e65100':'var(--green-600)' ?>"></div>
-        <span><?= $ph['hari'] ?></span>
+  <div class="chart-card">
+    <div class="card-title" style="margin-bottom: 20px;"><div class="ct-icon">📊</div> Request per Hari</div>
+    <?php if ($perHari): ?>
+      <div class="chart-container">
+        <canvas id="chartHarian"></canvas>
       </div>
-      <?php endforeach; ?>
-    </div>
-    <div style="margin-top:8px;font-size:11px;color:#888">
-      <span style="display:inline-block;width:10px;height:10px;background:#e65100;border-radius:2px;margin-right:4px"></span>Sabtu = hari penjemputan utama
-    </div>
+      <div style="margin-top:12px;font-size:11px;color:#64748b;display:flex;align-items:center;gap:6px;">
+        <span style="display:inline-block;width:12px;height:12px;background:#e65100;border-radius:3px;"></span>
+        <span>Sabtu = hari penjemputan utama</span>
+      </div>
+    <?php else: ?>
+      <p style="color:#aaa;text-align:center;padding:80px 0;font-size:13px">Tidak ada data request harian</p>
+    <?php endif; ?>
   </div>
 
   <!-- Per Kecamatan -->
-  <div class="card">
-    <div class="card-title"><div class="ct-icon">🏆</div> Prioritas Kecamatan Minggu Ini</div>
+  <div class="chart-card">
+    <div class="card-title" style="margin-bottom: 20px;"><div class="ct-icon">🏆</div> Prioritas Kecamatan Minggu Ini</div>
     <?php if ($kecRows): ?>
-    <?php
-    $maxK = max(array_column($kecRows,'cnt') ?: [1]);
-    foreach ($kecRows as $i => $k):
-      $pct = round(($k['cnt']/$maxK)*100);
-      $rankCls = $i===0?'rank-1':($i===1?'rank-2':($i===2?'rank-3':'rank-n'));
-    ?>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <span class="priority-rank <?= $rankCls ?>"><?= $i+1 ?></span>
-      <span style="flex:1;font-size:13px;font-weight:600"><?= htmlspecialchars($k['kecamatan']) ?></span>
-      <div style="width:100px;background:#f0f0f0;border-radius:4px;height:6px;overflow:hidden">
-        <div style="height:100%;background:var(--green-600);border-radius:4px;width:<?= $pct ?>%"></div>
+      <div class="doughnut-layout">
+        <div class="doughnut-chart-container">
+          <canvas id="chartKecamatan"></canvas>
+        </div>
+        <div class="doughnut-legend-container" id="legendKecamatan">
+          <!-- Legend dynamically generated by JS to perfectly match chart slices -->
+        </div>
       </div>
-      <span style="font-size:12px;font-weight:700;min-width:20px"><?= $k['cnt'] ?></span>
-    </div>
-    <?php endforeach; ?>
     <?php else: ?>
-    <p style="color:#aaa;text-align:center;padding:20px 0;font-size:13px">Tidak ada data minggu ini</p>
+      <p style="color:#aaa;text-align:center;padding:80px 0;font-size:13px">Tidak ada data kecamatan</p>
     <?php endif; ?>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- 1. CHART HARIAN ---
+    const ctxHarian = document.getElementById('chartHarian');
+    if (ctxHarian) {
+        const labels = <?= json_encode($hariLabels) ?>;
+        const counts = <?= json_encode($hariCounts) ?>;
+        const isSabtuFlags = <?= json_encode($isSabtuFlags) ?>;
+        
+        new Chart(ctxHarian, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Jumlah Request',
+                    data: counts,
+                    backgroundColor: function(context) {
+                        const index = context.dataIndex;
+                        return isSabtuFlags[index] ? '#e65100' : '#16a34a';
+                    },
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { family: 'Inter', size: 12, weight: 'bold' },
+                        bodyFont: { family: 'Inter', size: 12 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 11, weight: 600 }, color: '#374151' }
+                    },
+                    y: {
+                        grid: { color: '#f1f5f9' },
+                        ticks: { 
+                            font: { family: 'Inter', size: 10 }, 
+                            color: '#64748b',
+                            stepSize: 1
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // --- 2. CHART KECAMATAN ---
+    const ctxKecamatan = document.getElementById('chartKecamatan');
+    if (ctxKecamatan) {
+        const labels = <?= json_encode($kecLabels) ?>;
+        const counts = <?= json_encode($kecCounts) ?>;
+        const weights = <?= json_encode($kecWeights) ?>;
+        const colors = [
+            '#10b981', '#3b82f6', '#f59e0b', '#ef4444', 
+            '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'
+        ];
+        
+        new Chart(ctxKecamatan, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { family: 'Inter', size: 12, weight: 'bold' },
+                        bodyFont: { family: 'Inter', size: 11 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const val = counts[index];
+                                const wVal = weights[index].toLocaleString('id-ID');
+                                return ` ${val} Transaksi (${wVal} kg)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Generate Custom Legend
+        const legendContainer = document.getElementById('legendKecamatan');
+        if (legendContainer) {
+            labels.forEach((label, i) => {
+                const color = colors[i % colors.length];
+                const count = counts[i];
+                const weight = weights[i].toLocaleString('id-ID');
+                
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color}"></div>
+                    <div class="legend-label" title="${label}">${label}</div>
+                    <div class="legend-val">
+                        ${count} <span class="legend-sub">req</span>
+                        <span style="color:#aaa;margin:0 4px">|</span>
+                        <span style="font-size:10px;color:#059669">${weight} kg</span>
+                    </div>
+                `;
+                legendContainer.appendChild(legendItem);
+            });
+        }
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/layout/footer.php'; ?>
