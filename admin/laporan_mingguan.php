@@ -724,6 +724,7 @@ require_once __DIR__ . '/layout/header.php';
   <a href="laporan_harian.php?type=<?= $type ?>"   class="btn btn-outline btn-sm">📅 Harian</a>
   <span class="btn btn-sm" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;font-weight:700;cursor:default">📆 Mingguan</span>
   <a href="laporan_bulanan.php?type=<?= $type ?>"  class="btn btn-outline btn-sm">📊 Bulanan</a>
+  <a href="pivot_pembayaran.php"                  class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
   <a href="analisis_data.php"    class="btn btn-outline btn-sm">🔬 Analisis Data</a>
   <a href="dashboard.php"        class="btn btn-outline btn-sm" style="margin-left:auto">← Dashboard</a>
 </div>

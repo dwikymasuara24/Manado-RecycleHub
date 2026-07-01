@@ -656,6 +656,7 @@ try {
       <li><a href="<?= $pfx ?>laporan_harian.php"   class="<?= ($page_id??'')==='laporan_harian'?'active':'' ?>" title="Laporan Harian"><span class="nav-icon">📅</span> <span class="nav-text">Laporan Harian</span></a></li>
       <li><a href="<?= $pfx ?>laporan_mingguan.php" class="<?= ($page_id??'')==='laporan_mingguan'?'active':'' ?>" title="Laporan Mingguan"><span class="nav-icon">📆</span> <span class="nav-text">Laporan Mingguan</span></a></li>
       <li><a href="<?= $pfx ?>laporan_bulanan.php"  class="<?= ($page_id??'')==='laporan_bulanan'?'active':'' ?>" title="Laporan Bulanan"><span class="nav-icon">🗓️</span> <span class="nav-text">Laporan Bulanan</span></a></li>
+      <li><a href="<?= $pfx ?>pivot_pembayaran.php" class="<?= ($page_id??'')==='pivot_pembayaran'?'active':'' ?>" title="Pivot Rekap Bayar"><span class="nav-icon">🧩</span> <span class="nav-text">Pivot Rekap Bayar</span></a></li>
       <li><a href="<?= $pfx ?>analisis_data.php"    class="<?= ($page_id??'')==='analisis_data'?'active':'' ?>" title="Analisis Data"><span class="nav-icon">📊</span> <span class="nav-text">Analisis Data</span></a></li>
     </ul>
   </div>

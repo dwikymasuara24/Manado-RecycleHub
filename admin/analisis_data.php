@@ -445,6 +445,7 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   <a href="laporan_harian.php"   class="btn btn-outline btn-sm">📅 Lap. Harian</a>
   <a href="laporan_mingguan.php" class="btn btn-outline btn-sm">📆 Lap. Mingguan</a>
   <a href="laporan_bulanan.php"  class="btn btn-outline btn-sm">📊 Lap. Bulanan</a>
+  <a href="pivot_pembayaran.php" class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
   <a href="rute_jadwal.php"      class="btn btn-outline btn-sm">🗺️ Rute & Jadwal</a>
 </div>
 
