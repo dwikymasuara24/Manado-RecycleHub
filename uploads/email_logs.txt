@@ -2410,3 +2410,30 @@ Salam,
 System Manado Recycle Hub
 ========================================================================
 
+[2026-07-01 19:30:54] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Singkil - 1 Juli 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-002
+Nama Pemesan     : Dwiky Masuara TI 4
+PIC              : Yuscar Agsbastian
+Kecamatan Pickup : Singkil
+Kelurahan        : Paal Dua
+Alamat Jemput    : Toko Tiga Saudara, Jalan Yos Sudarso
+Tanggal & Jam    : 01 Jul 2026 19:30:49 WITA
+Estimasi Berat   : 1 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+

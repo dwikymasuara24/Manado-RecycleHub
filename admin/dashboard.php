@@ -427,6 +427,14 @@ require_once __DIR__ . '/layout/header.php';
 @media(max-width:768px) {
     .kpi-strip { grid-template-columns:repeat(2,1fr); }
     .kec-heatmap { grid-template-columns:repeat(2,1fr); }
+    .db-section-title {
+        flex-wrap: wrap;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+    .db-section-title::after {
+        display: none;
+    }
 }
 /* Status Flow */
 .status-flow {
@@ -435,10 +443,22 @@ require_once __DIR__ . '/layout/header.php';
     margin-bottom: 15px; font-size: 11px; font-weight: 700;
     color: #94a3b8; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
 }
-.flow-step { display: flex; align-items: center; gap: 6px; }
-.flow-sep  { color: #e2e8f0; font-weight: 400; }
-.flow-badge { padding: 2px 10px; border-radius: 20px; font-size: 10px; }
+.status-flow::-webkit-scrollbar {
+    height: 4px;
+}
+.status-flow::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+.flow-step { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.flow-sep  { color: #e2e8f0; font-weight: 400; flex-shrink: 0; }
+.flow-badge { padding: 2px 10px; border-radius: 20px; font-size: 10px; flex-shrink: 0; }
 
 </style>
 

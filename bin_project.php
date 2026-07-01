@@ -4,7 +4,7 @@ require_once __DIR__ . '/include/config.php';
 $site_name  = "Manado Recycle Hub";
 $page_title = "Bin Project";
 $logo_img   = "Home.png";
-$banner_img = "binproject.jpeg";
+$banner_img = "bin.png";
 
 $nav_items = [
     ["label" => "Home",                 "url" => "home.php",                    "active" => false],
@@ -198,15 +198,15 @@ $bins = [
 
         .hero-section {
             position: relative;
-            height: 660px;
+            height: 380px;
             background-color: #ffffff;
-            background-image: url('<?= rawurlencode($banner_img) ?>');
-            background-size: contain;
+            background-image: url('<?= baseUrl($banner_img) ?>');
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             margin-top: var(--nav-height);
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
             overflow: hidden;
         }
@@ -221,7 +221,7 @@ $bins = [
             width: 100%;
             max-width: 1280px;
             margin: 0 auto;
-            padding: 0 7.5% 24px;
+            padding: 0 7.5%;
             text-align: center;
         }
         .hero-content h1 {
@@ -368,8 +368,8 @@ $bins = [
             .navbar-brand .brand-name { font-size: 13pt; }
             .navbar-nav { display: none; }
             .hamburger { display: flex; }
-            .hero-section { height: 150px; }
-            .hero-content h1 { font-size: 16pt; }
+            .hero-section { height: 180px; }
+            .hero-content h1 { font-size: 18pt; }
             .content-section { padding: 0 20px 40px; }
             .subtitle-section { padding: 32px 20px; }
         }

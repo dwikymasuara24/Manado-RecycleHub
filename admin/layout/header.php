@@ -556,6 +556,7 @@ try {
         left: auto !important;
         transform: none !important;
         margin-right: 0 !important;
+        margin-left: auto !important;
         z-index: 1001;
       }
       #notifBellContainer > span:first-child {

@@ -536,7 +536,7 @@ $stats = [
 // Per kecamatan hari ini
 if ($type === 'pickup') {
     $sqlK = "
-        SELECT kecamatan, COUNT(*) as cnt FROM pickup_requests 
+        SELECT kecamatan, COUNT(*) as cnt, COALESCE(SUM(berat_total_kg), 0) as total_kg FROM pickup_requests 
         WHERE DATE(created_at)=? AND kecamatan IS NOT NULL
     ";
     $paramsK = [$tgl];
@@ -549,15 +549,17 @@ if ($type === 'pickup') {
     $kecToday->execute($paramsK);
 } else {
     $sqlK = "
-        SELECT kecamatan, COUNT(*) as cnt FROM cleanup_requests 
-        WHERE DATE(created_at)=? AND kecamatan IS NOT NULL
+        SELECT cr.kecamatan, COUNT(DISTINCT cr.id) as cnt, COALESCE(SUM(ci.berat_kg), 0) as total_kg 
+        FROM cleanup_requests cr
+        LEFT JOIN cleanup_items ci ON ci.cleanup_id = cr.id
+        WHERE DATE(cr.created_at)=? AND cr.kecamatan IS NOT NULL
     ";
     $paramsK = [$tgl];
     if ($fKec) {
-        $sqlK .= " AND kecamatan = ?";
+        $sqlK .= " AND cr.kecamatan = ?";
         $paramsK[] = $fKec;
     }
-    $sqlK .= " GROUP BY kecamatan ORDER BY cnt DESC";
+    $sqlK .= " GROUP BY cr.kecamatan ORDER BY cnt DESC";
     $kecToday = $db->prepare($sqlK);
     $kecToday->execute($paramsK);
 }

@@ -214,8 +214,8 @@ $nav_items = [
             position: relative;
             height: 660px;
             background-color: #ffffff;
-            background-image: url('<?= rawurlencode($banner_img) ?>');
-            background-size: contain;
+            background-image: url('<?= baseUrl($banner_img) ?>');
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             margin-top: var(--nav-height);

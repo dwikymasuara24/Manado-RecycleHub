@@ -297,15 +297,15 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
 
         .hero-section {
             position: relative;
-            height: 250px;
+            height: 380px;
             background-color: #ffffff;
-            background-image: url('<?= rawurlencode($banner_img) ?>');
-            background-size: contain;
+            background-image: url('<?= baseUrl($banner_img) ?>');
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             margin-top: var(--nav-height);
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
             overflow: hidden;
         }
@@ -320,7 +320,7 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             width: 100%;
             max-width: 1280px;
             margin: 0 auto;
-            padding: 0 7.5% 24px;
+            padding: 0 7.5%;
             text-align: center;
         }
         .hero-content h1 {
@@ -574,8 +574,8 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             .navbar-nav { display: none; }
             .hamburger { display: flex; }
             .sidebar-nav { display: flex; }
-            .hero-section { height: 150px; }
-            .hero-content h1 { font-size: 16pt; }
+            .hero-section { height: 180px; }
+            .hero-content h1 { font-size: 18pt; }
             .content-section { padding: 0 16px 40px; }
             .subtitle-section { padding: 32px 16px; }
         }
