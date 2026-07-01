@@ -227,6 +227,14 @@ $slblMap = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=
 .btn-cancel:hover { background:#f1f5f9; }
 .btn-submit { background:var(--green); color:#fff; box-shadow:0 4px 12px rgba(46,125,50,0.2); }
 .btn-submit:hover { background:#155229; transform:translateY(-1px); box-shadow:0 6px 16px rgba(46,125,50,0.3); }
+@media (max-width: 640px) {
+  .modal-overlay-cl { padding: 10px; }
+  .modal-cl { max-height: 95vh; }
+  .modal-header-cl { padding: 14px 16px; }
+  .modal-body-cl { padding: 14px 16px; }
+  .modal-footer-cl { padding: 12px 16px; flex-direction: column; gap: 8px; }
+  .file-grp { flex-direction: column; }
+}
 </style>
 
 <div class="modal-overlay-cl" id="modalFinish">
@@ -235,7 +243,7 @@ $slblMap = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=
             <h3>🏁 Selesai Clean Up</h3>
             <button class="modal-close-cl" onclick="closeFinishModal()">✕</button>
         </div>
-        <form method="POST" enctype="multipart/form-data" style="display:flex;flex-direction:column;height:100%">
+        <form method="POST" enctype="multipart/form-data" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
             <div class="modal-body-cl">
                 <input type="hidden" name="action" value="input_weights">
                 <input type="hidden" name="id" id="finishId">

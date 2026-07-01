@@ -631,6 +631,10 @@ require_once __DIR__ . '/layout/header.php';
     .pv-lbl {
         min-width: auto !important;
     }
+    .modal { max-height: 95vh; margin: 10px; width: calc(100% - 20px); }
+    .modal-body { padding: 16px; }
+    .modal-footer { padding: 12px 16px; }
+    .modal-header { padding: 14px 16px; }
 }
 </style>
 <div class="modal-overlay" style="display:flex">

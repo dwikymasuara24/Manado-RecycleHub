@@ -371,13 +371,14 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 ═══════════════════════════════════════ */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
 .modal-overlay.open,.modal-overlay[style*="display:flex"]{display:flex}
-.modal{background:#fff;border-radius:16px;width:100%;box-shadow:0 8px 48px rgba(0,0,0,.2);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;animation:modalIn .2s ease}
+.modal{background:#fff;border-radius:16px;width:100%;box-shadow:0 8px 48px rgba(0,0,0,.2);max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:modalIn .2s ease}
+.modal form{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0}
 @keyframes modalIn{from{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.modal-header{padding:18px 24px 14px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;border-radius:16px 16px 0 0}
+.modal-header{padding:18px 24px 14px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:16px 16px 0 0}
 .modal-header h3{font-size:15px;font-weight:800;color:#1e293b;margin:0}
 .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8;line-height:1;padding:4px 6px;border-radius:6px;transition:all .15s}
 .modal-close:hover{color:#ef4444;background:#fee2e2}
-.modal-body{padding:20px 24px;flex:1}
+.modal-body{padding:20px 24px;flex:1;overflow-y:auto}
 .modal-footer{padding:14px 24px;border-top:1px solid #f1f5f9;display:flex;gap:8px;justify-content:flex-end;background:#fafafa;border-radius:0 0 16px 16px}
 
 /* ═══════════════════════════════════════
@@ -431,6 +432,10 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   .preview-row .pl {
     min-width: auto !important;
   }
+  .modal{max-height:95vh;margin:10px;width:calc(100% - 20px)}
+  .modal-body{padding:16px}
+  .modal-footer{padding:12px 16px}
+  .modal-header{padding:14px 16px}
 }
 </style>
 
