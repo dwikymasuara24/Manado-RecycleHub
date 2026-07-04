@@ -425,9 +425,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<button id="pwaInstallBtn" style="display:none; position:fixed; bottom:20px; left:20px; z-index:9999; background:#1c6434; color:white; border:none; padding:12px 20px; border-radius:30px; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.2); cursor:pointer; font-size:13px; align-items:center; gap:8px; font-family:'Inter', sans-serif;">
-  📲 Download dan Install Aplikasi
-</button>
+
 
 <script>
 function togglePasswordVisibility(inputId, btnId) {
@@ -450,44 +448,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-let deferredPrompt;
-const installBtn = document.getElementById('pwaInstallBtn');
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.style.display = 'inline-flex';
-});
-
-// Jika tidak diprompt otomatis karena masalah protokol HTTP (bukan HTTPS / localhost)
-setTimeout(() => {
-  if (!deferredPrompt && installBtn) {
-    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-    const isHttps = window.location.protocol === 'https:';
-    if (!isHttps && !isLocal) {
-      installBtn.style.display = 'inline-flex';
-      installBtn.style.opacity = '0.6';
-      installBtn.style.background = '#64748b'; // Gray out
-      installBtn.innerText = '📲 Info Instalasi PWA';
-      installBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        alert('Info Instalasi Aplikasi:\n\nAplikasi dapat diunduh seperti aplikasi HP jika diakses melalui koneksi aman (HTTPS) atau di localhost.\n\nSaat ini Anda mengakses menggunakan HTTP biasa tanpa SSL.');
-      });
-    }
-  }
-}, 3000);
-
-installBtn.addEventListener('click', () => {
-  if (!deferredPrompt) return;
-  installBtn.style.display = 'none';
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then((choiceResult) => {
-    if (choiceResult.outcome === 'accepted') {
-      console.log('User accepted the install prompt');
-    }
-    deferredPrompt = null;
-  });
-});
 </script>
 
 </body>

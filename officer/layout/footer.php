@@ -103,9 +103,11 @@ function showToast(type, msg){
   
   const icon = type === 'success' ? '✅' : (type === 'danger' ? '❌' : 'ℹ️');
   t.innerHTML = `
-    <div class="toast-icon" style="font-size: 42px; line-height: 1;">${icon}</div>
-    <div class="toast-msg" style="font-size: 13.5px; font-weight: 700; color: #1e293b; line-height: 1.5; margin-bottom: 8px;">${msg}</div>
-    <button type="button" style="background: var(--green); color: white; border: none; border-radius: 8px; padding: 6px 20px; font-size: 12px; font-weight: 700; cursor: pointer; width: 100%;" onclick="this.parentElement.remove()">Tutup</button>
+    <div class="toast-icon" style="font-size: 22px; line-height: 1; flex-shrink: 0;">${icon}</div>
+    <div class="toast-body" style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+      <div class="toast-msg" style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.4;">${msg}</div>
+    </div>
+    <button type="button" class="toast-close" style="background: none; color: #94a3b8; border: none; font-size: 16px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;" onclick="this.parentElement.remove()" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">✕</button>
   `;
   c.appendChild(t);
   setTimeout(() => {
@@ -348,53 +350,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ── PWA Install Prompt Handler ──────────────────────────────────
-let deferredPrompt;
-const btnInstall = document.getElementById('btnInstallPWA');
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  if (btnInstall) {
-    btnInstall.style.display = 'flex';
-  }
-});
-
-// Jika tidak diprompt otomatis karena masalah protokol HTTP (bukan HTTPS / localhost)
-setTimeout(() => {
-  if (!deferredPrompt && btnInstall) {
-    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-    const isHttps = window.location.protocol === 'https:';
-    if (!isHttps && !isLocal) {
-      btnInstall.style.display = 'flex';
-      btnInstall.style.opacity = '0.6';
-      btnInstall.title = 'PWA membutuhkan HTTPS untuk instalasi di HP';
-      btnInstall.addEventListener('click', (e) => {
-        e.preventDefault();
-        alert('Instalasi Aplikasi Gagal:\n\nAplikasi hanya dapat diunduh langsung di HP jika diakses melalui koneksi aman (HTTPS). Saat ini Anda menggunakan koneksi HTTP biasa.\n\nSilakan hubungi administrator untuk memasang SSL (HTTPS) atau jalankan di localhost.');
-      });
-    }
-  }
-}, 3000);
-
-if (btnInstall) {
-  btnInstall.addEventListener('click', async (e) => {
-    e.preventDefault();
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to install: ${outcome}`);
-    deferredPrompt = null;
-    btnInstall.style.display = 'none';
-  });
-}
-
-window.addEventListener('appinstalled', () => {
-  console.log('App was installed successfully.');
-  if (btnInstall) {
-    btnInstall.style.display = 'none';
-  }
-});
 </script>
 </body>
 </html>

@@ -219,30 +219,7 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- Info DB -->
-<div class="card" style="margin-top:16px">
-  <div class="card-title"><div class="ct-icon">🗄️</div> Informasi Database</div>
-  <div class="grid-3">
-    <?php
-    $tbls = [
-      ['pickup_requests','Total Request'],
-      ['officers','Total Petugas'],
-      ['users','Total Pengguna'],
-      ['waste_categories','Kategori Sampah'],
-      ['survey_responses','Kuesioner'],
-      ['activity_logs','Log Aktivitas'],
-    ];
-    foreach ($tbls as [$tbl,$lbl]):
-      $cnt = (int)$db->query("SELECT COUNT(*) FROM $tbl")->fetchColumn();
-    ?>
-    <div style="background:#f9fafb;border-radius:var(--radius);padding:12px;border:1px solid #ebebeb">
-      <div style="font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px"><?= $lbl ?></div>
-      <div style="font-size:22px;font-weight:700;color:var(--green-700)"><?= $cnt ?></div>
-      <div style="font-size:10px;color:#aaa;margin-top:2px"><?= $tbl ?></div>
-    </div>
-    <?php endforeach; ?>
-  </div>
-</div>
+
 
 <script>
 document.getElementById('autoConfirm').addEventListener('change', function() {
@@ -255,48 +232,6 @@ document.getElementById('saveAdminBtn').addEventListener('click', function(e) {
 });
 </script>
 
-<!-- Integrasi Officer ↔ Admin -->
-<div class="card" style="margin-top:16px">
-  <div class="card-title"><div class="ct-icon">🔗</div> Status Integrasi Officer ↔ Admin</div>
-  <?php
-    $officerAktif  = (int)$db->query("SELECT COUNT(*) FROM officers WHERE status='aktif'")->fetchColumn();
-    $reqUnassigned = (int)$db->query("SELECT (SELECT COUNT(*) FROM pickup_requests WHERE officer_id IS NULL AND status NOT IN ('selesai','dibatalkan')) + (SELECT COUNT(*) FROM cleanup_requests WHERE officer_id IS NULL AND status NOT IN ('selesai','dibatalkan'))")->fetchColumn();
-    $reqAssigned   = (int)$db->query("SELECT (SELECT COUNT(*) FROM pickup_requests WHERE officer_id IS NOT NULL AND status NOT IN ('selesai','dibatalkan')) + (SELECT COUNT(*) FROM cleanup_requests WHERE officer_id IS NOT NULL AND status NOT IN ('selesai','dibatalkan'))")->fetchColumn();
-    $withGPS       = (int)$db->query("SELECT (SELECT COUNT(*) FROM pickup_requests WHERE latitude IS NOT NULL AND longitude IS NOT NULL) + (SELECT COUNT(*) FROM cleanup_requests WHERE latitude IS NOT NULL AND longitude IS NOT NULL)")->fetchColumn();
-    $gmapsApiStatus = !empty($settings['google_maps_api_key']);
-  ?>
-  <div class="grid-3" style="gap:10px">
-    <div style="background:<?= $officerAktif > 0 ? '#f0fdf4' : '#fff3f3' ?>;border-radius:8px;padding:12px;border:1px solid <?= $officerAktif > 0 ? '#bbf7d0' : '#fecaca' ?>">
-      <div style="font-size:10px;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:4px">Officer Aktif</div>
-      <div style="font-size:22px;font-weight:800;color:<?= $officerAktif > 0 ? '#16a34a' : '#dc2626' ?>"><?= $officerAktif ?></div>
-      <div style="font-size:10px;color:#888;margin-top:2px"><?= $officerAktif > 0 ? '✅ Siap bertugas' : '⚠️ Tidak ada petugas aktif' ?></div>
-    </div>
-    <div style="background:<?= $reqUnassigned == 0 ? '#f0fdf4' : '#fffbeb' ?>;border-radius:8px;padding:12px;border:1px solid <?= $reqUnassigned == 0 ? '#bbf7d0' : '#fde68a' ?>">
-      <div style="font-size:10px;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:4px">Request Unassigned</div>
-      <div style="font-size:22px;font-weight:800;color:<?= $reqUnassigned == 0 ? '#16a34a' : '#d97706' ?>"><?= $reqUnassigned ?></div>
-      <div style="font-size:10px;color:#888;margin-top:2px"><?= $reqUnassigned == 0 ? '✅ Semua ter-assign' : '⚠️ Perlu di-assign' ?></div>
-    </div>
-    <div style="background:#f0fdf4;border-radius:8px;padding:12px;border:1px solid #bbf7d0">
-      <div style="font-size:10px;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:4px">Map Engine</div>
-      <div style="font-size:22px;font-weight:800;color:#16a34a">OSM</div>
-      <div style="font-size:10px;color:#888;margin-top:2px">Leaflet/OpenStreetMap aktif secara default (Tanpa API Key)</div>
-    </div>
-    <div style="background:#f0f9ff;border-radius:8px;padding:12px;border:1px solid #bae6fd">
-      <div style="font-size:10px;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:4px">Request Ter-assign</div>
-      <div style="font-size:22px;font-weight:800;color:#0284c7"><?= $reqAssigned ?></div>
-      <div style="font-size:10px;color:#888;margin-top:2px">sedang ditangani officer</div>
-    </div>
-    <div style="background:#f5f3ff;border-radius:8px;padding:12px;border:1px solid #ddd6fe">
-      <div style="font-size:10px;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:4px">Data GPS/Koordinat</div>
-      <div style="font-size:22px;font-weight:800;color:#7c3aed"><?= $withGPS ?></div>
-      <div style="font-size:10px;color:#888;margin-top:2px">request punya koordinat</div>
-    </div>
-    <div style="background:#fafafa;border-radius:8px;padding:12px;border:1px solid #e2e8f0">
-      <div style="font-size:10px;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:4px">Officer Console</div>
-      <div style="font-size:22px;font-weight:800;color:#334155">📱</div>
-      <div style="font-size:10px;margin-top:4px"><a href="../officer/officer_console.php" style="color:#1c6434;font-weight:700">Buka Console →</a></div>
-    </div>
-  </div>
-</div>
+
 
 <?php require_once __DIR__ . '/layout/footer.php'; ?>

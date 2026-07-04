@@ -436,16 +436,16 @@ try {
 
     #toastArea {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        top: 20px;
+        right: 20px;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        gap: 12px;
         z-index: 10000;
         pointer-events: none;
-        width: min(90vw, 400px);
+        width: min(90vw, 360px);
+        max-height: 85vh;
+        overflow-y: auto;
     }
     #toastArea:empty {
         display: none !important;
@@ -453,31 +453,49 @@ try {
     .toast {
         pointer-events: auto;
         background: #ffffff !important;
-        color: #1f2937 !important;
-        border-radius: 16px !important;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.05) !important;
-        padding: 24px 32px !important;
-        max-width: 400px;
-        width: 90%;
+        color: #1e293b !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        padding: 14px 18px !important;
+        width: 100%;
+        box-sizing: border-box;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
-        text-align: center;
-        gap: 16px;
+        text-align: left;
+        gap: 12px;
         border: none !important;
-        animation: toast-scale-in 0.4s var(--spring-transit) forwards;
+        border-left: 4px solid #cbd5e1 !important;
+        animation: toast-slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .toast-success { border-top: 5px solid #10b981 !important; }
-    .toast-danger  { border-top: 5px solid #ef4444 !important; }
-    .toast-info    { border-top: 5px solid #3b82f6 !important; }
+    .toast-success { border-left: 4px solid #10b981 !important; }
+    .toast-danger  { border-left: 4px solid #ef4444 !important; }
+    .toast-info    { border-left: 4px solid #3b82f6 !important; }
     
-    @keyframes toast-scale-in {
-        from { transform: scale(0.9) translateY(15px); opacity: 0; }
-        to { transform: scale(1) translateY(0); opacity: 1; }
+    @keyframes toast-slide-in-right {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes toast-slide-in-bottom {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
     @keyframes toast-fade-out {
         from { transform: scale(1); opacity: 1; }
         to { transform: scale(0.95); opacity: 0; }
+    }
+    
+    @media (max-width: 768px) {
+        #toastArea {
+            top: auto;
+            bottom: 20px;
+            right: 50%;
+            transform: translateX(50%);
+            align-items: center;
+        }
+        .toast {
+            animation: toast-slide-in-bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
     }
 
     /* ── Collapsed Sidebar Styles ── */
@@ -763,9 +781,11 @@ function showToast(type, msg) {
   
   const icon = type === 'success' ? '✅' : (type === 'danger' ? '❌' : 'ℹ️');
   t.innerHTML = `
-    <div class="toast-icon" style="font-size: 42px; line-height: 1;">${icon}</div>
-    <div class="toast-msg" style="font-size: 13.5px; font-weight: 700; color: #1e293b; line-height: 1.5; margin-bottom: 8px;">${msg}</div>
-    <button type="button" style="background: #1c6434; color: white; border: none; border-radius: 8px; padding: 6px 20px; font-size: 12px; font-weight: 700; cursor: pointer; width: 100%;" onclick="this.parentElement.remove()">Tutup</button>
+    <div class="toast-icon" style="font-size: 22px; line-height: 1; flex-shrink: 0;">${icon}</div>
+    <div class="toast-body" style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+      <div class="toast-msg" style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.4;">${msg}</div>
+    </div>
+    <button type="button" class="toast-close" style="background: none; color: #94a3b8; border: none; font-size: 16px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;" onclick="this.parentElement.remove()" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">✕</button>
   `;
   a.appendChild(t);
   setTimeout(() => {

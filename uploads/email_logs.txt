@@ -2437,3 +2437,56 @@ Salam,
 System Manado Recycle Hub
 ========================================================================
 
+[2026-07-04 12:28:56] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 4 Juli 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-S-129
+Nama Pemesan     : Kost Berkat Politeknik
+PIC              : Kost berkat politeknik
+Kecamatan Pickup : Mapanget
+Kelurahan        : Politeknik - Buha
+Alamat Jemput    : Jl. Politeknik patokan halte  kampus politeknik
+Tanggal & Jam    : 04 Jul 2026 12:28:49 WITA
+Estimasi Berat   : 1 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
+[2026-07-04 14:16:50] CLEANUP EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Clean Up - Kecamatan Wenang - 4 Juli 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order Clean Up baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-C-201
+Nama Pemesan     : Hotel Swissbell Manado
+Layanan Clean Up : Pemilahan Plastik
+Kecamatan        : Wenang
+Kelurahan        : Komo Luar
+Alamat Lokasi    : Swiss Belhotel, Jalan Jenderal Sudirman
+Tanggal & Jam    : 04 Jul 2026 14:16:45 WITA
+Dominan Sampah   : Botol Plastik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+
