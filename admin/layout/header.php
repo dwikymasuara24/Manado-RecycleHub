@@ -200,6 +200,7 @@ try {
       /* React-style entry fade transition */
       animation: pageFadeIn 0.5s var(--smooth-transit) both;
       min-width: 0;
+      box-sizing: border-box;
     }
 
     /* ── Centered Flash Notification Overlay Style ── */
@@ -569,11 +570,14 @@ try {
       }
       .sidebar { transform:translateX(-100%); transition: transform .35s var(--spring-transit); }
       .sidebar.open { transform:translateX(0); }
-      .topbar { left:0; }
-      .main-wrap { margin-left:0; }
+      .topbar { left:0; padding:0 12px; }
+      .main-wrap { margin-left:0; padding:12px; }
       .hamburger { display:block; }
       .grid-2, .grid-3, .form-row { grid-template-columns:1fr; }
-      .stats-grid { grid-template-columns:1fr; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+
+      /* Card: kurangi padding di mobile */
+      .card { padding:14px; }
 
       /* Aligning bell icon to the right on mobile, next to avatar */
       #notifBellContainer {
@@ -615,11 +619,17 @@ try {
         background: none;
         border: none;
       }
+      /* Toolbar wrapping on mobile */
+      .toolbar { flex-direction: column; align-items: flex-start; }
+      .toolbar-left, .toolbar-right { width: 100%; }
+      .search-input { width: 100%; }
       /* Responsive modal size & padding for mobile */
       .modal { max-height: 95vh; margin: 10px; width: calc(100% - 20px); }
       .modal-body { padding: 16px; }
       .modal-footer { padding: 12px 16px; }
       .modal-header { padding: 14px 16px; }
+      /* Page header responsive */
+      .page-header h1 { font-size: 17px; }
     }
   </style>
 </head>

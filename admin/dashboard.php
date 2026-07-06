@@ -403,6 +403,64 @@ require_once __DIR__ . '/layout/header.php';
     transition:transform .15s, box-shadow .15s;
     color:#fff; font-weight:700;
 }
+@media(max-width:768px) {
+    .kpi-strip {
+        grid-template-columns: repeat(2,1fr);
+        gap: 8px;
+    }
+    .kpi-card {
+        padding: 12px;
+    }
+    .kpi-value { font-size: 22px; }
+    .kec-heatmap { grid-template-columns: repeat(2,1fr); }
+    .db-section-title {
+        flex-wrap: wrap;
+        font-size: 10px;
+        line-height: 1.5;
+        margin: 16px 0 10px;
+    }
+    .db-section-title::after {
+        display: none;
+    }
+    /* Chart cards */
+    .chart-card {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    /* Page header on mobile: stack vertically */
+    .dash-page-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 8px;
+    }
+    .dash-header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        width: 100%;
+    }
+    /* Tabel: sembunyikan kolom non-esensial */
+    .tbl-hide-mobile { display: none !important; }
+    /* Tabel font lebih kecil */
+    table { font-size: 11px; }
+    thead th { padding: 6px 7px !important; font-size: 9px !important; }
+    tbody td { padding: 7px 7px !important; }
+    /* Verifikasi tabel: wrapping aksi vertikal */
+    .verif-action-btns { flex-direction: column; gap: 3px; }
+    .verif-action-btns button {
+        width: 100%;
+        text-align: center;
+        padding: 5px 6px !important;
+    }
+    /* Status flow: smaller on mobile */
+    .status-flow {
+        padding: 6px 10px;
+        font-size: 10px;
+        gap: 4px;
+    }
+    .flow-badge { font-size: 9px; padding: 1px 6px; }
+    .flow-sep { font-size: 9px; }
+}
 .hm-cell:hover { transform:scale(1.04); box-shadow:0 4px 14px rgba(0,0,0,.18); }
 .hm-cell .hm-kec { font-size:11px; font-weight:800; opacity:.9; }
 .hm-cell .hm-cnt { font-size:22px; font-weight:800; line-height:1.1; margin-top:4px; }
@@ -423,19 +481,7 @@ require_once __DIR__ . '/layout/header.php';
 .pt-title { font-size:12px; font-weight:700; color:#1e293b; }
 .pt-sub   { font-size:11px; color:#94a3b8; margin-top:1px; }
 
-/* Responsive */
-@media(max-width:768px) {
-    .kpi-strip { grid-template-columns:repeat(2,1fr); }
-    .kec-heatmap { grid-template-columns:repeat(2,1fr); }
-    .db-section-title {
-        flex-wrap: wrap;
-        font-size: 10px;
-        line-height: 1.5;
-    }
-    .db-section-title::after {
-        display: none;
-    }
-}
+
 /* Status Flow */
 .status-flow {
     display: flex; align-items: center; gap: 8px;
@@ -463,12 +509,12 @@ require_once __DIR__ . '/layout/header.php';
 </style>
 
 <!-- ══ PAGE HEADER ══ -->
-<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+<div class="page-header dash-page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:16px">
   <div>
     <h1>Dashboard</h1>
     <p><?= SITE_NAME ?> · <?= date('l, d F Y') ?> · Sistem Manajemen Pengangkutan Sampah</p>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+  <div class="dash-header-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <div class="live-badge"><span class="live-dot"></span> Live · <span id="lastRefresh">--:--:--</span></div>
     <?php if ($unassigned > 0): ?>
     <a href="req_management.php" class="action-chip">⚠️ <?= $unassigned ?> belum di-assign</a>
@@ -693,7 +739,7 @@ require_once __DIR__ . '/layout/header.php';
         <thead><tr>
           <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">ID</th>
           <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Pemohon / Layanan</th>
-          <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Sub-district</th>
+          <th class="tbl-hide-mobile" style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Sub-district</th>
           <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Status</th>
           <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Aksi</th>
         </tr></thead>
@@ -705,14 +751,14 @@ require_once __DIR__ . '/layout/header.php';
                 <?= htmlspecialchars($r['nama_pemohon']) ?>
                 <div style="font-size:10px;color:#94a3b8"><?= htmlspecialchars(ucfirst($r['entity_name'])) ?></div>
             </td>
-            <td style="padding:8px 10px;color:#64748b;font-size:11px"><?= htmlspecialchars($r['kecamatan']??'-') ?></td>
+            <td class="tbl-hide-mobile" style="padding:8px 10px;color:#64748b;font-size:11px"><?= htmlspecialchars($r['kecamatan']??'-') ?></td>
             <td style="padding:8px 10px">
               <span style="background:#fef3c7;color:#d97706;border:1px solid #fde68a;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:800">Menunggu</span>
               <div style="font-size:9px;color:#64748b;margin-top:4px;font-weight:700"><?= $r['type'] === 'pickup' ? '🚛 Pickup' : '🧹 Clean Up' ?></div>
             </td>
             <td style="padding:8px 10px">
               <?php if ($r['type'] === 'pickup'): ?>
-              <div style="display:flex;gap:4px">
+              <div style="display:flex;gap:4px" class="verif-action-btns">
                 <button onclick="quickStatus(<?= $r['id'] ?>,'dikonfirmasi',this)" data-prev="menunggu"
                   style="padding:4px 12px;background:#dbeafe;color:#1e40af;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">
                   ✔ Konfirmasi
