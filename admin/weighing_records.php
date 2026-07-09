@@ -8,7 +8,7 @@ require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
 $page_id    = 'weighing_records';
-$page_title = 'Rekaman Hasil Timbang';
+$page_title = 'Hasil Timbang';
 $db         = getDB();
 $csrfToken  = csrfToken();
 
@@ -338,7 +338,7 @@ if (isset($_GET['export'])) {
         <html lang="id">
         <head>
             <meta charset="UTF-8">
-            <title>Laporan Rekaman Hasil Timbang — <?= SITE_NAME ?></title>
+            <title>Laporan Hasil Timbang — <?= SITE_NAME ?></title>
             <style>
                 @page { size: landscape; margin: 8mm; }
                 body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 10px; line-height: 1.3; font-size: 8px; }
@@ -860,8 +860,7 @@ require_once __DIR__ . '/layout/header.php';
 </style>
 
 <div class="page-header">
-    <h1>⚖️ Rekaman Hasil Timbang</h1>
-    <p>Lihat dan kelola seluruh log penimbangan hasil penjemputan sampah daur ulang dan layanan clean up.</p>
+    <h1>⚖️ Hasil Timbang</h1>
 </div>
 
 <!-- Summary Cards -->

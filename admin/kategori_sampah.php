@@ -60,7 +60,7 @@ require_once __DIR__ . '/layout/header.php';
 
 <div class="page-header">
   <h1>Kategori Sampah</h1>
-  <p>Kelola jenis sampah yang diterima layanan MRH</p>
+  <p>Kelola jenis sampah yang diterima layanan Manado Recycle Hub</p>
 </div>
 
 <div class="card">

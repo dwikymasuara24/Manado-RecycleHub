@@ -99,7 +99,7 @@ require_once __DIR__ . '/layout/header.php';
 ?>
 
 <div class="page-header">
-  <h1>Pengaturan Sistem</h1>
+  <h1>Pengaturan</h1>
   <p>Konfigurasi global <?= SITE_NAME ?></p>
 </div>
 
@@ -132,8 +132,7 @@ require_once __DIR__ . '/layout/header.php';
                value="<?= htmlspecialchars($settings['google_maps_api_key'] ?? '') ?>"
                placeholder="AIza...">
         <div style="font-size:11px;color:#888;margin-top:4px">
-          Sistem menggunakan Leaflet (OpenStreetMap) secara default yang 100% gratis dan tidak membutuhkan API Key. Input di atas hanya opsional jika Anda ingin mengaktifkan layanan Google Maps tertentu di masa mendatang.
-          <span style="color:#16a34a;font-weight:600;display:block;margin-top:2px">✓ OpenStreetMap aktif sebagai map utama (Tanpa API Key).</span>
+          
         </div>
       </div>
       <button type="submit" class="btn btn-primary">💾 Simpan</button>

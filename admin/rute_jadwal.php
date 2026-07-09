@@ -439,8 +439,8 @@ require_once __DIR__ . '/layout/header.php';
 </style>
 
 <div class="page-header">
-  <h1>Rute &amp; Jadwal Penjemputan</h1>
-  <p>Penjadwalan berbasis <strong>Priority Rule</strong> + Penentuan rute <strong>Nearest Neighbor</strong> (Haversine Formula)</p>
+  <h1>Rute & Jadwal Penjemputan</h1>
+  
 </div>
 
 <!-- Tipe Layanan Filter -->

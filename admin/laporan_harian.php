@@ -694,7 +694,7 @@ require_once __DIR__ . '/layout/header.php';
 
 <div class="page-header">
   <h1>Laporan Harian</h1>
-  <p>Data <?= $type === 'cleanup' ? 'Clean Up Service' : 'Penjemputan Sampah Daur Ulang' ?> per hari — tersinkron dari database</p>
+  <p>Data <?= $type === 'cleanup' ? 'Clean Up Service' : 'Penjemputan Sampah Daur Ulang' ?> per hari</p>
 </div>
 
 <!-- Navigasi Laporan -->

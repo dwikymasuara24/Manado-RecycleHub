@@ -1,0 +1,532 @@
+
+==============================================================================
+  MANADO RECYCLE HUB — MATERI PENELITIAN
+  Sistem Penjemputan Sampah Berbasis Web dengan Algoritma Optimasi Rute
+  dan Integrasi Geographic Information System (GIS)
+==============================================================================
+
+
+------------------------------------------------------------------------------
+1. LATAR BELAKANG
+------------------------------------------------------------------------------
+
+Kota Manado sebagai ibukota Provinsi Sulawesi Utara menghadapi tantangan
+serius dalam pengelolaan sampah perkotaan. Volume sampah yang terus meningkat
+seiring pertumbuhan penduduk tidak diimbangi dengan sistem pengumpulan yang
+efisien dan terorganisasi. Beberapa permasalahan utama yang teridentifikasi:
+
+  a) Tidak adanya sistem digital untuk masyarakat mengajukan permintaan
+     penjemputan sampah secara mandiri.
+  b) Proses penjadwalan petugas lapangan masih dilakukan secara manual,
+     rawan kesalahan, dan tidak efisien.
+  c) Tidak ada mekanisme optimasi rute, sehingga petugas sering menempuh
+     jarak yang tidak perlu (boros bahan bakar & waktu).
+  d) Admin tidak memiliki dasbor real-time untuk memantau distribusi
+     permintaan antar wilayah kecamatan.
+  e) Belum ada integrasi peta digital (GIS) untuk visualisasi lokasi
+     penjemputan dan rute perjalanan petugas.
+  f) Partisipasi masyarakat dalam daur ulang masih rendah karena tidak
+     ada platform informasi dan edukasi yang mudah diakses.
+
+Manado Recycle Hub (MRH) dibangun untuk menjawab seluruh permasalahan
+tersebut melalui platform web berbasis PHP/MySQL yang mengintegrasikan
+algoritma penjadwalan cerdas (Priority Rule + Nearest Neighbor) dengan
+sistem peta GIS berbasis OpenStreetMap/Leaflet.js.
+
+
+------------------------------------------------------------------------------
+2. LUARAN PENELITIAN
+------------------------------------------------------------------------------
+
+2.1 Luaran Utama
+  - Sistem informasi manajemen sampah berbasis web (PHP, MySQL, Leaflet.js)
+  - Modul algoritma penjadwalan: Priority Rule + Nearest Neighbor (Haversine)
+  - Modul GIS: peta interaktif titik penjemputan + visualisasi rute petugas
+  - Laporan harian, mingguan, dan bulanan otomatis berbasis data real
+
+2.2 Luaran Pendukung
+  - Fitur Daur Ulang (pickup_requests): warga ajukan penjemputan sampah
+  - Fitur Clean Up Service (cleanup_requests): pembersihan lokasi tertentu
+  - Panel Admin: verifikasi request, kelola petugas, generate jadwal
+  - Panel Officer (Petugas): lihat jadwal, update status, live tracking
+  - Blog & konten edukasi daur ulang (DIY Projects, Idea Box)
+  - Kuesioner digital: pengumpulan data persepsi masyarakat
+  - Analisis data pivot: berat sampah per kategori, per kecamatan
+  - Notifikasi real-time via WhatsApp (trigger otomatis saat status berubah)
+  - Progressive Web App (PWA): dapat diakses offline
+
+
+------------------------------------------------------------------------------
+3. ARSITEKTUR SISTEM
+------------------------------------------------------------------------------
+
+3.1 Arsitektur Umum (3-Layer)
+
+  [ PRESENTATION LAYER ]
+      HTML5 + Vanilla CSS + JavaScript
+      Leaflet.js (peta interaktif OpenStreetMap)
+      Chart.js (grafik & dashboard)
+      Responsive (mobile + desktop via CSS @media query)
+
+  [ APPLICATION LAYER ]
+      PHP 8.2 (server-side rendering)
+      include/algorithms.php  — engine algoritma penjadwalan
+      include/config.php      — koneksi DB, helper, fungsi global
+      include/auth.php        — autentikasi & otorisasi role
+      Panel: Admin, Officer, Warga (guest & login)
+
+  [ DATA LAYER ]
+      MariaDB 10.4 / MySQL
+      Database: hub
+      Tabel utama: pickup_requests, cleanup_requests, schedules,
+                   routes, schedule_requests, officers, users,
+                   waste_categories, pickup_request_items
+
+3.2 Diagram Komponen Sistem
+
+  WARGA/TAMU          ADMIN               ALGORITMA           PETUGAS
+      |                  |                    |                   |
+      |-- Request ------->|                   |                   |
+      |   (form web)      |-- Verifikasi ----->|                  |
+      |                   |   (cek data)       |-- Priority Rule ->|
+      |                   |                    |-- Nearest Neighbor|
+      |                   |                    |-- Generate Jadwal |
+      |<-- Notif WA ------+<-------------------+<-- Update Status -|
+
+3.3 Modul-Modul Sistem
+
+  /admin/
+    dashboard.php         — KPI, grafik tren, statistik real-time
+    rute_jadwal.php       — generate jadwal, visualisasi rute GIS
+    req_management.php    — kelola semua permintaan (pickup & cleanup)
+    officer_management.php— kelola data petugas lapangan
+    analisis_data.php     — analisis distribusi sampah
+    laporan_harian.php    — ekspor laporan harian
+    laporan_mingguan.php  — ekspor laporan mingguan
+    laporan_bulanan.php   — ekspor laporan bulanan
+    weighing_records.php  — pencatatan berat aktual sampah
+    pivot_pembayaran.php  — pivot data transaksi mitra
+    live_tracking.php     — tracking petugas real-time
+    blog_management.php   — kelola konten blog
+    diy_management.php    — kelola panduan DIY
+
+  /officer/
+    Panel khusus petugas lapangan untuk melihat jadwal & update status
+
+  /
+    home.php              — landing page publik
+    daur_ulang.php        — form permintaan jemput sampah
+    cleanup_service.php   — form permintaan clean up
+    blog.php              — artikel edukasi daur ulang
+    diy.php               — panduan proyek DIY daur ulang
+    kuesioner.php         — survei persepsi masyarakat
+    lokasi_kami.php       — peta lokasi depot MRH
+
+
+------------------------------------------------------------------------------
+4. DATASET
+------------------------------------------------------------------------------
+
+4.1 Sumber Data
+
+  a) Data Primer — dikumpulkan langsung dari sistem:
+     - 200 record pickup_requests (permintaan daur ulang) — data seed
+     - 200 record cleanup_requests (permintaan clean up) — data seed
+     - Data kuesioner dari responden warga Kota Manado
+     - Koordinat GPS lokasi penjemputan (latitude, longitude)
+
+  b) Data Sekunder:
+     - Koordinat pusat 12 kecamatan di Kota Manado (acuan algoritma)
+     - Data OpenStreetMap untuk tile peta dan routing visualisasi
+
+4.2 Cakupan Wilayah Dataset
+
+  12 Kecamatan di Kota Manado:
+    1. Wenang          (lat: 1.4748, lng: 124.8421)
+    2. Malalayang      (lat: 1.4522, lng: 124.8015)
+    3. Tikala          (lat: 1.4930, lng: 124.8610)
+    4. Paal Dua        (lat: 1.5012, lng: 124.8700)
+    5. Bunaken         (lat: 1.6100, lng: 124.7500)
+    6. Bunaken Kepulauan (lat: 1.6800, lng: 124.7200)
+    7. Singkil         (lat: 1.4600, lng: 124.8100)
+    8. Mapanget        (lat: 1.5500, lng: 124.8900)
+    9. Wanea           (lat: 1.4800, lng: 124.8500)
+   10. Sario           (lat: 1.4650, lng: 124.8300)
+   11. Tuminting       (lat: 1.5100, lng: 124.8200)
+   12. Paal Empat      (lat: 1.5150, lng: 124.8750)
+
+  Depot/Base MRH: lat 1.476362, lng 124.832498
+
+4.3 Struktur Dataset pickup_requests
+
+  Kolom utama:
+    id, request_code (MRH########), user_id (NULL = guest),
+    nama_pemohon, nomor_wa, alamat_jemput,
+    kecamatan, kelurahan,
+    latitude, longitude,
+    status (menunggu/dikonfirmasi/dijadwalkan/sedang_diproses/selesai/dibatalkan),
+    officer_id, tanggal_jemput, berat_total_kg,
+    created_at, updated_at, confirmed_at, completed_at
+
+4.4 Jenis/Kategori Sampah (waste_categories) — 12 Kategori
+
+  1.  Kertas HVS        (kertas_hvs)
+  2.  Kardus            (kardus)
+  3.  Botol Plastik     (botol_plastik)
+  4.  Gelas Plastik     (gelas_plastik)
+  5.  Plastik Lain      (plastik_lain)
+  6.  Buku Bekas        (buku_bekas)
+  7.  Furniture Bekas   (furniture_bekas)
+  8.  Koran/Majalah     (kertas_koran)
+  9.  Logam             (logam)
+  10. Kaleng            (kaleng)
+  11. Kaca/Botol Kaca   (kaca)
+  12. Elektronik/E-Waste(elektronik)
+
+
+------------------------------------------------------------------------------
+5. VARIABEL PENELITIAN
+------------------------------------------------------------------------------
+
+5.1 Variabel Input (Masukan Algoritma)
+
+  Dari pickup_requests / cleanup_requests:
+    - kecamatan       : nama kecamatan lokasi penjemputan
+    - latitude        : koordinat lintang lokasi (desimal, WGS84)
+    - longitude       : koordinat bujur lokasi (desimal, WGS84)
+    - status          : hanya request berstatus 'dikonfirmasi' yang diproses
+    - created_at      : waktu pengajuan (untuk urutan FIFO dalam kecamatan)
+
+  Dari officers:
+    - id              : ID petugas aktif
+    - status          : hanya 'aktif' yang diikutkan dalam penugasan
+
+  Parameter Sistem:
+    - DEPOT_LAT/LNG   : koordinat titik awal petugas (gudang MRH)
+    - tanggal         : tanggal target penjemputan
+    - tipe_layanan    : 'pickup' atau 'cleanup'
+    - max_titik       : batas maksimal 30 titik per jadwal/hari
+
+5.2 Variabel Proses (Dihitung oleh Algoritma)
+
+  Priority Rule:
+    - count_per_kecamatan : jumlah request dikonfirmasi per kecamatan
+    - dist_to_depot       : jarak pusat kecamatan ke depot (tie-breaker)
+    - rank                : urutan prioritas pelayanan kecamatan
+
+  Nearest Neighbor (Haversine):
+    - haversine_distance  : jarak Euclidean di permukaan bumi (km)
+    - distance_from_prev  : jarak dari titik sebelumnya ke titik saat ini
+    - total_route_km      : total jarak rute dalam satu jadwal
+
+5.3 Variabel Output (Keluaran Sistem)
+
+  - schedule_id      : ID jadwal yang dibuat
+  - urutan_kunjungan : urutan titik yang akan dikunjungi petugas
+  - officer_id       : petugas yang ditugaskan (round-robin)
+  - tanggal_jadwal   : tanggal pelaksanaan penjemputan
+  - total_titik      : jumlah lokasi dalam satu jadwal
+  - rute_optimal     : urutan lokasi dengan total jarak minimum
+  - status_request   : berubah dari 'dikonfirmasi' → 'dijadwalkan'
+
+
+------------------------------------------------------------------------------
+6. TAHAP ALGORITMA
+------------------------------------------------------------------------------
+
+6.1 Algoritma 1: Priority Rule (Penentuan Prioritas Kecamatan)
+
+  TUJUAN: Menentukan kecamatan mana yang dilayani lebih dahulu
+          berdasarkan volume permintaan yang menunggu.
+
+  LANGKAH-LANGKAH:
+
+  Langkah 1 — Kelompokkan Request per Kecamatan
+    Input: semua request berstatus 'dikonfirmasi'
+    Proses: group by kecamatan → hitung COUNT per kecamatan
+
+  Langkah 2 — Pilih Kecamatan dengan Count Terbanyak (Greedy)
+    Bandingkan count semua kecamatan.
+    Pilih yang paling banyak sebagai "Best".
+
+  Langkah 3 — Tie-Breaking (jika count sama):
+    a) Hitung jarak pusat kecamatan ke Depot (Haversine)
+    b) Kecamatan yang lebih dekat ke Depot diprioritaskan
+    c) Jika jarak pun sama → urutan alfabetis (deterministik)
+
+  Langkah 4 — Tandai Kecamatan Terpilih, Lanjut ke Sisa
+    Request kecamatan terpilih dikeluarkan dari pool.
+    Ulangi Langkah 1-3 untuk request yang tersisa.
+    Berhenti ketika semua request sudah terurut.
+
+  OUTPUT: Urutan kecamatan [ Kec_A, Kec_B, Kec_C, ... ]
+
+  CONTOH:
+    Pool: Wenang=8, Tikala=3, Sario=1
+    Putaran 1 → pilih Wenang (8) → hapus dari pool
+    Putaran 2 → pilih Tikala (3) → hapus dari pool
+    Putaran 3 → pilih Sario  (1) → selesai
+    Hasil: [ Wenang → Tikala → Sario ]
+
+
+6.2 Algoritma 2: Nearest Neighbor + Haversine (Optimasi Rute)
+
+  TUJUAN: Menentukan urutan kunjungan titik-titik penjemputan
+          dalam satu kecamatan agar total jarak minimum.
+
+  RUMUS HAVERSINE (jarak antara 2 koordinat di bumi):
+    a = sin²(Δlat/2) + cos(lat1) × cos(lat2) × sin²(Δlon/2)
+    c = 2 × atan2(√a, √(1−a))
+    d = R × c    (R = 6371 km, jari-jari bumi)
+
+  LANGKAH-LANGKAH:
+
+  Langkah 1 — Inisialisasi
+    titik_saat_ini = DEPOT
+    unvisited = semua titik request dalam kecamatan
+    visited = []
+
+  Langkah 2 — Temukan Tetangga Terdekat
+    Hitung Haversine(titik_saat_ini, setiap titik di unvisited)
+    Pilih titik dengan jarak MINIMUM → nearest
+
+  Langkah 3 — Kunjungi Titik Terdekat
+    Tambahkan nearest ke visited
+    Catat jarak dari titik sebelumnya (distance_from_prev)
+    titik_saat_ini = nearest
+    Hapus nearest dari unvisited
+
+  Langkah 4 — Ulangi
+    Kembali ke Langkah 2 sampai unvisited kosong
+
+  Langkah 5 — Kembali ke Depot
+    Hitung jarak dari titik terakhir ke DEPOT
+    Tambahkan sebagai titik penutup rute
+
+  OUTPUT: [ DEPOT → T3 → T1 → T4 → T2 → DEPOT ]
+          Dengan total jarak = Σ semua distance_from_prev
+
+  CONTOH (4 titik):
+    DEPOT → A (2 km) → B (3 km) → C (4 km) → D (3 km) → DEPOT (4 km)
+    Total = 16 km
+
+
+6.3 Kombinasi Kedua Algoritma (generateSchedule)
+
+  ALUR LENGKAP:
+    1. Ambil semua request status='dikonfirmasi' dari DB
+    2. Jalankan Priority Rule → urutan kecamatan
+    3. Ambil kecamatan prioritas #1 beserta request-nya
+    4. Jalankan Nearest Neighbor pada request kecamatan tsb
+    5. Simpan ke tabel: schedules, routes, schedule_requests
+    6. Update status request → 'dijadwalkan'
+    7. Assign petugas (round-robin dari daftar officer aktif)
+    8. Hitung tanggal jadwal = tanggal_mulai + N hari
+    9. Kirim notifikasi WhatsApp otomatis
+   10. Hapus request yang sudah dijadwalkan dari pool
+   11. Ulangi dari Langkah 2 sampai pool habis
+
+  BATASAN SISTEM:
+    - Maks. 30 titik per jadwal (1 hari per petugas)
+    - Proteksi: tidak boleh ada 2 jadwal kecamatan sama pada hari sama
+    - Petugas ditugaskan secara round-robin (fair distribution)
+
+
+------------------------------------------------------------------------------
+7. INTEGRASI GIS (Geographic Information System)
+------------------------------------------------------------------------------
+
+7.1 Teknologi GIS yang Digunakan
+
+  Library   : Leaflet.js v1.9.4 (open-source)
+  Tile Map  : OpenStreetMap (OSM) — bebas biaya, tanpa API key
+  Koordinat : WGS84 (desimal, latitude/longitude)
+  Formula   : Haversine (diimplementasikan di PHP & JavaScript)
+
+7.2 Fitur GIS dalam Sistem
+
+  a) Peta Input Request (daur_ulang.php / cleanup_service.php)
+     - Warga klik peta → koordinat otomatis terisi ke form
+     - Reverse geocoding → nama kelurahan & kecamatan terisi otomatis
+     - Marker dapat digeser untuk koreksi lokasi
+     - Fallback: warga isi alamat teks jika tidak mau klik peta
+
+  b) Visualisasi Rute Petugas (admin/rute_jadwal.php)
+     - Peta menampilkan semua titik request dalam kecamatan terpilih
+     - Warna marker: biru (Daur Ulang), oranye (Clean Up), hijau (Depot)
+     - Setelah algoritma NN dijalankan → polyline rute ditarik di peta
+     - Label nomor urut kunjungan tampil di setiap marker
+     - Popup klik marker: kode request, nama pemohon, jenis wadah
+
+  c) Live Tracking Petugas (admin/live_tracking.php)
+     - Monitoring posisi petugas saat bertugas di lapangan
+     - Peta menunjukkan pergerakan petugas secara real-time
+
+  d) Peta Lokasi Depot (lokasi_kami.php)
+     - Menampilkan lokasi depot/gudang MRH kepada publik
+
+7.3 Cara Kerja Integrasi Koordinat
+
+  SAAT WARGA SUBMIT REQUEST:
+    1. Warga buka halaman daur_ulang.php / cleanup_service.php
+    2. Peta Leaflet muncul — warga klik titik lokasi penjemputan
+    3. JavaScript tangkap event click → ambil lat/lng
+    4. Reverse geocoding (Nominatim OSM API) → isi kelurahan, kecamatan
+    5. Lat/lng disimpan ke hidden input → dikirim bersama form
+    6. Server simpan ke kolom latitude, longitude di tabel pickup_requests
+
+  SAAT ADMIN GENERATE JADWAL:
+    1. Query semua request dikonfirmasi (dengan lat/lng)
+    2. Jika lat/lng kosong → gunakan koordinat pusat kecamatan + random jitter
+    3. Algoritma Haversine hitung jarak antar titik
+    4. Hasil rute dikirim ke frontend sebagai JSON
+    5. JavaScript Leaflet render polyline di peta
+
+7.4 Struktur Data GIS dalam Database
+
+  Tabel pickup_requests:
+    latitude   DECIMAL(10,8)  — koordinat lintang
+    longitude  DECIMAL(11,8)  — koordinat bujur
+
+  Tabel routes:
+    schedule_id        — referensi jadwal
+    urutan             — urutan kunjungan (0 = depot, 1,2,3... = titik)
+    pickup_request_id  — referensi titik request
+    dist_from_prev_km  — jarak dari titik sebelumnya (km, Haversine)
+
+  Tabel kecamatan:
+    nama_kecamatan     — nama kecamatan
+    lat, lng           — koordinat pusat kecamatan (referensi algoritma)
+
+
+------------------------------------------------------------------------------
+8. ALUR KERJA SISTEM (DARI INPUT HINGGA OUTPUT)
+------------------------------------------------------------------------------
+
+8.1 Alur Utama End-to-End
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  TAHAP 1 — INPUT (Warga)                                        │
+  │                                                                 │
+  │  Warga buka web → pilih layanan:                                │
+  │    a) Daur Ulang (daur_ulang.php)                               │
+  │    b) Clean Up Service (cleanup_service.php)                    │
+  │                                                                 │
+  │  Warga isi form 1 halaman:                                      │
+  │    - Nama lengkap + nomor WhatsApp                              │
+  │    - Pilih jenis sampah (checkbox 12 kategori)                  │
+  │    - Klik peta / isi alamat → lat/lng tersimpan                 │
+  │    - Estimasi berat (opsional)                                  │
+  │    - Catatan tambahan (opsional)                                │
+  │                                                                 │
+  │  Sistem:                                                        │
+  │    - Generate kode unik: MRH########                            │
+  │    - Simpan ke DB dengan status = 'menunggu'                    │
+  │    - Trigger notifikasi ke admin                                │
+  └─────────────────────────────────────────────────────────────────┘
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  TAHAP 2 — VERIFIKASI (Admin)                                   │
+  │                                                                 │
+  │  Admin login → buka req_management.php                         │
+  │  Tabel "Aktif" menampilkan request berstatus 'menunggu'         │
+  │                                                                 │
+  │  Admin cek:                                                     │
+  │    - Apakah data valid? (nama, WA, lokasi terisi?)              │
+  │    - Apakah lokasi dalam cakupan layanan?                       │
+  │                                                                 │
+  │  Admin klik [Konfirmasi] → status berubah: 'dikonfirmasi'       │
+  │  Notifikasi WhatsApp otomatis dikirim ke warga                  │
+  │                                                                 │
+  │  Jika tidak valid → Admin klik [Batalkan]                       │
+  │  Status berubah: 'dibatalkan'                                   │
+  └─────────────────────────────────────────────────────────────────┘
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  TAHAP 3 — PENJADWALAN OTOMATIS (Algoritma)                     │
+  │                                                                 │
+  │  Admin buka rute_jadwal.php                                     │
+  │  Admin pilih tanggal mulai → klik [Generate Jadwal]            │
+  │                                                                 │
+  │  Sistem menjalankan:                                            │
+  │    A. Priority Rule:                                            │
+  │       → Hitung jumlah request 'dikonfirmasi' per kecamatan      │
+  │       → Urutkan dari terbanyak ke tersedikit                    │
+  │       → Kecamatan prioritas #1 diproses lebih dulu             │
+  │                                                                 │
+  │    B. Nearest Neighbor (per kecamatan):                         │
+  │       → Mulai dari Depot                                        │
+  │       → Pilih titik request terdekat (Haversine)               │
+  │       → Terus sampai semua titik kecamatan dikunjungi          │
+  │       → Kembali ke Depot                                        │
+  │                                                                 │
+  │  Hasil disimpan ke DB:                                          │
+  │    - Tabel schedules  → 1 record per kecamatan per hari         │
+  │    - Tabel routes     → urutan titik + jarak antar titik        │
+  │    - pickup_requests  → status = 'dijadwalkan', officer_id diisi│
+  │                                                                 │
+  │  Petugas di-assign otomatis (round-robin)                       │
+  │  Notifikasi WhatsApp ke warga: "Sampah Anda akan dijemput"      │
+  └─────────────────────────────────────────────────────────────────┘
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  TAHAP 4 — EKSEKUSI LAPANGAN (Petugas)                          │
+  │                                                                 │
+  │  Petugas login ke panel officer                                 │
+  │  Melihat daftar jadwal hari ini + rute yang sudah dioptimasi    │
+  │                                                                 │
+  │  Petugas berangkat dari Depot → ikuti urutan rute               │
+  │  Saat tiba di lokasi:                                           │
+  │    → Klik [Sedang Diproses] → status: 'sedang_diproses'         │
+  │    → Isi berat aktual sampah yang dijemput                      │
+  │    → Klik [Selesai] → status: 'selesai'                         │
+  │                                                                 │
+  │  Sistem otomatis:                                               │
+  │    - Pindahkan request dari tabel Aktif → tabel Selesai         │
+  │    - Kirim notifikasi WhatsApp konfirmasi ke warga              │
+  │    - Catat timestamp penyelesaian                               │
+  └─────────────────────────────────────────────────────────────────┘
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  TAHAP 5 — OUTPUT & PELAPORAN (Admin)                           │
+  │                                                                 │
+  │  Dashboard real-time:                                           │
+  │    - Total request masuk hari ini                               │
+  │    - Grafik tren request harian/mingguan                        │
+  │    - Distribusi per kecamatan (chart)                           │
+  │    - Distribusi per kategori sampah (chart)                     │
+  │    - Total berat sampah terkumpul (kg)                          │
+  │                                                                 │
+  │  Laporan otomatis:                                              │
+  │    - Laporan Harian: detail request selesai hari ini            │
+  │    - Laporan Mingguan: rekap per minggu per kecamatan           │
+  │    - Laporan Bulanan: analisis tren bulanan                     │
+  │    - Analisis Data: pivot berat per kategori & kecamatan        │
+  └─────────────────────────────────────────────────────────────────┘
+
+8.2 Alur Status Request
+
+  [menunggu] → [dikonfirmasi] → [dijadwalkan] → [sedang_diproses] → [selesai]
+                    ↑                  ↑
+                  ADMIN            ALGORITMA
+               (manual cek)     (otomatis assign)
+
+  Catatan: 'dibatalkan' bisa terjadi dari status manapun oleh Admin.
+
+8.3 Ringkasan Peran Setiap Aktor
+
+  WARGA    : Ajukan request → terima notifikasi status
+  ADMIN    : Verifikasi request → generate jadwal → pantau dashboard
+  ALGORITMA: Priority Rule (urutan kecamatan) + NN (rute titik)
+  PETUGAS  : Ikuti rute → update status → catat berat sampah
+  SISTEM   : Kirim notifikasi WA → simpan log → buat laporan otomatis
+
+
+==============================================================================
+  Versi Dokumen: 1.0
+  Sistem: Manado Recycle Hub (MRH)
+  Bahasa Pemrograman: PHP 8.2, JavaScript (Leaflet.js)
+  Database: MariaDB 10.4
+  Algoritma: Priority Rule + Nearest Neighbor (Haversine)
+  GIS: OpenStreetMap + Leaflet.js
+==============================================================================

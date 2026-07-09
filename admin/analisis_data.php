@@ -441,7 +441,7 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 
 <div class="page-header">
   <h1>📊 Analisis Data</h1>
-  <p>Statistik dan tren pengangkutan sampah + hasil kuesioner masyarakat — data real-time dari database</p>
+  <p>Statistik dan tren pengangkutan sampah + hasil kuesioner masyarakat</p>
 </div>
 
 <!-- Navigasi cepat -->

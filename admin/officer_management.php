@@ -3,7 +3,7 @@ require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
 $page_id    = 'officer_management';
-$page_title = 'Manajemen Petugas';
+$page_title = 'Petugas';
 $db         = getDB();
 $csrfToken  = csrfToken();
  
@@ -489,12 +489,6 @@ require_once __DIR__ . '/layout/header.php';
 
 <div class="page-header">
   <h1>👷 Manajemen Petugas (Officer)</h1>
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;background:#f0fdf4;padding:10px 16px;border-radius:10px;border:1.5px solid #bbf7d0">
-    <span style="font-size:20px">💡</span>
-    <div style="font-size:12px;color:#166534;line-height:1.4">
-      <strong>Smart Tip:</strong> Pembagian tugas harian paling efektif dilakukan via tombol <strong>Generate Jadwal</strong> di halaman Management. Gunakan fitur Assign di sini hanya untuk penugasan manual atau darurat.
-    </div>
-  </div>
 </div>
 
 <!-- ── STAT CARDS ── -->

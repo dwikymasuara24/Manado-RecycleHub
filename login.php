@@ -410,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="role-hint">
                 <strong>💡 Info Sistem:</strong><br>
-                Sistem akan secara otomatis mendeteksi apakah Anda <strong>Admin</strong> atau <strong>Petugas Lapangan</strong> berdasarkan akun email yang Anda gunakan.
+                Sistem akan secara otomatis mendeteksi apakah Anda <strong>Admin</strong> atau <strong>Petugas Lapangan</strong> berdasarkan akun yang terdaftar.
             </div>
 
             <div style="margin-top:16px;text-align:center">

@@ -718,7 +718,7 @@ require_once __DIR__ . '/layout/header.php';
 
 <div class="page-header">
   <h1>Laporan Mingguan</h1>
-  <p>Rekap <?= $type === 'cleanup' ? 'Clean Up Service' : 'Penjemputan Sampah Daur Ulang' ?> per minggu — menggunakan penjadwalan Priority Rule (Sabtu)</p>
+  <p>Rekap <?= $type === 'cleanup' ? 'Clean Up Service' : 'Penjemputan Sampah Daur Ulang' ?> per minggu</p>
 </div>
 
 <!-- Navigasi Laporan -->

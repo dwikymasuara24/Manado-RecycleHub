@@ -3,7 +3,7 @@ require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
 $page_id    = 'blog_management';
-$page_title = 'Manajemen Blog';
+$page_title = 'Manajemen Artikel';
 $db         = getDB();
 $csrfToken  = csrfToken();
 

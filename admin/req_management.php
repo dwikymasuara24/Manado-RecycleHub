@@ -597,7 +597,7 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 
 <div class="page-header">
   <h1>🗂️ Manajemen Request Jemput Sampah</h1>
-  <p>Semua data dari user console masuk langsung — berat, lokasi, jenis sampah dan status tampil real-time</p>
+  <p>Semua data dari mitra masuk langsung — berat, lokasi, jenis sampah dan status tampil real-time</p>
 </div>
 
 <!-- ── STAT CARDS ── -->

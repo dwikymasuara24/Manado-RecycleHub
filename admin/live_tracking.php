@@ -91,7 +91,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_locations') {
 }
 
 $page_id    = 'live_tracking';
-$page_title = 'Pelacakan Kurir Real-Time';
+$page_title = 'Pelacakan Petugas';
 require_once __DIR__ . '/layout/header.php';
 ?>
 
@@ -323,7 +323,7 @@ require_once __DIR__ . '/layout/header.php';
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <div class="page-header">
-  <h1>🛵 Pelacakan Kurir Real-Time</h1>
+  <h1>🛵 Pelacakan Petugas Real-Time</h1>
   <p>Memantau pergerakan titik koordinat motor/mobil petugas lapangan secara langsung pada jalan raya.</p>
 </div>
 
