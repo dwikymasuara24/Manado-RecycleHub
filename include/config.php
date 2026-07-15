@@ -951,11 +951,9 @@ function triggerCleanupOrderEmail(PDO $db, int $cleanupRequestId): void {
         $waktu = date('d M Y H:i:s', strtotime($order['created_at']));
         
         $cleanup_types = [
-            'acara'      => 'Bersih-bersih Acara',
-            'rumah'      => 'Pembersihan Rumah',
-            'kantor'     => 'Pembersihan Kantor',
-            'publik'     => 'Area Publik',
-            'pemilahan'  => 'Pemilahan Plastik',
+            'acara'  => 'Bersih-bersih Acara',
+            'rumah'  => 'Pembersihan Rumah',
+            'kantor' => 'Pembersihan Kantor',
         ];
         $svcKey = strtolower($order['service_type']);
         $service = $cleanup_types[$svcKey] ?? $order['service_type'];

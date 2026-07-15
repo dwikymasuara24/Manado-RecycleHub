@@ -22,11 +22,9 @@ try {
 
 // ── Kategori Clean Up (Shared) ──────────────────────────────────
 $cleanup_types = [
-    'acara'      => ['label' => 'Bersih-bersih Acara',  'icon' => '🎉'],
-    'rumah'      => ['label' => 'Pembersihan Rumah',    'icon' => '🏠'],
-    'kantor'     => ['label' => 'Pembersihan Kantor',   'icon' => '🏢'],
-    'publik'     => ['label' => 'Area Publik',          'icon' => '🌳'],
-    'pemilahan'  => ['label' => 'Pemilahan Plastik',    'icon' => '🍶'],
+    'acara'  => ['label' => 'Bersih-bersih Acara', 'icon' => '🎉'],
+    'rumah'  => ['label' => 'Pembersihan Rumah',   'icon' => '🏠'],
+    'kantor' => ['label' => 'Pembersihan Kantor',  'icon' => '🏢'],
 ];
 
 // ── Handle Action (Update Status / Input Weight) ────────────────

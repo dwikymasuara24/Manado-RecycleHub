@@ -136,8 +136,6 @@ $cleanup_types = [
     'acara'      => ['label' => 'Bersih-bersih Acara',  'icon' => '🎉', 'desc' => 'Pembersihan pasca event/acara'],
     'rumah'      => ['label' => 'Pembersihan Rumah',    'icon' => '🏠', 'desc' => 'Rumah tinggal atau kos-kosan'],
     'kantor'     => ['label' => 'Pembersihan Kantor',   'icon' => '🏢', 'desc' => 'Area perkantoran atau ruko'],
-    'publik'     => ['label' => 'Area Publik',          'icon' => '🌳', 'desc' => 'Taman, jalan, atau area terbuka'],
-    'pemilahan'  => ['label' => 'Pemilahan Plastik',    'icon' => '🍶', 'desc' => 'Fokus pemilahan botol & plastik'],
 ];
 
 // ── Kecamatan ─────────────────────────────────────────────────
@@ -504,8 +502,8 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
     line-height: 1.5;
 }
 
-.cleanup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-.cleanup-item { position: relative; cursor: pointer; }
+.cleanup-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 20px; }
+.cleanup-item { flex: 0 1 180px; min-width: 140px; max-width: 220px; position: relative; cursor: pointer; }
 .cleanup-item input { position: absolute; opacity: 0; }
 .cleanup-label { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 2px solid var(--gml); border-radius: 16px; background: var(--gl); transition: border-color .2s, background-color .2s, transform .25s var(--spring-transit), box-shadow .25s; text-align: center; }
 .cleanup-item input:checked + .cleanup-label { border-color: var(--gd); background: var(--wh); box-shadow: 0 4px 12px rgba(46,125,50,.15); transform: scale(1.04); }
@@ -871,7 +869,7 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
     .card-footer {
         border-radius: 0 0 var(--rad) 0;
     }
-    .cleanup-grid { grid-template-columns: repeat(5, 1fr); }
+    .cleanup-item { flex: 0 1 200px; }
     .track-wrap { max-width: 860px; }
     .success-wrap { max-width: 1020px; }
     .success-card {
@@ -902,12 +900,12 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
     }
 }
 @media (max-width: 420px) {
-    .cleanup-grid { grid-template-columns: repeat(2, 1fr); }
+    .cleanup-item { flex: 0 1 calc(50% - 6px); min-width: 120px; }
     .frow { flex-direction: column; gap: 14px; }
     .track-form { flex-direction: column; }
 }
 @media (max-width: 360px) {
-    .cleanup-grid { grid-template-columns: 1fr; }
+    .cleanup-item { flex: 1 1 100%; max-width: 100%; }
     .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .55rem; width: 64px; margin: 0 -8px; }
 }
 /* ===== FOOTER ===== */

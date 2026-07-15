@@ -856,8 +856,8 @@ $card_image_url   = "Footer.jpeg";
         <div class="container">
             <a class="btn-primary"
                href="cleanup_service.php"
-               aria-label="Layanan Jemput Sampah">
-                Layanan Jemput Sampah
+               aria-label="Layanan Tambahan">
+                Layanan Tambahan
             </a>
         </div>
     </section>

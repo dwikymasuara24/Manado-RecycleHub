@@ -670,7 +670,7 @@ try {
       <li><a href="<?= $pfx ?>rute_jadwal.php"        class="<?= ($page_id??'')==='rute_jadwal'?'active':'' ?>" title="Rute & Jadwal"><span class="nav-icon">🗺️</span> <span class="nav-text">Rute & Jadwal</span></a></li>
       <li><a href="<?= $pfx ?>live_tracking.php"       class="<?= ($page_id??'')==='live_tracking'?'active':'' ?>" title="Pelacakan Live"><span class="nav-icon">🛵</span> <span class="nav-text">Pelacakan Live</span></a></li>
       <li><a href="<?= $pfx ?>officer_management.php" class="<?= ($page_id??'')==='officer_management'?'active':'' ?>" title="Manajemen Petugas"><span class="nav-icon">👷</span> <span class="nav-text">Manajemen Petugas</span></a></li>
-      <li><a href="<?= $pfx ?>weighing_records.php"  class="<?= ($page_id??'')==='weighing_records'?'active':'' ?>" title="Rekaman Timbang"><span class="nav-icon">⚖️</span> <span class="nav-text">Rekaman Timbang</span></a></li>
+      <li><a href="<?= $pfx ?>weighing_records.php"  class="<?= ($page_id??'')==='weighing_records'?'active':'' ?>" title="Rekam Angkut"><span class="nav-icon">⚖️</span> <span class="nav-text">Rekam Angkut</span></a></li>
     </ul>
   </div>
 
