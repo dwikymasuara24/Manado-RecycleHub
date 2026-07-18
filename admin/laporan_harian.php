@@ -43,7 +43,7 @@ if ($type === 'pickup') {
                o.officer_code
         FROM pickup_requests pr
         LEFT JOIN officers o ON o.id = pr.officer_id
-        WHERE DATE(pr.created_at)=?
+        WHERE DATE(COALESCE(pr.completed_at, pr.created_at))=?
     ";
     $params = [$tgl];
     if ($fKec) {
@@ -64,7 +64,7 @@ if ($type === 'pickup') {
                o.officer_code
         FROM cleanup_requests cr
         LEFT JOIN officers o ON o.id = cr.officer_id
-        WHERE DATE(cr.created_at)=?
+        WHERE DATE(COALESCE(cr.completed_at, cr.created_at))=?
     ";
     $params = [$tgl];
     if ($fKec) {
@@ -537,7 +537,7 @@ $stats = [
 if ($type === 'pickup') {
     $sqlK = "
         SELECT kecamatan, COUNT(*) as cnt, COALESCE(SUM(berat_total_kg), 0) as total_kg FROM pickup_requests 
-        WHERE DATE(created_at)=? AND kecamatan IS NOT NULL
+        WHERE DATE(COALESCE(completed_at, created_at))=? AND kecamatan IS NOT NULL
     ";
     $paramsK = [$tgl];
     if ($fKec) {
@@ -552,7 +552,7 @@ if ($type === 'pickup') {
         SELECT cr.kecamatan, COUNT(DISTINCT cr.id) as cnt, COALESCE(SUM(ci.berat_kg), 0) as total_kg 
         FROM cleanup_requests cr
         LEFT JOIN cleanup_items ci ON ci.cleanup_id = cr.id
-        WHERE DATE(cr.created_at)=? AND cr.kecamatan IS NOT NULL
+        WHERE DATE(COALESCE(cr.completed_at, cr.created_at))=? AND cr.kecamatan IS NOT NULL
     ";
     $paramsK = [$tgl];
     if ($fKec) {

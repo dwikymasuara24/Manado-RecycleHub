@@ -56,35 +56,74 @@ if ($period_type === 'weekly') {
 }
 
 // ── GET DATA FROM DATABASE ────────────────────────────────────
-$where = ["pr.status = 'selesai'", "DATE(pr.created_at) BETWEEN ? AND ?"];
-$params = [$startDate, $endDate];
-
+// Bangun kondisi pencarian tambahan
+$searchCond  = '';
+$searchParams = [];
 if ($search !== '') {
-    $where[] = "(pr.request_code LIKE ? OR pr.partner_name LIKE ? OR pr.nama_pemohon LIKE ?)";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
+    $searchCond   = " AND (request_code LIKE ? OR partner_name LIKE ? OR nama_pemohon LIKE ?)";
+    $searchParams = ["%$search%", "%$search%", "%$search%"];
 }
 
-$where_sql = implode(" AND ", $where);
-
-$query_str = "
+// ── PICKUP REQUESTS (status selesai, filter completed_at) ──────
+$params_pickup = [$startDate, $endDate, ...$searchParams];
+$query_pickup = "
     SELECT 
-        pr.request_code, 
-        COALESCE(NULLIF(TRIM(pr.partner_name), ''), TRIM(pr.nama_pemohon)) AS partner_name, 
-        COUNT(pr.id) AS total_kunjungan, 
-        SUM(COALESCE(pr.berat_total_kg, 0)) AS total_weight, 
-        COALESCE(pr.price_per_kg, 0) AS price_per_kg, 
-        pr.service_type,
-        SUM(CASE WHEN pr.service_type = 'Paid' THEN COALESCE(pr.berat_total_kg, 0) * COALESCE(pr.price_per_kg, 0) ELSE 0 END) AS total_bayar
-    FROM pickup_requests pr
-    WHERE $where_sql
-    GROUP BY pr.request_code, COALESCE(NULLIF(TRIM(pr.partner_name), ''), TRIM(pr.nama_pemohon)), pr.price_per_kg, pr.service_type
-    ORDER BY pr.request_code ASC
+        request_code,
+        COALESCE(NULLIF(TRIM(partner_name), ''), TRIM(nama_pemohon)) AS partner_name,
+        id,
+        COALESCE(berat_total_kg, 0)                                  AS berat_row,
+        COALESCE(price_per_kg, 0)                                    AS price_per_kg,
+        service_type,
+        CASE WHEN service_type = 'Paid'
+             THEN COALESCE(berat_total_kg, 0) * COALESCE(price_per_kg, 0)
+             ELSE 0
+        END                                                          AS bayar_row
+    FROM pickup_requests
+    WHERE status = 'selesai'
+      AND DATE(COALESCE(completed_at, updated_at)) BETWEEN ? AND ?
+      $searchCond
 ";
 
+// ── CLEANUP REQUESTS (status selesai, filter completed_at) ─────
+$params_cleanup = [$startDate, $endDate, ...$searchParams];
+$query_cleanup = "
+    SELECT 
+        cr.request_code,
+        TRIM(cr.nama_pemohon)                                        AS partner_name,
+        cr.id,
+        COALESCE((SELECT SUM(berat_kg) FROM cleanup_items WHERE cleanup_id=cr.id), 0) AS berat_row,
+        0                                                            AS price_per_kg,
+        'Paid'                                                       AS service_type,
+        COALESCE(cr.biaya_aktual,
+            COALESCE(cr.jam_kerja_aktual, 0) * 50000)               AS bayar_row
+    FROM cleanup_requests cr
+    WHERE cr.status = 'selesai'
+      AND DATE(COALESCE(cr.completed_at, cr.updated_at)) BETWEEN ? AND ?
+      $searchCond
+";
+
+// ── Gabungkan dan aggregate ────────────────────────────────────
+$query_str = "
+    SELECT
+        request_code,
+        partner_name,
+        COUNT(id)        AS total_kunjungan,
+        SUM(berat_row)   AS total_weight,
+        MAX(price_per_kg) AS price_per_kg,
+        service_type,
+        SUM(bayar_row)   AS total_bayar
+    FROM (
+        $query_pickup
+        UNION ALL
+        $query_cleanup
+    ) AS combined
+    GROUP BY request_code, partner_name, service_type
+    ORDER BY request_code ASC
+";
+
+$all_params = array_merge($params_pickup, $params_cleanup);
 $stmt = $db->prepare($query_str);
-$stmt->execute($params);
+$stmt->execute($all_params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate totals

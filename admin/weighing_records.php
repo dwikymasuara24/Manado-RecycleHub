@@ -8,7 +8,7 @@ require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
 $page_id    = 'weighing_records';
-$page_title = 'Hasil Timbang';
+$page_title = 'Rekam Angkut';
 $db         = getDB();
 $csrfToken  = csrfToken();
 
@@ -860,7 +860,7 @@ require_once __DIR__ . '/layout/header.php';
 </style>
 
 <div class="page-header">
-    <h1>⚖️ Hasil Timbang</h1>
+    <h1>⚖️ Rekam Angkut</h1>
 </div>
 
 <!-- Summary Cards -->

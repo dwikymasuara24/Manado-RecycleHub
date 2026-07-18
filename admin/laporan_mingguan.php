@@ -60,7 +60,7 @@ if ($type === 'pickup') {
                o.officer_code
         FROM pickup_requests pr
         LEFT JOIN officers o ON o.id = pr.officer_id
-        WHERE DATE(pr.created_at) BETWEEN ? AND ?
+        WHERE DATE(COALESCE(pr.completed_at, pr.created_at)) BETWEEN ? AND ?
     ";
     $params = [$startDate, $endDate];
     if ($fKec) {
@@ -81,7 +81,7 @@ if ($type === 'pickup') {
                o.officer_code
         FROM cleanup_requests cr
         LEFT JOIN officers o ON o.id = cr.officer_id
-        WHERE DATE(cr.created_at) BETWEEN ? AND ?
+        WHERE DATE(COALESCE(cr.completed_at, cr.created_at)) BETWEEN ? AND ?
     ";
     $params = [$startDate, $endDate];
     if ($fKec) {
@@ -553,7 +553,7 @@ $perHari = [];
 $days = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
 for ($i=0;$i<7;$i++) {
     $d = (clone $monday)->modify("+$i days")->format('Y-m-d');
-    $cnt = count(array_filter($rows, fn($r) => date('Y-m-d',strtotime($r['created_at'])) === $d));
+    $cnt = count(array_filter($rows, fn($r) => date('Y-m-d',strtotime($r['completed_at'] ?? $r['created_at'])) === $d));
     $perHari[] = ['hari'=>$days[$i],'tgl'=>$d,'cnt'=>$cnt];
 }
 
@@ -561,7 +561,7 @@ for ($i=0;$i<7;$i++) {
 if ($type === 'pickup') {
     $sqlK = "
         SELECT kecamatan, COUNT(*) as cnt, COALESCE(SUM(berat_total_kg), 0) as total_kg FROM pickup_requests 
-        WHERE DATE(created_at) BETWEEN ? AND ? AND kecamatan IS NOT NULL 
+        WHERE DATE(COALESCE(completed_at, created_at)) BETWEEN ? AND ? AND kecamatan IS NOT NULL 
     ";
     $paramsK = [$startDate, $endDate];
     if ($fKec) {
@@ -576,7 +576,7 @@ if ($type === 'pickup') {
         SELECT cr.kecamatan, COUNT(DISTINCT cr.id) as cnt, COALESCE(SUM(ci.berat_kg), 0) as total_kg 
         FROM cleanup_requests cr
         LEFT JOIN cleanup_items ci ON ci.cleanup_id = cr.id
-        WHERE DATE(cr.created_at) BETWEEN ? AND ? AND cr.kecamatan IS NOT NULL 
+        WHERE DATE(COALESCE(cr.completed_at, cr.created_at)) BETWEEN ? AND ? AND cr.kecamatan IS NOT NULL 
     ";
     $paramsK = [$startDate, $endDate];
     if ($fKec) {
