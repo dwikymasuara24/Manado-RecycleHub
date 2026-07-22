@@ -200,13 +200,43 @@ if (!empty($_GET['preview'])) {
     }
 }
 
+// ── FILTER & SEARCH ─────────────────────────────────────────
+$where   = '1=1';
+$params  = [];
+$search  = trim($_GET['q']        ?? '');
+$fStatus = $_GET['status']        ?? '';
+$fKec    = $_GET['kecamatan']     ?? '';
+
+if ($search !== '') {
+    $where   .= " AND (r.nama_pemohon LIKE ? OR r.request_code LIKE ? OR r.kecamatan LIKE ? OR r.nomor_wa LIKE ? OR o.nama LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+}
+if ($fStatus !== '') {
+    $where   .= " AND r.status = ?";
+    $params[] = $fStatus;
+}
+if ($fKec !== '') {
+    $where   .= " AND r.kecamatan = ?";
+    $params[] = $fKec;
+}
+
 // ── QUERY DATA ──────────────────────────────────────────────
-$requests = $db->query("
+$stmt = $db->prepare("
     SELECT r.*, o.nama AS officer_nama
     FROM cleanup_requests r
     LEFT JOIN officers o ON o.id = r.officer_id
+    WHERE $where
     ORDER BY r.created_at DESC
-")->fetchAll();
+");
+$stmt->execute($params);
+$requests = $stmt->fetchAll();
+
+$statuses = ['menunggu', 'dikonfirmasi', 'dijadwalkan', 'dalam_perjalanan', 'sedang_diproses', 'sedang_cleanup', 'selesai', 'dibatalkan'];
+$kecamatans = $db->query("SELECT DISTINCT kecamatan FROM cleanup_requests WHERE kecamatan IS NOT NULL AND kecamatan != '' ORDER BY kecamatan")->fetchAll(PDO::FETCH_COLUMN);
 
 $officers = $db->query("SELECT id, nama FROM officers WHERE status='aktif' ORDER BY nama")->fetchAll();
 
@@ -247,6 +277,39 @@ require_once __DIR__ . '/layout/header.php';
 </div>
 
 <div class="card">
+
+    <!-- Toolbar Pencarian & Filter -->
+    <div class="toolbar" style="margin-bottom:16px">
+        <div class="toolbar-left">
+            <form method="GET" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <input class="search-input" name="q" type="text"
+                       placeholder="🔍 Cari nama / ID / WA / kecamatan..."
+                       value="<?= htmlspecialchars($search) ?>">
+                <select class="filter-select" name="status" onchange="this.form.submit()">
+                    <option value="">Semua Status</option>
+                    <?php foreach ($statuses as $s): ?>
+                    <option value="<?= $s ?>" <?= $fStatus===$s?'selected':'' ?>>
+                        <?= ucfirst(str_replace('_',' ',$s)) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                <select class="filter-select" name="kecamatan" onchange="this.form.submit()">
+                    <option value="">Semua Kecamatan</option>
+                    <?php foreach ($kecamatans as $k): ?>
+                    <option value="<?= htmlspecialchars($k) ?>" <?= $fKec===$k?'selected':'' ?>><?= htmlspecialchars($k) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn btn-outline">Cari</button>
+                <?php if ($search || $fStatus || $fKec): ?>
+                    <a href="cleanup_management.php" class="btn btn-outline">✕ Reset</a>
+                <?php endif; ?>
+            </form>
+        </div>
+        <div class="toolbar-right" style="display:flex;gap:8px">
+            <button class="btn btn-outline" onclick="location.reload()" title="Refresh">🔄 Refresh</button>
+        </div>
+    </div>
+
     <div class="table-wrap">
         <table>
             <thead>
