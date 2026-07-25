@@ -97,23 +97,60 @@ var DEPOT_LNG  = <?= defined('DEPOT_LNG') ? DEPOT_LNG : 124.832498 ?>;
 
 
 // ── Toast ──────────────────────────────────────────────────────
-function showToast(type, msg){
-  const c=document.getElementById('toastContainer'), t=document.createElement('div');
-  t.className='toast toast-'+type;
-  
-  const icon = type === 'success' ? '✅' : (type === 'danger' ? '❌' : 'ℹ️');
+function showToast(type, msg, titleInput = '') {
+  const container = document.getElementById('toastContainer') || document.getElementById('toastArea');
+  if (!container) return;
+
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+
+  let title = titleInput;
+  let body = msg || '';
+
+  if (!title && body.includes(': ')) {
+    const parts = body.split(': ');
+    title = parts[0];
+    body = parts.slice(1).join(': ');
+  } else if (!title) {
+    if (type === 'success') title = 'Berhasil';
+    else if (type === 'danger') title = 'Perhatian';
+    else if (type === 'warning') title = 'Peringatan';
+    else title = 'Informasi';
+  }
+
+  body = body.replace(/\b(MRH-[A-Za-z0-9-]+)\b/g, '<span class="toast-code">$1</span>');
+
+  let iconSvg = '';
+  const iconClass = 'toast-icon-' + (type === 'error' ? 'danger' : type);
+
+  if (type === 'success') {
+    iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  } else if (type === 'danger' || type === 'error') {
+    iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+  } else if (type === 'warning') {
+    iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+  } else {
+    iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+  }
+
   t.innerHTML = `
-    <div class="toast-icon" style="font-size: 22px; line-height: 1; flex-shrink: 0;">${icon}</div>
-    <div class="toast-body" style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
-      <div class="toast-msg" style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.4;">${msg}</div>
+    <div class="toast-icon ${iconClass}">
+      ${iconSvg}
     </div>
-    <button type="button" class="toast-close" style="background: none; color: #94a3b8; border: none; font-size: 16px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;" onclick="this.parentElement.remove()" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">✕</button>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div class="toast-msg">${body}</div>
+    </div>
+    <button type="button" class="toast-close" aria-label="Tutup" onclick="this.parentElement.remove()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
   `;
-  c.appendChild(t);
+
+  container.appendChild(t);
   setTimeout(() => {
-    t.style.animation = 'toast-fade-out 0.25s ease-in forwards';
+    t.style.animation = 'toast-fade-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards';
     setTimeout(() => t.remove(), 250);
-  }, 4500);
+  }, 4800);
 }
 
 // ── Modal update status ────────────────────────────────────────

@@ -243,7 +243,7 @@ $needVerification = $db->query("
     UNION ALL
     (SELECT 'cleanup' AS type, id, request_code, nama_pemohon, service_type as entity_name, kecamatan, status, created_at 
      FROM cleanup_requests WHERE status = 'menunggu')
-    ORDER BY created_at ASC LIMIT 8
+    ORDER BY created_at DESC
 ")->fetchAll();
 
 // ── Tabel: Pesanan Aktif (Terintegrasi Algoritma) ────────────────
@@ -734,14 +734,14 @@ require_once __DIR__ . '/layout/header.php';
         ℹ️ Jadwal & Petugas Daur Ulang otomatis diatur algoritma. Untuk Clean Up Service, atur langsung di modulnya. Admin hanya verifikasi data masuk atau batalkan jika tidak valid.
     </div>
     <?php if ($needVerification): ?>
-    <div style="overflow-x:auto">
+    <div style="max-height: 360px; overflow-y: auto; overflow-x: auto; border-radius: 8px; border: 1px solid #f1f5f9; background: #ffffff;">
       <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead><tr>
-          <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">ID</th>
-          <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Pemohon / Layanan</th>
-          <th class="tbl-hide-mobile" style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Sub-district</th>
-          <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Status</th>
-          <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #f0f0f0;text-transform:uppercase">Aksi</th>
+        <thead style="position: sticky; top: 0; background: #ffffff; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"><tr>
+          <th style="padding:9px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #e2e8f0;background:#ffffff;text-transform:uppercase">ID</th>
+          <th style="padding:9px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #e2e8f0;background:#ffffff;text-transform:uppercase">Pemohon / Layanan</th>
+          <th class="tbl-hide-mobile" style="padding:9px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #e2e8f0;background:#ffffff;text-transform:uppercase">Sub-district</th>
+          <th style="padding:9px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #e2e8f0;background:#ffffff;text-transform:uppercase">Status</th>
+          <th style="padding:9px 10px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;border-bottom:2px solid #e2e8f0;background:#ffffff;text-transform:uppercase">Aksi</th>
         </tr></thead>
         <tbody>
           <?php foreach ($needVerification as $r): ?>

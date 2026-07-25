@@ -437,16 +437,17 @@ try {
 
     #toastArea {
         position: fixed;
-        top: 20px;
-        right: 20px;
+        top: 76px !important;
+        right: 24px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        z-index: 10000;
+        gap: 10px;
+        z-index: 999999;
         pointer-events: none;
-        width: min(90vw, 360px);
-        max-height: 85vh;
-        overflow-y: auto;
+        width: min(92vw, 380px);
+        max-height: calc(100vh - 90px);
+        padding: 4px;
+        overflow: visible;
     }
     #toastArea:empty {
         display: none !important;
@@ -454,36 +455,118 @@ try {
     .toast {
         pointer-events: auto;
         background: #ffffff !important;
-        color: #1e293b !important;
-        border-radius: 12px !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-        padding: 14px 18px !important;
+        color: #0f172a !important;
+        border-radius: 14px !important;
+        box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.12), 0 4px 8px -2px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(226, 232, 240, 0.8) !important;
+        padding: 14px 16px !important;
         width: 100%;
         box-sizing: border-box;
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: flex-start;
         text-align: left;
         gap: 12px;
-        border: none !important;
-        border-left: 4px solid #cbd5e1 !important;
-        animation: toast-slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        position: relative;
+        overflow: hidden;
+        font-family: var(--font, 'Inter', -apple-system, sans-serif);
+        animation: toast-slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        transition: all 0.25s ease;
     }
-    .toast-success { border-left: 4px solid #10b981 !important; }
-    .toast-danger  { border-left: 4px solid #ef4444 !important; }
-    .toast-info    { border-left: 4px solid #3b82f6 !important; }
+    .toast::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: 14px 0 0 14px;
+        background: #94a3b8;
+    }
+    .toast-success::before { background: #10b981; }
+    .toast-danger::before  { background: #ef4444; }
+    .toast-warning::before { background: #f59e0b; }
+    .toast-info::before    { background: #3b82f6; }
+
+    .toast-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+    .toast-icon-success { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0; }
+    .toast-icon-danger  { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+    .toast-icon-warning { background: #fffbeb; color: #f59e0b; border: 1px solid #fde68a; }
+    .toast-icon-info    { background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; }
+
+    .toast-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .toast-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.35;
+        margin-bottom: 3px;
+        letter-spacing: -0.01em;
+    }
+    .toast-msg {
+        font-size: 12.5px;
+        font-weight: 500;
+        color: #475569;
+        line-height: 1.45;
+        word-break: break-word;
+    }
+    .toast-code {
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 1px 6px;
+        border-radius: 5px;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 11.5px;
+        font-weight: 600;
+        border: 1px solid #e2e8f0;
+        display: inline-block;
+        margin: 0 2px;
+    }
+    .toast-close {
+        background: transparent;
+        color: #94a3b8;
+        border: none;
+        border-radius: 6px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        margin-left: 2px;
+        margin-top: -2px;
+        flex-shrink: 0;
+    }
+    .toast-close:hover {
+        background: #f1f5f9;
+        color: #334155;
+    }
     
     @keyframes toast-slide-in-right {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+        from { transform: translateX(110%) scale(0.95); opacity: 0; }
+        to { transform: translateX(0) scale(1); opacity: 1; }
     }
     @keyframes toast-slide-in-bottom {
-        from { transform: translateY(100%); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+        from { transform: translateY(110%) scale(0.95); opacity: 0; }
+        to { transform: translateY(0) scale(1); opacity: 1; }
     }
     @keyframes toast-fade-out {
         from { transform: scale(1); opacity: 1; }
-        to { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(0.92) translateY(-6px); opacity: 0; }
     }
     
     @media (max-width: 768px) {
@@ -492,10 +575,11 @@ try {
             bottom: 20px;
             right: 50%;
             transform: translateX(50%);
+            width: calc(100vw - 32px);
             align-items: center;
         }
         .toast {
-            animation: toast-slide-in-bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: toast-slide-in-bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     }
 
@@ -784,24 +868,62 @@ function closeModal(id) { document.getElementById(id).style.display='none'; docu
 document.addEventListener('keydown', e => {
   if(e.key==='Escape') document.querySelectorAll('.modal-overlay[style*="display:flex"]').forEach(m=>closeModal(m.id));
 });
-function showToast(type, msg) {
-  const a = document.getElementById('toastArea');
+function showToast(type, msg, titleInput = '') {
+  const container = document.getElementById('toastArea') || document.getElementById('toastContainer');
+  if (!container) return;
+
   const t = document.createElement('div');
   t.className = 'toast toast-' + type;
-  
-  const icon = type === 'success' ? '✅' : (type === 'danger' ? '❌' : 'ℹ️');
+
+  let title = titleInput;
+  let body = msg || '';
+
+  // Auto-split title & body if title isn't separate and msg contains ": "
+  if (!title && body.includes(': ')) {
+    const parts = body.split(': ');
+    title = parts[0];
+    body = parts.slice(1).join(': ');
+  } else if (!title) {
+    if (type === 'success') title = 'Berhasil';
+    else if (type === 'danger') title = 'Perhatian';
+    else if (type === 'warning') title = 'Peringatan';
+    else title = 'Informasi';
+  }
+
+  // Format request IDs like MRH-C-201 with code highlight badge
+  body = body.replace(/\b(MRH-[A-Za-z0-9-]+)\b/g, '<span class="toast-code">$1</span>');
+
+  let iconSvg = '';
+  const iconClass = 'toast-icon-' + (type === 'error' ? 'danger' : type);
+
+  if (type === 'success') {
+    iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  } else if (type === 'danger' || type === 'error') {
+    iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+  } else if (type === 'warning') {
+    iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+  } else {
+    iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+  }
+
   t.innerHTML = `
-    <div class="toast-icon" style="font-size: 22px; line-height: 1; flex-shrink: 0;">${icon}</div>
-    <div class="toast-body" style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
-      <div class="toast-msg" style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.4;">${msg}</div>
+    <div class="toast-icon ${iconClass}">
+      ${iconSvg}
     </div>
-    <button type="button" class="toast-close" style="background: none; color: #94a3b8; border: none; font-size: 16px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;" onclick="this.parentElement.remove()" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">✕</button>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div class="toast-msg">${body}</div>
+    </div>
+    <button type="button" class="toast-close" aria-label="Tutup" onclick="this.parentElement.remove()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
   `;
-  a.appendChild(t);
+
+  container.appendChild(t);
   setTimeout(() => {
-    t.style.animation = 'toast-fade-out 0.25s ease-in forwards';
+    t.style.animation = 'toast-fade-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards';
     setTimeout(() => t.remove(), 250);
-  }, 4500);
+  }, 4800);
 }
 
 // ── Collapsible Nav Groups ──
@@ -889,11 +1011,21 @@ function checkNotifications() {
             list.innerHTML = '';
             data.notifications.forEach(n => {
               const item = document.createElement('div');
-              item.style.padding = '10px 12px';
+              item.style.padding = '12px 14px';
               item.style.borderBottom = '1px solid #f1f5f9';
-              item.style.background = n.is_read == 1 ? '#fff' : '#f0fdf4';
+              item.style.background = n.is_read == 1 ? '#ffffff' : '#f0fdf4';
               item.style.cursor = 'pointer';
-              item.innerHTML = `<strong style="color:#0f172a;">${n.judul}</strong><p style="margin:2px 0 0; color:#64748b; font-size:11px;">${n.pesan}</p>`;
+              item.style.transition = 'background 0.15s ease';
+              const formattedPesan = n.pesan.replace(/\b(MRH-[A-Za-z0-9-]+)\b/g, '<span class="toast-code">$1</span>');
+              item.innerHTML = `
+                <div style="display:flex; align-items:flex-start; gap:8px;">
+                  <div style="width:7px; height:7px; border-radius:50%; background:${n.is_read == 1 ? '#cbd5e1' : '#10b981'}; margin-top:5px; flex-shrink:0;"></div>
+                  <div style="flex:1;">
+                    <strong style="color:#0f172a; font-size:12px; display:block; margin-bottom:2px; font-weight:700;">${n.judul}</strong>
+                    <p style="margin:0; color:#475569; font-size:11.5px; line-height:1.45;">${formattedPesan}</p>
+                  </div>
+                </div>
+              `;
               item.onclick = () => markAsRead(n.id, item);
               list.appendChild(item);
             });
@@ -901,11 +1033,21 @@ function checkNotifications() {
             // Subsequent polls: trigger sound, toasts and prepend new notifications
             data.notifications.forEach(n => {
               const item = document.createElement('div');
-              item.style.padding = '10px 12px';
+              item.style.padding = '12px 14px';
               item.style.borderBottom = '1px solid #f1f5f9';
               item.style.background = '#f0fdf4';
               item.style.cursor = 'pointer';
-              item.innerHTML = `<strong style="color:#0f172a;">${n.judul}</strong><p style="margin:2px 0 0; color:#64748b; font-size:11px;">${n.pesan}</p>`;
+              item.style.transition = 'background 0.15s ease';
+              const formattedPesan = n.pesan.replace(/\b(MRH-[A-Za-z0-9-]+)\b/g, '<span class="toast-code">$1</span>');
+              item.innerHTML = `
+                <div style="display:flex; align-items:flex-start; gap:8px;">
+                  <div style="width:7px; height:7px; border-radius:50%; background:#10b981; margin-top:5px; flex-shrink:0;"></div>
+                  <div style="flex:1;">
+                    <strong style="color:#0f172a; font-size:12px; display:block; margin-bottom:2px; font-weight:700;">${n.judul}</strong>
+                    <p style="margin:0; color:#475569; font-size:11.5px; line-height:1.45;">${formattedPesan}</p>
+                  </div>
+                </div>
+              `;
               item.onclick = () => markAsRead(n.id, item);
               
               if (list.firstChild && list.firstChild.textContent !== 'Tidak ada notifikasi baru') {
@@ -914,7 +1056,7 @@ function checkNotifications() {
                 list.innerHTML = '';
                 list.appendChild(item);
               }
-              showToast('success', `${n.judul}: ${n.pesan}`);
+              showToast('success', n.pesan, n.judul);
               playNotificationSound();
             });
           }
