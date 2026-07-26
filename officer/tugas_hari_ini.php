@@ -2,9 +2,8 @@
 $page_id    = 'tugas';
 $page_title = 'Tugas Hari Ini';
 require_once __DIR__ . '/../include/config.php';
-require_once __DIR__ . '/layout/header.php'; // auth + $officerId + $officer + $st
+require_once __DIR__ . '/layout/header.php'; 
 
-// ── Data: tugas hari ini ──────────────────────────────────────
 $today = date('Y-m-d');
 $stmt  = $db->prepare("
     SELECT pr.*,

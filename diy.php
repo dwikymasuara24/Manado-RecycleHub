@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/include/config.php';
-// DIY (Do It Yourself) - Panduan Membuat Produk dari Sampah Daur Ulang
 
 $site_name  = "Manado Recycle Hub";
 $page_title = "DIY Daur Ulang";
@@ -20,7 +19,6 @@ $nav_items = [
     ["label" => "Kuesioner",             "url" => "kuesioner.php",            "active" => false],
 ];
 
-// ── Ambil proyek DIY dari DB jika tersedia ───────────────────
 $diy_projects_db = [];
 try {
     $stmt = getDB()->query("
@@ -54,9 +52,8 @@ try {
             'image' => $r['image_url'] ?? '',
         ];
     }
-} catch (Exception $e) { /* fallback ke static */ }
+} catch (Exception $e) {  }
 
-// Fallback: gunakan data statis jika DB kosong
 $diy_projects_static = [
     [
         "icon"   => "🏺",
@@ -150,7 +147,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
     <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
     <link rel="stylesheet" href="<?= $google_font_url ?>">
     <style>
-        /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Comfortaa', sans-serif;
@@ -161,7 +157,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; display: block; }
 
-        /* ===== CSS VARIABLES ===== */
         :root {
             --green-primary:  rgba(28, 100, 52, 1);
             --green-light:    rgba(214, 228, 195, 1);
@@ -177,7 +172,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             --text-dark:        rgba(28, 28, 28, 1);
         }
 
-        /* ===== TOP NAVBAR ===== */
         header {
             position: fixed;
             top: 0; left: 0;
@@ -211,7 +205,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             color: var(--text-light);
         }
 
-        /* ===== DESKTOP NAV ===== */
         .navbar-nav {
             display: flex;
             list-style: none;
@@ -232,7 +225,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             border-bottom: 2px solid var(--text-light);
         }
 
-        /* ===== HAMBURGER ===== */
         .hamburger {
             display: none;
             flex-direction: column;
@@ -249,7 +241,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             transition: .3s;
         }
 
-        /* ===== MOBILE SIDEBAR ===== */
         .sidebar-nav {
             display: none;
             position: fixed;
@@ -332,7 +323,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             line-height: 1.38;
         }
 
-        /* ===== SUBTITLE ===== */
         .subtitle-section {
             padding: 56px 2.5%;
             text-align: center;
@@ -346,14 +336,12 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             color: var(--green-mid);
         }
 
-        /* ===== MAIN CONTENT ===== */
         .content-section {
             max-width: 1280px;
             margin: 0 auto;
             padding: 0 5% 56px;
         }
 
-        /* ===== DIY GRID ===== */
         .diy-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -426,7 +414,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
         }
         .diy-card-btn:hover { opacity: .85; }
 
-        /* ===== TUTORIAL PANEL ===== */
         .tutorial-panel {
             display: none;
             background: var(--green-soft);
@@ -487,7 +474,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
         .step-body h3 { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
         .step-body p  { font-size: .85rem; color: var(--gray); line-height: 1.7; }
 
-        /* ===== TIPS SECTION ===== */
         .tips-section {
             background: var(--green-soft);
             border-radius: 14px;
@@ -519,7 +505,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             gap: .5rem;
         }
 
-        /* ===== CTA SHARE ===== */
         .cta-share {
             background: var(--green-primary);
             border-radius: 14px;
@@ -552,7 +537,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             border-color: transparent;
         }
 
-        /* ===== FOOTER ===== */
         .site-footer {
             padding: 24px 0 32px;
             background: var(--light-bg);
@@ -567,7 +551,6 @@ $diy_projects = !empty($diy_projects_db) ? $diy_projects_db : $diy_projects_stat
             margin-bottom: 4px;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 767px) {
             .navbar { padding: 0 20px; }
             .navbar-brand .brand-name { font-size: 13pt; }

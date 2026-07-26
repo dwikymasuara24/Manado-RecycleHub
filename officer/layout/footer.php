@@ -1,6 +1,5 @@
 </div><!-- /main-wrap -->
 
-<!-- ══ MODAL: UPDATE STATUS ══ -->
 <div class="modal-backdrop" id="updateModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -61,7 +60,6 @@
   </div>
 </div>
 
-<!-- ══ MODAL: KENDALA ══ -->
 <div class="modal-backdrop" id="kendalaModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -89,14 +87,11 @@
   </div>
 </div>
 
-<!-- ══ SHARED JAVASCRIPT ══ -->
 <script>
 var OFFICER_ID = <?= $officerId ?? 0 ?>;
 var DEPOT_LAT  = <?= defined('DEPOT_LAT') ? DEPOT_LAT : 1.476362 ?>;
 var DEPOT_LNG  = <?= defined('DEPOT_LNG') ? DEPOT_LNG : 124.832498 ?>;
 
-
-// ── Toast ──────────────────────────────────────────────────────
 function showToast(type, msg, titleInput = '') {
   const container = document.getElementById('toastContainer') || document.getElementById('toastArea');
   if (!container) return;
@@ -153,7 +148,6 @@ function showToast(type, msg, titleInput = '') {
   }, 4800);
 }
 
-// ── Modal update status ────────────────────────────────────────
 function recalculateTotalWeight() {
   const inputs = document.querySelectorAll('.item-aktual-weight');
   let sum = 0;
@@ -314,7 +308,6 @@ async function submitUpdate(){
   btn.textContent='💾 Simpan'; btn.disabled=false;
 }
 
-// ── Modal kendala ──────────────────────────────────────────────
 function openKendalaModal(pickupId){
   document.getElementById('kendalaPickupId').value=pickupId;
   document.getElementById('kendalaModal').classList.add('open');
@@ -342,7 +335,6 @@ async function submitKendala(){
   }catch(e){showToast('danger','Error: '+e.message);}
 }
 
-// ── GPS Tracking & Heartbeat ───────────────────────────────────
 let myLatLng = null;
 
 function sendHeartbeat() {
@@ -375,8 +367,6 @@ function startGPS(){
 }
 startGPS();
 
-
-// ── PWA Service Worker Registration ────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Gunakan root-relative path untuk memastikan kompatibilitas pendaftaran Service Worker
@@ -386,7 +376,6 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.error('SW Registration Failed', err));
   });
 }
-
 
 </script>
 </body>

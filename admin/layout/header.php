@@ -1,24 +1,13 @@
 <?php
-// ============================================================
-//  layout/header.php — Admin Console Header
-//  Manado Recycle Hub
-//  Selalu di-include setelah require_once '../include/config.php'
-//  dari file admin mana pun (di root atau subfolder admin/)
-// ============================================================
-
-// Pastikan session aktif
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-// Validasi otentikasi & hak akses Admin
 require_once __DIR__ . '/../../include/auth.php';
 requireRole('admin');
 
-// Flash message
 $_flash = getFlash();
 
-$pfx = ''; // Semua file admin ada di root skripsi/
+$pfx = '';
 
-// Ambil info admin aktif untuk header
 $current_admin_id = $_SESSION['user_id'] ?? 1;
 $header_db = isset($db) ? $db : getDB();
 $headerAdminName = 'Super Admin MRH';
@@ -30,7 +19,7 @@ try {
     $headerAdmin = $headerAdminStmt->fetch();
     if ($headerAdmin && !empty($headerAdmin['nama'])) {
         $headerAdminName = $headerAdmin['nama'];
-        // Buat inisial avatar
+        
         $words = preg_split('/\s+/', trim(preg_replace('/[^a-zA-Z ]/', '', $headerAdminName)));
         $headerAdminAvatar = strtoupper(substr($words[0] ?? '', 0, 1));
         if (count($words) > 1) {
@@ -49,7 +38,6 @@ try {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset & Base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --green-700:#1c6434; --green-600:#1e7a40; --green-500:#22c55e;
@@ -67,7 +55,6 @@ try {
     body { font-family:var(--font); background:#f5f7f5; color:#1a1a1a; display:flex; min-height:100vh; }
     a { text-decoration:none; color:inherit; }
 
-    /* ── Sidebar ── */
     .sidebar {
       width: var(--sidebar-w); background:var(--green-700); color:#fff;
       position:fixed; top:0; left:0; height:100vh; z-index:50;
@@ -87,7 +74,6 @@ try {
     .sidebar-brand .brand-text { font-size:12px; font-weight:700; line-height:1.3; }
     .sidebar-brand .brand-text span { display:block; opacity:.65; font-size:10px; font-weight:500; }
 
-    /* ── Collapsible Nav Group ── */
     .nav-group { padding:0 10px; }
 
     .nav-group-header {
@@ -143,7 +129,6 @@ try {
     .sidebar-nav li a.active { background:rgba(255,255,255,.2); color:#fff; }
     .sidebar-nav li a .nav-icon { font-size:16px; flex-shrink:0; }
 
-    /* ── Sidebar Footer ── */
     .sidebar-footer {
       margin-top:auto;
       padding:10px 10px 12px;
@@ -164,7 +149,6 @@ try {
     .sidebar-footer a:hover { background:rgba(255,255,255,.1); color:#fff; padding-left:15px; }
     .sidebar-footer hr { border:none; border-top:1px solid rgba(255,255,255,.12); margin:6px 0; }
 
-    /* ── Topbar ── */
     .topbar {
       position:fixed; top:0; left:var(--sidebar-w); right:0; height:var(--nav-h);
       background:#fff; border-bottom:1px solid #e5e7eb; z-index:40;
@@ -191,7 +175,6 @@ try {
     }
     .hamburger:hover { background:#f0f0f0; }
 
-    /* ── Main Content ── */
     .main-wrap {
       margin-left:var(--sidebar-w);
       margin-top:var(--nav-h);
@@ -203,22 +186,34 @@ try {
       box-sizing: border-box;
     }
 
-    /* ── Centered Flash Notification Overlay Style ── */
+    body.flash-active,
+    html.flash-active,
+    body:has(#flashOverlay:not([style*="display: none"])),
+    html:has(#flashOverlay:not([style*="display: none"])) {
+        overflow: hidden !important;
+        height: 100vh !important;
+        touch-action: none !important;
+        -webkit-overflow-scrolling: auto !important;
+    }
     .flash-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(4px);
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 10000;
+        overflow: hidden !important;
+        touch-action: none;
+        padding: 16px;
         animation: alert-fade-in 0.25s var(--smooth-transit);
     }
     .flash {
         background: #ffffff !important;
-        border-radius: 16px !important;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
         padding: 24px 32px !important;
         max-width: 400px;
         width: 90%;
@@ -228,7 +223,16 @@ try {
         text-align: center;
         gap: 16px;
         border: none !important;
-        animation: alert-scale-in 0.4s var(--spring-transit) forwards;
+        animation: alert-scale-in 0.35s var(--spring-transit) forwards;
+        overflow: hidden !important;
+        box-sizing: border-box;
+    }
+    #notifDropdown, #notifItemsList {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    #notifDropdown::-webkit-scrollbar, #notifItemsList::-webkit-scrollbar {
+        display: none;
     }
     .flash-icon {
         font-size: 48px;
@@ -269,7 +273,6 @@ try {
         to { transform: scale(1) translateY(0); opacity: 1; }
     }
 
-    /* ── Common Components ── */
     .page-header { margin-bottom:20px; }
     .page-header h1 { font-size:20px; font-weight:800; color:#1a1a1a; }
     .page-header p  { font-size:12px; color:#888; margin-top:3px; }
@@ -583,7 +586,6 @@ try {
         }
     }
 
-    /* ── Collapsed Sidebar Styles ── */
     .btn-sidebar-toggle {
       background: none;
       border: none;
@@ -719,7 +721,6 @@ try {
 </head>
 <body>
 
-<!-- ── SIDEBAR ── -->
 <aside class="sidebar" id="adminSidebar">
   <div class="sidebar-brand">
     <?php
@@ -738,7 +739,7 @@ try {
       <span class="nav-group-arrow">▼</span>
     </div>
     <ul class="sidebar-nav nav-group-items">
-      <li><a href="<?= $pfx ?>dashboard.php" class="<?= ($page_id??'')==='dashboard'?'active':'' ?>" title="Dashboard"><span class="nav-icon">🏠</span> <span class="nav-text">Dashboard</span></a></li>
+      <li><a href="<?= $pfx . url('dashboard') ?>" class="<?= ($page_id??'')==='dashboard'?'active':'' ?>" title="Dashboard"><span class="nav-icon">🏠</span> <span class="nav-text">Dashboard</span></a></li>
     </ul>
   </div>
 
@@ -749,12 +750,12 @@ try {
       <span class="nav-group-arrow">▼</span>
     </div>
     <ul class="sidebar-nav nav-group-items">
-      <li><a href="<?= $pfx ?>req_management.php"    class="<?= ($page_id??'')==='req_management'?'active':'' ?>" title="Manajemen Request"><span class="nav-icon">📋</span> <span class="nav-text">Manajemen Request</span></a></li>
-      <li><a href="<?= $pfx ?>cleanup_management.php" class="<?= ($page_id??'')==='cleanup_management'?'active':'' ?>" title="Clean Up Service"><span class="nav-icon">🧹</span> <span class="nav-text">Clean Up Service</span></a></li>
-      <li><a href="<?= $pfx ?>rute_jadwal.php"        class="<?= ($page_id??'')==='rute_jadwal'?'active':'' ?>" title="Rute & Jadwal"><span class="nav-icon">🗺️</span> <span class="nav-text">Rute & Jadwal</span></a></li>
-      <li><a href="<?= $pfx ?>live_tracking.php"       class="<?= ($page_id??'')==='live_tracking'?'active':'' ?>" title="Pelacakan Live"><span class="nav-icon">🛵</span> <span class="nav-text">Pelacakan Live</span></a></li>
-      <li><a href="<?= $pfx ?>officer_management.php" class="<?= ($page_id??'')==='officer_management'?'active':'' ?>" title="Manajemen Petugas"><span class="nav-icon">👷</span> <span class="nav-text">Manajemen Petugas</span></a></li>
-      <li><a href="<?= $pfx ?>weighing_records.php"  class="<?= ($page_id??'')==='weighing_records'?'active':'' ?>" title="Rekam Angkut"><span class="nav-icon">⚖️</span> <span class="nav-text">Rekam Angkut</span></a></li>
+      <li><a href="<?= $pfx . url('req_management') ?>"    class="<?= ($page_id??'')==='req_management'?'active':'' ?>" title="Manajemen Request"><span class="nav-icon">📋</span> <span class="nav-text">Manajemen Request</span></a></li>
+      <li><a href="<?= $pfx . url('cleanup_management') ?>" class="<?= ($page_id??'')==='cleanup_management'?'active':'' ?>" title="Clean Up Service"><span class="nav-icon">🧹</span> <span class="nav-text">Clean Up Service</span></a></li>
+      <li><a href="<?= $pfx . url('rute_jadwal') ?>"        class="<?= ($page_id??'')==='rute_jadwal'?'active':'' ?>" title="Rute & Jadwal"><span class="nav-icon">🗺️</span> <span class="nav-text">Rute & Jadwal</span></a></li>
+      <li><a href="<?= $pfx . url('live_tracking') ?>"       class="<?= ($page_id??'')==='live_tracking'?'active':'' ?>" title="Pelacakan Live"><span class="nav-icon">🛵</span> <span class="nav-text">Pelacakan Live</span></a></li>
+      <li><a href="<?= $pfx . url('officer_management') ?>" class="<?= ($page_id??'')==='officer_management'?'active':'' ?>" title="Manajemen Petugas"><span class="nav-icon">👷</span> <span class="nav-text">Manajemen Petugas</span></a></li>
+      <li><a href="<?= $pfx . url('weighing_records') ?>"  class="<?= ($page_id??'')==='weighing_records'?'active':'' ?>" title="Rekam Angkut"><span class="nav-icon">⚖️</span> <span class="nav-text">Rekam Angkut</span></a></li>
     </ul>
   </div>
 
@@ -765,9 +766,9 @@ try {
       <span class="nav-group-arrow">▼</span>
     </div>
     <ul class="sidebar-nav nav-group-items">
-      <li><a href="<?= $pfx ?>blog_management.php" class="<?= ($page_id??'')==='blog_management'?'active':'' ?>" title="Manajemen Blog"><span class="nav-icon">✍️</span> <span class="nav-text">Manajemen Blog</span></a></li>
-      <li><a href="<?= $pfx ?>diy_management.php"  class="<?= ($page_id??'')==='diy_management'?'active':'' ?>" title="Manajemen DIY"><span class="nav-icon">💡</span> <span class="nav-text">Manajemen DIY</span></a></li>
-      <li><a href="<?= $pfx ?>idea_management.php" class="<?= ($page_id??'')==='idea_management'?'active':'' ?>" title="Kotak Ide"><span class="nav-icon">📥</span> <span class="nav-text">Kotak Ide</span></a></li>
+      <li><a href="<?= $pfx . url('blog_management') ?>" class="<?= ($page_id??'')==='blog_management'?'active':'' ?>" title="Manajemen Blog"><span class="nav-icon">✍️</span> <span class="nav-text">Manajemen Blog</span></a></li>
+      <li><a href="<?= $pfx . url('diy_management') ?>"  class="<?= ($page_id??'')==='diy_management'?'active':'' ?>" title="Manajemen DIY"><span class="nav-icon">💡</span> <span class="nav-text">Manajemen DIY</span></a></li>
+      <li><a href="<?= $pfx . url('idea_management') ?>" class="<?= ($page_id??'')==='idea_management'?'active':'' ?>" title="Kotak Ide"><span class="nav-icon">📥</span> <span class="nav-text">Kotak Ide</span></a></li>
     </ul>
   </div>
 
@@ -778,11 +779,11 @@ try {
       <span class="nav-group-arrow">▼</span>
     </div>
     <ul class="sidebar-nav nav-group-items">
-      <li><a href="<?= $pfx ?>laporan_harian.php"   class="<?= ($page_id??'')==='laporan_harian'?'active':'' ?>" title="Laporan Harian"><span class="nav-icon">📅</span> <span class="nav-text">Laporan Harian</span></a></li>
-      <li><a href="<?= $pfx ?>laporan_mingguan.php" class="<?= ($page_id??'')==='laporan_mingguan'?'active':'' ?>" title="Laporan Mingguan"><span class="nav-icon">📆</span> <span class="nav-text">Laporan Mingguan</span></a></li>
-      <li><a href="<?= $pfx ?>laporan_bulanan.php"  class="<?= ($page_id??'')==='laporan_bulanan'?'active':'' ?>" title="Laporan Bulanan"><span class="nav-icon">🗓️</span> <span class="nav-text">Laporan Bulanan</span></a></li>
-      <li><a href="<?= $pfx ?>pivot_pembayaran.php" class="<?= ($page_id??'')==='pivot_pembayaran'?'active':'' ?>" title="Pivot Rekap Bayar"><span class="nav-icon">🧩</span> <span class="nav-text">Pivot Rekap Bayar</span></a></li>
-      <li><a href="<?= $pfx ?>analisis_data.php"    class="<?= ($page_id??'')==='analisis_data'?'active':'' ?>" title="Analisis Data"><span class="nav-icon">📊</span> <span class="nav-text">Analisis Data</span></a></li>
+      <li><a href="<?= $pfx . url('laporan_harian') ?>"   class="<?= ($page_id??'')==='laporan_harian'?'active':'' ?>" title="Laporan Harian"><span class="nav-icon">📅</span> <span class="nav-text">Laporan Harian</span></a></li>
+      <li><a href="<?= $pfx . url('laporan_mingguan') ?>" class="<?= ($page_id??'')==='laporan_mingguan'?'active':'' ?>" title="Laporan Mingguan"><span class="nav-icon">📆</span> <span class="nav-text">Laporan Mingguan</span></a></li>
+      <li><a href="<?= $pfx . url('laporan_bulanan') ?>"  class="<?= ($page_id??'')==='laporan_bulanan'?'active':'' ?>" title="Laporan Bulanan"><span class="nav-icon">🗓️</span> <span class="nav-text">Laporan Bulanan</span></a></li>
+      <li><a href="<?= $pfx . url('pivot_pembayaran') ?>" class="<?= ($page_id??'')==='pivot_pembayaran'?'active':'' ?>" title="Pivot Rekap Bayar"><span class="nav-icon">🧩</span> <span class="nav-text">Pivot Rekap Bayar</span></a></li>
+      <li><a href="<?= $pfx . url('analisis_data') ?>"    class="<?= ($page_id??'')==='analisis_data'?'active':'' ?>" title="Analisis Data"><span class="nav-icon">📊</span> <span class="nav-text">Analisis Data</span></a></li>
     </ul>
   </div>
 
@@ -793,19 +794,18 @@ try {
       <span class="nav-group-arrow">▼</span>
     </div>
     <ul class="sidebar-nav nav-group-items">
-      <li><a href="<?= $pfx ?>kategori_sampah.php" class="<?= ($page_id??'')==='kategori_sampah'?'active':'' ?>" title="Kategori Sampah"><span class="nav-icon">♻️</span> <span class="nav-text">Kategori Sampah</span></a></li>
-      <li><a href="<?= $pfx ?>settings.php"        class="<?= ($page_id??'')==='settings'?'active':'' ?>" title="Pengaturan"><span class="nav-icon">⚙️</span> <span class="nav-text">Pengaturan</span></a></li>
+      <li><a href="<?= $pfx . url('kategori_sampah') ?>" class="<?= ($page_id??'')==='kategori_sampah'?'active':'' ?>" title="Kategori Sampah"><span class="nav-icon">♻️</span> <span class="nav-text">Kategori Sampah</span></a></li>
+      <li><a href="<?= $pfx . url('settings') ?>"        class="<?= ($page_id??'')==='settings'?'active':'' ?>" title="Pengaturan"><span class="nav-icon">⚙️</span> <span class="nav-text">Pengaturan</span></a></li>
     </ul>
   </div>
 
   <!-- Footer: Profil + Keluar -->
   <div class="sidebar-footer">
-    <a href="<?= $pfx ?>profile.php" class="<?= ($page_id??'')==='profile'?'active':'' ?>" title="Profil Admin"><span class="nav-icon" style="font-size:16px">👤</span> <span class="nav-text">Profil Admin</span></a>
-    <a href="<?= $pfx ?>logout.php" style="color:rgba(255,110,110,.85)" title="Logout"><span class="nav-icon" style="font-size:16px">🚪</span> <span class="nav-text">Keluar</span></a>
+    <a href="<?= $pfx . url('profile') ?>" class="<?= ($page_id??'')==='profile'?'active':'' ?>" title="Profil Admin"><span class="nav-icon" style="font-size:16px">👤</span> <span class="nav-text">Profil Admin</span></a>
+    <a href="<?= $pfx . url('logout') ?>" style="color:rgba(255,110,110,.85)" title="Logout"><span class="nav-icon" style="font-size:16px">🚪</span> <span class="nav-text">Keluar</span></a>
   </div>
 </aside>
 
-<!-- ── TOPBAR ── -->
 <div class="topbar">
   <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -844,17 +844,36 @@ try {
   </div>
 </div>
 
-<!-- ── MAIN WRAPPER ── -->
 <div class="main-wrap">
 
 <?php if ($_flash): ?>
-<div class="flash-overlay" id="flashOverlay">
-  <div class="flash flash-<?= htmlspecialchars($_flash['type']) ?>">
+<div class="flash-overlay" id="flashOverlay" onclick="closeFlashOverlay()">
+  <div class="flash flash-<?= htmlspecialchars($_flash['type']) ?>" onclick="event.stopPropagation()">
     <div class="flash-icon"><?= $_flash['type'] === 'success' ? '✅' : '❌' ?></div>
     <div class="flash-msg"><?= htmlspecialchars($_flash['msg']) ?></div>
-    <button class="flash-close-btn" onclick="document.getElementById('flashOverlay').style.display='none'">Tutup</button>
+    <button class="flash-close-btn" onclick="closeFlashOverlay()">Tutup</button>
   </div>
 </div>
+<script>
+  (function() {
+    document.body.classList.add('flash-active');
+    document.documentElement.classList.add('flash-active');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+  })();
+
+  function closeFlashOverlay() {
+    var fo = document.getElementById('flashOverlay');
+    if (fo) fo.style.display = 'none';
+    document.body.classList.remove('flash-active');
+    document.documentElement.classList.remove('flash-active');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeFlashOverlay();
+  });
+</script>
 <?php endif; ?>
 
 <div id="toastArea"></div>
@@ -926,7 +945,6 @@ function showToast(type, msg, titleInput = '') {
   }, 4800);
 }
 
-// ── Collapsible Nav Groups ──
 const NAV_STATE_KEY = 'mrh_nav_state';
 function toggleNavGroup(groupId) {
   const group = document.getElementById(groupId);
@@ -958,7 +976,6 @@ function restoreNavState() {
 }
 document.addEventListener('DOMContentLoaded', restoreNavState);
 
-// ── Sidebar Collapse Toggle & State Restoration ──
 const SIDEBAR_COLLAPSED_KEY = 'mrh_sidebar_collapsed';
 function toggleSidebarCollapse() {
   const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
@@ -972,7 +989,6 @@ function toggleSidebarCollapse() {
   } catch(e) {}
 })();
 
-// ── Polling Notifikasi Real-time ──
 let lastNotifId = 0;
 function playNotificationSound() {
   try {

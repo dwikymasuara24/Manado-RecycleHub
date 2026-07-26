@@ -1,8 +1,5 @@
 <?php
-// ============================================================
-//  officer/dashboard.php — Officer Panel: Dashboard & Visualisasi
-//  Manado Recycle Hub
-// ============================================================
+
 require_once __DIR__ . '/../include/config.php';
 $page_id    = 'dashboard';
 $page_title = 'Dashboard Statistik';
@@ -10,7 +7,6 @@ $db         = getDB();
 
 require_once __DIR__ . '/layout/header.php';
 
-// ── Chart 1: Tren Tugas Selesai 30 Hari Terakhir ─────────────
 $trendRows = $db->prepare("
     SELECT tgl, SUM(cnt) AS cnt 
     FROM (
@@ -43,7 +39,6 @@ for ($i = 29; $i >= 0; $i--) {
     $trendValues[] = $trendMap[$d] ?? 0;
 }
 
-// ── Chart 2: Distribusi Jenis Tugas (Daur Ulang vs Clean Up) ─
 $typeRows = $db->prepare("
     SELECT type, COUNT(*) as cnt FROM (
         SELECT 'Daur Ulang' as type FROM pickup_requests WHERE officer_id = ? AND status = 'selesai'
@@ -62,7 +57,6 @@ if (empty($typeLabels)) {
     $typeCounts = [0, 0];
 }
 
-// ── Chart 3: Kategori Sampah Terkumpul (kg) ──────────────────
 $wasteRows = $db->prepare("
     SELECT wc.name, wc.ikon_emoji, SUM(t.total_kg) as total_kg FROM (
         SELECT pri.category_id, SUM(COALESCE(pri.aktual_kg, pri.estimasi_kg)) as total_kg 
@@ -88,7 +82,6 @@ $wasteData = $wasteRows->fetchAll(PDO::FETCH_ASSOC);
 $wasteLabels = array_map(fn($w) => $w['ikon_emoji'].' '.$w['name'], $wasteData);
 $wasteKg = array_column($wasteData, 'total_kg');
 
-// ── Chart 4: Perbandingan Tugas Selesai Mingguan (12 Minggu) 
 $weeklyRows = $db->prepare("
     SELECT yw, MIN(tgl) AS tgl, SUM(cnt) AS cnt 
     FROM (
@@ -112,13 +105,11 @@ $weeklyLabels = array_map(fn($w) => 'Mg '.date('d/m', strtotime($w['tgl'])), $we
 $weeklyValues = array_column($weeklyData, 'cnt');
 ?>
 
-<!-- ══ PAGE HEADER ══ -->
 <div class="page-header">
     <h1>📊 Dashboard Statistik</h1>
     <p>Visualisasi performa kerja, tren tugas selesai, dan komparasi berat sampah daur ulang yang berhasil dikumpulkan.</p>
 </div>
 
-<!-- ══ STATS MINI CARD ══ -->
 <div class="stats-row" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
   <div class="stat-mini" style="border-top-color:var(--green)">
     <div class="val" style="color:var(--green)"><?= (int)$st['total_selesai'] ?></div>
@@ -138,7 +129,6 @@ $weeklyValues = array_column($weeklyData, 'cnt');
   </div>
 </div>
 
-<!-- ══ VISUALISASI GRID 1 ══ -->
 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px; margin-bottom:16px;">
   <!-- Trend Chart -->
   <div class="card" style="padding:18px;">
@@ -159,7 +149,6 @@ $weeklyValues = array_column($weeklyData, 'cnt');
   </div>
 </div>
 
-<!-- ══ VISUALISASI GRID 2 ══ -->
 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px; margin-bottom:16px;">
   <!-- Waste Chart -->
   <div class="card" style="padding:18px;">

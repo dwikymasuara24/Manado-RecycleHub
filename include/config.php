@@ -1,8 +1,7 @@
 <?php
-// Set default timezone ke WITA (Waktu Indonesia Tengah) untuk Manado
+
 date_default_timezone_set('Asia/Makassar');
 
-// Mulai session secara global
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -80,34 +79,22 @@ function sanitizeRichText(string $html): string {
     return $out;
 }
 
-// ============================================================
-//  include/config.php — Konfigurasi Global Manado Recycle Hub
-//  Digunakan oleh: User Console, Admin Console, Officer Console
-//  Letakkan file ini di: skripsi/include/config.php
-// ============================================================
-
-// ── Deteksi root path secara otomatis ────────────────────────
-// __DIR__ selalu menunjuk ke folder include/
-// PROJECT_ROOT = folder induk (skripsi/)
 if (!defined('PROJECT_ROOT')) {
     define('PROJECT_ROOT', dirname(__DIR__));
 }
 
-// ── Konfigurasi Database ─────────────────────────────────────
 define('DB_HOST', getenv('MRH_DB_HOST') ?: 'localhost');
 define('DB_USER', getenv('MRH_DB_USER') ?: 'root');
 define('DB_PASS', getenv('MRH_DB_PASS') ?: '');
 define('DB_NAME', getenv('MRH_DB_NAME') ?: 'hub');
 define('DB_PORT', (int)(getenv('MRH_DB_PORT') ?: 3306));
 
-// ── Konfigurasi SMTP untuk Notifikasi Email (Cara 2) ──────────
 define('SMTP_HOST', getenv('MRH_SMTP_HOST') ?: 'smtp.gmail.com');
-define('SMTP_PORT', (int)(getenv('MRH_SMTP_PORT') ?: 587)); // Gunakan 587 untuk TLS atau 465 untuk SSL
+define('SMTP_PORT', (int)(getenv('MRH_SMTP_PORT') ?: 587)); 
 define('SMTP_USER', 'mdorecyclehub@gmail.com'); 
 define('SMTP_PASS', 'zezz hjxb uiyt pehv'); 
 define('SMTP_FROM', 'mdorecyclehub@gmail.com');
 
-// ── Koneksi PDO (singleton) ───────────────────────────────────
 function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
@@ -119,13 +106,13 @@ function getDB(): PDO {
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-        // Set MySQL timezone to match WITA (+08:00)
+        
         $pdo->exec("SET time_zone = '+08:00'");
-        // Auto-migration: Tambahkan kolom is_kendala jika belum ada
+        
         try {
             $pdo->exec("ALTER TABLE pickup_requests ADD COLUMN is_kendala TINYINT(1) DEFAULT 0 AFTER catatan_officer");
         } catch (Exception $e) {}
-        // Auto-migration: Tambahkan status 'dalam_perjalanan' ke enum status pickup_requests jika belum ada
+        
         try {
             $pdo->exec("ALTER TABLE pickup_requests MODIFY COLUMN status ENUM('menunggu','dikonfirmasi','dijadwalkan','dalam_perjalanan','sedang_diproses','selesai','dibatalkan') NOT NULL DEFAULT 'menunggu'");
         } catch (Exception $e) {}
@@ -141,7 +128,7 @@ function getDB(): PDO {
         try {
             $pdo->exec("ALTER TABLE cleanup_requests ADD COLUMN longitude DECIMAL(11, 8) NULL AFTER latitude");
         } catch (Exception $e) {}
-        // Auto-migration: Tambahkan kolom GPS untuk tracking officers
+        
         try {
             $pdo->exec("ALTER TABLE officers ADD COLUMN last_lat DECIMAL(10,8) NULL AFTER nomor_wa");
         } catch (Exception $e) {}
@@ -151,7 +138,7 @@ function getDB(): PDO {
         try {
             $pdo->exec("ALTER TABLE officers ADD COLUMN last_seen_at DATETIME NULL AFTER last_lng");
         } catch (Exception $e) {}
-        // Auto-migration: Create kecamatan table
+        
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `kecamatan` (
               `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -160,7 +147,7 @@ function getDB(): PDO {
               UNIQUE KEY `uq_nama_kecamatan` (`nama_kecamatan`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
         } catch (Exception $e) {}
-        // Auto-migration: Create schedules table
+        
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `schedules` (
               `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -175,7 +162,7 @@ function getDB(): PDO {
               FOREIGN KEY (`officer_id`) REFERENCES `officers`(`id`) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
         } catch (Exception $e) {}
-        // Auto-migration: Create routes table
+        
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `routes` (
               `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -189,7 +176,7 @@ function getDB(): PDO {
               FOREIGN KEY (`cleanup_request_id`) REFERENCES `cleanup_requests`(`id`) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
         } catch (Exception $e) {}
-        // Auto-migration for weighing_records
+        
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `weighing_records` (
               `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -208,7 +195,7 @@ function getDB(): PDO {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
         } catch (Exception $e) {}
 
-        // Auto-migration: tabel penghubung jadwal -> request
+        
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `schedule_requests` (
               `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -231,7 +218,7 @@ function getDB(): PDO {
             } catch (Exception $e) {}
         } catch (Exception $e) {}
 
-        // Auto-migration for mitra columns
+        
         $mitraCols = [
             "target_setoran_kg" => "ALTER TABLE `mitra` ADD COLUMN `target_setoran_kg` DECIMAL(10,2) DEFAULT 0.00",
             "target_periode" => "ALTER TABLE `mitra` ADD COLUMN `target_periode` ENUM('mingguan', 'bulanan') DEFAULT 'bulanan'",
@@ -244,7 +231,7 @@ function getDB(): PDO {
             try { $pdo->exec($sql); } catch (Exception $e) {}
         }
 
-        // Auto-migration: Create mitra_deposits and mitra_payments
+        
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `mitra_deposits` (
               `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -269,7 +256,7 @@ function getDB(): PDO {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
         } catch (Exception $e) {}
 
-        // Auto-migration: Aktifkan kembali semua kategori sampah daur ulang
+        
         try {
             $pdo->exec("UPDATE waste_categories SET is_active = 1");
         } catch (Exception $e) {}
@@ -277,35 +264,63 @@ function getDB(): PDO {
     return $pdo;
 }
 
-// ── Konstanta Tampilan ────────────────────────────────────────
 define('SITE_NAME',    'Manado Recycle Hub');
 define('ADMIN_NAME',   'Super Admin MRH');
 define('ADMIN_AVATAR', 'SA');
 define('GREEN_700',    '#1c6434');
 
-// ── URL Helper ────────────────────────────────────────────────
-// Hitung base dari PROJECT_ROOT vs DOCUMENT_ROOT — tidak bergantung
-// pada REQUEST_URI sehingga aman dipanggil dari subfolder manapun
+function isProduction(): bool {
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    if (preg_match('/^(localhost|127\.0\.0\.1|::1)/i', $host) || str_contains($host, '.test') || str_contains($host, '.local')) {
+        return false;
+    }
+    return true;
+}
+
+function url(string $path = ''): string {
+    $cleanPath = ltrim($path, '/');
+    if ($cleanPath === '') return '';
+
+    if (isProduction()) {
+        if (preg_match('/\.php$/i', $cleanPath)) {
+            $cleanPath = preg_replace('/\.php$/i', '', $cleanPath);
+        }
+    } else {
+        if (!preg_match('/\.(php|png|jpg|jpeg|gif|css|js|json|ico|svg|webp|txt|sql)$/i', $cleanPath)) {
+            $cleanPath .= '.php';
+        }
+    }
+    return $cleanPath;
+}
+
 function baseUrl(string $path = ''): string {
     $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host    = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    
     $docRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
     $projDir = rtrim(str_replace('\\', '/', PROJECT_ROOT), '/');
 
-    // Base = bagian relatif folder project dari document root
-    if ($docRoot !== '' && strpos($projDir, $docRoot) === 0) {
-        $base = substr($projDir, strlen($docRoot)); // e.g. "/skripsi"
+    $docRootLower = strtolower($docRoot);
+    $projDirLower = strtolower($projDir);
+
+    if ($docRootLower !== '' && str_starts_with($projDirLower, $docRootLower)) {
+        $base = substr($projDir, strlen($docRoot));
     } else {
-        // Fallback: ambil segmen pertama dari REQUEST_URI
-        preg_match('#^(/[^/]+)#', $_SERVER['REQUEST_URI'] ?? '', $m);
-        $base = $m[1] ?? '';
+        $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+        $dir = dirname($script);
+        if (str_contains($dir, '/officer')) {
+            $base = str_replace('/officer', '', $dir);
+        } elseif (str_contains($dir, '/admin')) {
+            $base = str_replace('/admin', '', $dir);
+        } else {
+            $base = ($dir === '/' || $dir === '\\') ? '' : $dir;
+        }
     }
 
-    return rtrim($scheme . '://' . $host . $base, '/') . '/' . ltrim($path, '/');
+    $formattedPath = url($path);
+    return rtrim($scheme . '://' . $host . $base, '/') . ($formattedPath !== '' ? '/' . $formattedPath : '');
 }
 
-
-// ── Helper: Status Badge ──────────────────────────────────────
 function statusBadge(string $s): string {
     $map = [
         'menunggu'        => ['badge-amber',  'Menunggu'],
@@ -328,7 +343,6 @@ function statusBadge(string $s): string {
     return "<span class=\"badge $cls\">$lbl</span>";
 }
 
-// ── Helper: Format Tanggal ────────────────────────────────────
 function fmtDate(?string $d, string $fmt = 'd M Y'): string {
     if (!$d) return '-';
     return date($fmt, strtotime($d));
@@ -361,7 +375,6 @@ if (!function_exists('decToDms')) {
     }
 }
 
-// ── Helper: Log Aktivitas ─────────────────────────────────────
 function logActivity(PDO $db, ?int $userId, string $aksi, string $entitas = '', ?int $entitasId = null, array $dataLama = [], array $dataBaru = []): void {
     try {
         $stmt = $db->prepare("INSERT INTO activity_logs
@@ -382,20 +395,17 @@ function logActivity(PDO $db, ?int $userId, string $aksi, string $entitas = '', 
     }
 }
 
-// ── Helper: JSON Response (AJAX) ─────────────────────────────
 function jsonResponse(bool $success, string $message = '', array $data = []): void {
     header('Content-Type: application/json');
     echo json_encode(['success' => $success, 'message' => $message, 'data' => $data], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// ── Helper: Flash Message (via session) ──────────────────────
 function flash(string $type, string $msg): void {
     if (session_status() === PHP_SESSION_NONE) session_start();
     $_SESSION['flash'] = ['type' => $type, 'msg' => $msg];
 }
 
-// ── Helper: Get Flash Message ────────────────────────────────
 function getFlash(): ?array {
     if (session_status() === PHP_SESSION_NONE) session_start();
     $f = $_SESSION['flash'] ?? null;
@@ -403,12 +413,10 @@ function getFlash(): ?array {
     return $f;
 }
 
-// ── Helper: Sanitasi Input (dipakai User Console) ────────────
 function clean(string $str): string {
     return htmlspecialchars(strip_tags(trim($str)), ENT_QUOTES, 'UTF-8');
 }
 
-// ── Helper: Generate Kode Unik (dipakai daur_ulang.php) ──────
 function generateUniqueCode(PDO $pdo, string $table, string $column, string $prefix, int $length = 8): string {
     do {
         $code   = $prefix . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, $length));
@@ -418,7 +426,6 @@ function generateUniqueCode(PDO $pdo, string $table, string $column, string $pre
     return $code;
 }
 
-// ── Helper: Generate Kode Cerdas (MRH-S-001) ──────────────
 function generateSmartCode(PDO $pdo, string $table, string $column, string $prefix): string {
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM `$table` WHERE `$column` LIKE ?");
     $stmt->execute([$prefix . '-%']);
@@ -427,7 +434,7 @@ function generateSmartCode(PDO $pdo, string $table, string $column, string $pref
     $seq = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
     $code = $prefix . '-' . $seq;
     
-    // Safety: jika tabrakan, tambahkan random
+    
     $check = $pdo->prepare("SELECT COUNT(*) FROM `$table` WHERE `$column` = ?");
     $check->execute([$code]);
     if ((int)$check->fetchColumn() > 0) {
@@ -436,7 +443,6 @@ function generateSmartCode(PDO $pdo, string $table, string $column, string $pref
     return $code;
 }
 
-// ── Helper: Google Maps API Key ───────────────────────────────
 function getGmapsKey(): string {
     try {
         return getDB()->query("SELECT setting_value FROM site_settings WHERE setting_key='google_maps_api_key'")->fetchColumn() ?: '';
@@ -445,10 +451,8 @@ function getGmapsKey(): string {
     }
 }
 
-// ── Deteksi modul aktif (untuk link antar-konsol) ────────────
-// Dipakai oleh layout/header.php
 function getModulePaths(): array {
-    // Relative dari folder masing-masing modul ke root
+    
     $uri = $_SERVER['PHP_SELF'] ?? '';
     if (str_contains($uri, '/officer/')) {
         $root = '../';
@@ -459,13 +463,12 @@ function getModulePaths(): array {
     }
     return [
         'root'    => $root,
-        'user'    => $root,          // home.php, dll di root
-        'admin'   => $root . 'admin/',  // jika pakai subfolder admin (opsional)
+        'user'    => $root,          
+        'admin'   => $root . 'admin/',  
         'officer' => $root . 'officer/',
     ];
 }
 
-// ── Helper: Record Weighing for Pickup Requests ────────────────
 function recordWeighing(PDO $db, int $pickupRequestId): void {
     try {
         $stmt = $db->prepare("
@@ -488,7 +491,7 @@ function recordWeighing(PDO $db, int $pickupRequestId): void {
             return;
         }
 
-        // Auto-distribusi berat_total_kg ke pickup_request_items jika total aktual_kg masih kosong/0
+        
         $berat_total = (float)($pr['berat_total_kg'] ?? 0);
         if ($berat_total > 0) {
             $items = $db->query("SELECT id, estimasi_kg, aktual_kg FROM pickup_request_items WHERE pickup_id = $pickupRequestId")->fetchAll();
@@ -528,7 +531,7 @@ function recordWeighing(PDO $db, int $pickupRequestId): void {
             }
         }
 
-        // Auto-distribusi catatan_officer ke pickup_request_items jika catatan item masih kosong
+        
         $catatan_officer = trim($pr['catatan_officer'] ?? '');
         if ($catatan_officer !== '') {
             $items = $db->query("SELECT id, catatan FROM pickup_request_items WHERE pickup_id = $pickupRequestId")->fetchAll();
@@ -575,7 +578,6 @@ function recordWeighing(PDO $db, int $pickupRequestId): void {
     }
 }
 
-// ── Helper: Record Weighing for Cleanup Requests ───────────────
 function recordCleanupWeighing(PDO $db, int $cleanupId): void {
     try {
         $stmt = $db->prepare("
@@ -629,15 +631,14 @@ function recordCleanupWeighing(PDO $db, int $cleanupId): void {
     }
 }
 
-// ── Helper: Buat Notifikasi Sistem Real-time ──
 function createNotification(PDO $db, $target, string $judul, string $pesan, string $tipe = 'sistem', ?int $referensi_id = null, ?string $referensi_tipe = null): bool {
     try {
         if (is_numeric($target)) {
-            // Target is a specific user_id
+            
             $stmt = $db->prepare("INSERT INTO notifications (user_id, judul, pesan, tipe, referensi_id, referensi_tipe, is_read, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())");
             return $stmt->execute([$target, $judul, $pesan, $tipe, $referensi_id, $referensi_tipe]);
         } else {
-            // Target is a role name like 'admin' or 'officer'
+            
             $stmtRole = $db->prepare("SELECT id FROM roles WHERE name = ? LIMIT 1");
             $stmtRole->execute([$target]);
             $role_id = $stmtRole->fetchColumn();
@@ -661,7 +662,6 @@ function createNotification(PDO $db, $target, string $judul, string $pesan, stri
     }
 }
 
-// ── Helper: Kirim Notifikasi WhatsApp Otomatis via Gateway (Simulasi / API) ──
 function sendWhatsAppNotification(string $phone, string $message): bool {
     $phone = preg_replace('/[^0-9]/', '', $phone);
     if (strpos($phone, '0') === 0) {
@@ -700,7 +700,6 @@ function sendWhatsAppNotification(string $phone, string $message): bool {
     return true;
 }
 
-// ── Helper: Trigger WhatsApp Notification On Status Change ──
 function triggerWhatsAppOnStatusChange(PDO $db, int $requestId, string $newStatus, string $type = 'daur_ulang'): void {
     try {
         if ($type === 'daur_ulang') {
@@ -794,10 +793,6 @@ function triggerWhatsAppOnStatusChange(PDO $db, int $requestId, string $newStatu
     }
 }
 
-/**
- * Mengirim notifikasi email otomatis ke admin/manajemen saat order baru masuk.
- * Mencoba menggunakan mail() native php dan juga menulis log di folder uploads/email_logs.txt agar mudah ditest.
- */
 function triggerNewOrderEmail(PDO $db, int $pickupRequestId): void {
     try {
         $stmt = $db->prepare("
@@ -812,7 +807,7 @@ function triggerNewOrderEmail(PDO $db, int $pickupRequestId): void {
         
         $nama = $order['nama_pemohon'];
         $code = $order['request_code'];
-        // Format kecamatan (get readable string if key is used)
+        
         $kec_opts = [
             'bunaken'           => 'Bunaken',
             'bunaken_kepulauan' => 'Bunaken Kepulauan',
@@ -831,7 +826,7 @@ function triggerNewOrderEmail(PDO $db, int $pickupRequestId): void {
         $kecamatan = $kec_opts[$kecKey] ?? $order['kecamatan'];
         $waktu = date('d M Y H:i:s', strtotime($order['created_at']));
         
-        // Formatting tanggal untuk subjek email, e.g. "26 Mei 2026"
+        
         $monthsIndo = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
             7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
@@ -844,7 +839,7 @@ function triggerNewOrderEmail(PDO $db, int $pickupRequestId): void {
         $subjectDate = "$dayNum $monthName $year";
         
         $jumlah_titik = (int)$order['jumlah_titik'];
-        // Jika 0, default ke 1 (karena minimal ada 1 request/titik penjemputan)
+        
         if ($jumlah_titik === 0) {
             $jumlah_titik = 1;
         }
@@ -867,7 +862,7 @@ function triggerNewOrderEmail(PDO $db, int $pickupRequestId): void {
         $body .= "Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.\n\n";
         $body .= "Salam,\nSystem Manado Recycle Hub";
         
-        // Target email: Ambil email admin aktif dari database, fallback ke default jika tidak ditemukan
+        
         $to = "mdorecyclehub@gmail.com";
         try {
             $adminQuery = $db->query("
@@ -885,12 +880,12 @@ function triggerNewOrderEmail(PDO $db, int $pickupRequestId): void {
             error_log('[triggerNewOrderEmail Admin Email Query Error] ' . $e->getMessage());
         }
 
-        // Jika target email menggunakan domain default yang tidak valid, arahkan ke mdorecyclehub@gmail.com
+        
         if (strpos($to, 'manadurecyclehub.id') !== false) {
             $to = "mdorecyclehub@gmail.com";
         }
         
-        // Headers untuk email
+        
         $fromEmail = defined('SMTP_FROM') ? SMTP_FROM : "mdorecyclehub@gmail.com";
         if (strpos($fromEmail, 'manadurecyclehub.id') !== false) {
             $fromEmail = "mdorecyclehub@gmail.com";
@@ -899,10 +894,10 @@ function triggerNewOrderEmail(PDO $db, int $pickupRequestId): void {
         $headers .= "Reply-To: $fromEmail\r\n";
         $headers .= "X-Mailer: PHP/" . phpversion();
         
-        // 1. Kirim via SMTP riil / PHP mail() fallback
+        
         sendRealEmailViaSMTP($to, $subject, $body, $headers);
         
-        // 2. Tulis ke file log di uploads/email_logs.txt agar admin bisa memverifikasi email notifikasi secara lokal tanpa SMTP server
+        
         $logDir = PROJECT_ROOT . '/uploads';
         if (!is_dir($logDir)) {
             mkdir($logDir, 0777, true);
@@ -917,9 +912,6 @@ function triggerNewOrderEmail(PDO $db, int $pickupRequestId): void {
     }
 }
 
-/**
- * Mengirim notifikasi email otomatis ke admin/manajemen saat order clean up baru masuk.
- */
 function triggerCleanupOrderEmail(PDO $db, int $cleanupRequestId): void {
     try {
         $stmt = $db->prepare("
@@ -958,7 +950,7 @@ function triggerCleanupOrderEmail(PDO $db, int $cleanupRequestId): void {
         $svcKey = strtolower($order['service_type']);
         $service = $cleanup_types[$svcKey] ?? $order['service_type'];
 
-        // Formatting tanggal untuk subjek email
+        
         $monthsIndo = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
             7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
@@ -987,7 +979,7 @@ function triggerCleanupOrderEmail(PDO $db, int $cleanupRequestId): void {
         $body .= "Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.\n\n";
         $body .= "Salam,\nSystem Manado Recycle Hub";
         
-        // Target email: Ambil email admin aktif dari database
+        
         $to = "mdorecyclehub@gmail.com";
         try {
             $adminQuery = $db->query("
@@ -1005,7 +997,7 @@ function triggerCleanupOrderEmail(PDO $db, int $cleanupRequestId): void {
             error_log('[triggerCleanupOrderEmail Admin Email Query Error] ' . $e->getMessage());
         }
 
-        // Jika target email menggunakan domain default yang tidak valid, gunakan mdorecyclehub@gmail.com sebagai fallback
+        
         if (strpos($to, 'manadurecyclehub.id') !== false) {
             $to = "mdorecyclehub@gmail.com";
         }
@@ -1018,10 +1010,10 @@ function triggerCleanupOrderEmail(PDO $db, int $cleanupRequestId): void {
         $headers .= "Reply-To: $fromEmail\r\n";
         $headers .= "X-Mailer: PHP/" . phpversion();
         
-        // 1. Kirim via SMTP riil / PHP mail() fallback
+        
         sendRealEmailViaSMTP($to, $subject, $body, $headers);
         
-        // 2. Tulis ke file log
+        
         $logDir = PROJECT_ROOT . '/uploads';
         if (!is_dir($logDir)) {
             mkdir($logDir, 0777, true);
@@ -1036,23 +1028,20 @@ function triggerCleanupOrderEmail(PDO $db, int $cleanupRequestId): void {
     }
 }
 
-/**
- * Mengirim email menggunakan koneksi socket SMTP langsung (tanpa pustaka eksternal)
- */
 function sendRealEmailViaSMTP(string $to, string $subject, string $body, string $headers = ''): bool {
-    // Membaca konfigurasi dari konstanta
+    
     $smtp_host = defined('SMTP_HOST') ? SMTP_HOST : 'smtp.gmail.com';
     $smtp_port = defined('SMTP_PORT') ? SMTP_PORT : 587;
     $smtp_user = defined('SMTP_USER') ? SMTP_USER : 'mdorecyclehub@gmail.com';
     $smtp_pass = defined('SMTP_PASS') ? SMTP_PASS : 'xxxx xxxx xxxx xxxx';
     $from_email = defined('SMTP_FROM') ? SMTP_FROM : 'mdorecyclehub@gmail.com';
     
-    // Jika email pengirim menggunakan domain default yang tidak valid, gunakan mdorecyclehub@gmail.com sebagai fallback
+    
     if (strpos($from_email, 'manadurecyclehub.id') !== false) {
         $from_email = 'mdorecyclehub@gmail.com';
     }
     
-    // Fallback ke php mail() jika password SMTP masih default atau kosong
+    
     if ($smtp_pass === 'xxxx xxxx xxxx xxxx' || empty($smtp_pass)) {
         return @mail($to, $subject, $body, $headers);
     }
@@ -1073,13 +1062,13 @@ function sendRealEmailViaSMTP(string $to, string $subject, string $body, string 
             return $response;
         };
 
-        $getResponse($socket); // Read greeting
+        $getResponse($socket); 
 
-        // Send EHLO
+        
         fwrite($socket, "EHLO localhost\r\n");
         $getResponse($socket);
 
-        // Start TLS
+        
         fwrite($socket, "STARTTLS\r\n");
         $response = $getResponse($socket);
         if (strpos($response, '220') === false) {
@@ -1088,18 +1077,18 @@ function sendRealEmailViaSMTP(string $to, string $subject, string $body, string 
             return @mail($to, $subject, $body, $headers);
         }
 
-        // Encrypt the connection
+        
         if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
             fclose($socket);
             error_log("[SMTP TLS Error] Encryption enablement failed.");
             return @mail($to, $subject, $body, $headers);
         }
 
-        // Send EHLO again after TLS start
+        
         fwrite($socket, "EHLO localhost\r\n");
         $getResponse($socket);
 
-        // Authenticate
+        
         fwrite($socket, "AUTH LOGIN\r\n");
         $getResponse($socket);
 
@@ -1114,19 +1103,19 @@ function sendRealEmailViaSMTP(string $to, string $subject, string $body, string 
             return @mail($to, $subject, $body, $headers);
         }
 
-        // MAIL FROM
+        
         fwrite($socket, "MAIL FROM: <$from_email>\r\n");
         $getResponse($socket);
 
-        // RCPT TO
+        
         fwrite($socket, "RCPT TO: <$to>\r\n");
         $getResponse($socket);
 
-        // DATA
+        
         fwrite($socket, "DATA\r\n");
         $getResponse($socket);
 
-        // Send Headers & Body
+        
         $mail_data = "To: $to\r\n";
         $mail_data .= "Subject: $subject\r\n";
         $mail_data .= "MIME-Version: 1.0\r\n";
@@ -1139,7 +1128,7 @@ function sendRealEmailViaSMTP(string $to, string $subject, string $body, string 
         fwrite($socket, $mail_data);
         $response = $getResponse($socket);
 
-        // QUIT
+        
         fwrite($socket, "QUIT\r\n");
         fclose($socket);
 

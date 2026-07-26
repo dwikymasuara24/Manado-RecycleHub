@@ -1,29 +1,9 @@
 <?php
-// ============================================================
-//  include/algorithms.php — Algoritma Penjadwalan MRH
-//  Manado Recycle Hub
-//
-//  Berisi:
-//    1. haversineDistance()   — jarak antara 2 koordinat (km)
-//    2. nearestNeighbor()     — optimasi rute dalam satu kecamatan
-//    3. priorityRule()        — urutan kecamatan berdasarkan volume request
-//    4. generateSchedule()    — gabungkan kedua algoritma & simpan ke DB
-//
-//  Cara pakai:
-//    require_once __DIR__ . '/algorithms.php';
-//    $schedule = generateSchedule($db, $tanggal);
-// ============================================================
 
-// ── Koordinat Depot (Base / Gudang) ─────────────────────────
 if (!defined('DEPOT_LAT'))  define('DEPOT_LAT',  1.476362);
 if (!defined('DEPOT_LNG'))  define('DEPOT_LNG',  124.832498);
 if (!defined('DEPOT_NAME')) define('DEPOT_NAME', 'Depot MRH — Manado Recycle Hub');
 
-// ─────────────────────────────────────────────────────────────
-//  FUNGSI 1: haversineDistance
-//  Menghitung jarak (km) antara dua titik koordinat
-//  menggunakan formula Haversine
-// ─────────────────────────────────────────────────────────────
 function haversineDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
 {
     $earthRadiusKm = 6371.0;
@@ -39,17 +19,6 @@ function haversineDistance(float $lat1, float $lon1, float $lat2, float $lon2): 
     return $earthRadiusKm * $c;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  FUNGSI 2: nearestNeighbor
-//  Mengoptimasi urutan kunjungan dalam satu kecamatan
-//
-//  @param array  $points     — array titik request, tiap elemen:
-//                              ['id'=>..., 'lat'=>..., 'lng'=>...]
-//  @param array  $startPoint — ['lat'=>..., 'lng'=>...] koordinat depot
-//
-//  @return array — urutan kunjungan optimal:
-//    [['id'=>..., 'lat'=>..., 'lng'=>..., 'distance_from_prev'=>float], ...]
-// ─────────────────────────────────────────────────────────────
 function nearestNeighbor(array $points, array $startPoint): array
 {
     if (empty($points)) {
@@ -59,20 +28,20 @@ function nearestNeighbor(array $points, array $startPoint): array
     $unvisited = $points;
     $visited   = [];
 
-    // Titik saat ini dimulai dari depot
+    
     $current = $startPoint;
 
     while (!empty($unvisited)) {
         $nearestIdx      = null;
         $nearestDist     = PHP_FLOAT_MAX;
 
-        // Hitung jarak dari titik saat ini ke semua yang belum dikunjungi
+        
         foreach ($unvisited as $idx => $point) {
             $lat = (float)($point['lat'] ?? $point['latitude'] ?? 0);
             $lng = (float)($point['lng'] ?? $point['longitude'] ?? 0);
 
             if ($lat == 0 && $lng == 0) {
-                // Skip titik tanpa koordinat — taruh di akhir dengan jarak 0
+                
                 if ($nearestIdx === null) {
                     $nearestIdx  = $idx;
                     $nearestDist = 0;
@@ -93,7 +62,7 @@ function nearestNeighbor(array $points, array $startPoint): array
             }
         }
 
-        // Tandai titik terdekat sebagai dikunjungi
+        
         $nearestPoint = $unvisited[$nearestIdx];
         $nearestPoint['distance_from_prev'] = round($nearestDist, 4);
 
@@ -104,49 +73,24 @@ function nearestNeighbor(array $points, array $startPoint): array
         ];
 
         unset($unvisited[$nearestIdx]);
-        $unvisited = array_values($unvisited); // reindex
+        $unvisited = array_values($unvisited); 
     }
 
     return $visited;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  FUNGSI 3: priorityRule (Iteratif per Putaran)
-//  Menentukan urutan kecamatan berdasarkan jumlah request terbanyak
-//  dengan pendekatan ITERATIF — bukan sort sekali di awal.
-//
-//  Cara kerja:
-//    Putaran 1: hitung semua kecamatan → pilih terbanyak
-//    Putaran 2: coret kecamatan tadi, hitung ulang sisa → pilih terbanyak
-//    Putaran 3: ulangi sampai semua kecamatan habis
-//
-//  Keunggulan: jika ada request baru masuk saat satu kecamatan
-//  sedang diproses, request baru ikut dihitung di putaran berikutnya.
-//  Fleksibel — berapapun jumlah kecamatan, cara kerjanya sama.
-//
-//  Tie-breaking: jika dua kecamatan punya jumlah request sama,
-//  kecamatan dengan nama lebih awal secara alfabet dipilih duluan
-//  — agar urutan selalu deterministik & konsisten.
-//
-//  @param array $requests — array request dikonfirmasi:
-//    ['id'=>..., 'kecamatan'=>'Sario', 'lat'=>..., 'lng'=>...]
-//
-//  @return array — generator (yield per putaran):
-//    tiap item: ['kecamatan'=>'Sario', 'count'=>5, 'requests'=>[...]]
-// ─────────────────────────────────────────────────────────────
 function priorityRule(array $requests): array
 {
     if (empty($requests)) {
         return [];
     }
 
-    $remaining = $requests; // sisa request yang belum dijadwalkan
+    $remaining = $requests; 
     $result    = [];
 
-    // Terus berputar selama masih ada request tersisa
+    
     while (!empty($remaining)) {
 
-        // ── Putaran baru: kelompokkan sisa request per kecamatan ──
         $grouped = [];
         foreach ($remaining as $r) {
             $kec = trim($r['kecamatan'] ?? '');
@@ -158,12 +102,11 @@ function priorityRule(array $requests): array
             $grouped[$kec]['requests'][] = $r;
         }
 
-        if (empty($grouped)) break; // tidak ada request berkecamatan valid
+        if (empty($grouped)) break; 
 
-        // ── Pilih kecamatan dengan request TERBANYAK saat ini ──
-        //    Tie-breaking: jika jumlah sama, pilih kecamatan yang pusatnya
-        //    paling dekat ke Depot. Jika jaraknya pun sama, gunakan urutan
-        //    alfabetis sebagai fallback agar selalu deterministik.
+        
+        
+        
         $best = null;
         foreach ($grouped as $kec => $data) {
             if ($best === null) {
@@ -193,7 +136,6 @@ function priorityRule(array $requests): array
             }
         }
 
-        // ── Masukkan ke hasil & hapus request kecamatan ini dari sisa ──
         $result[] = $best;
         $processed = array_column($best['requests'], 'id');
         $remaining = array_values(array_filter(
@@ -205,18 +147,6 @@ function priorityRule(array $requests): array
     return $result;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  FUNGSI 4: generateSchedule
-//  Gabungkan Priority Rule (iteratif) + Nearest Neighbor,
-//  lalu simpan hasilnya ke tabel schedules, schedule_requests, routes
-//
-//  @param PDO    $db      — koneksi database
-//  @param string $tanggal — format 'Y-m-d' (hari penjemputan)
-//
-//  @return array — ringkasan jadwal yang dibuat:
-//    ['schedules_created'=>int, 'total_requests'=>int, 'detail'=>[...]]
-// ─────────────────────────────────────────────────────────────
-// ── Pusat tiap kecamatan — koordinat nyata Kota Manado ───────
 function getKecCenter(string $name): array {
     $kecCenters = [
         'wenang'            => ['lat'=>1.4748,  'lng'=>124.8421],
@@ -236,7 +166,6 @@ function getKecCenter(string $name): array {
     return $kecCenters[$key] ?? ['lat' => (float)DEPOT_LAT, 'lng' => (float)DEPOT_LNG];
 }
 
-// Helper to format date in Indonesian style
 function getIndonesianDateString(string $dateStr): string {
     $timestamp = strtotime($dateStr);
     $days = ['Sunday'=>'Minggu','Monday'=>'Senin','Tuesday'=>'Selasa','Wednesday'=>'Rabu','Thursday'=>'Kamis','Friday'=>'Jumat','Saturday'=>'Sabtu'];
@@ -252,21 +181,9 @@ function getIndonesianDateString(string $dateStr): string {
     return "$dayName, $dayNum $monthName $year";
 }
 
-// ─────────────────────────────────────────────────────────────
-//  FUNGSI 4: generateSchedule
-//  Gabungkan Priority Rule (iteratif) + Nearest Neighbor,
-//  lalu simpan hasilnya ke tabel schedules, schedule_requests, routes.
-//
-//  @param PDO    $db      — koneksi database
-//  @param string $tanggal — format 'Y-m-d' (hari penjemputan)
-//
-//  @return array — ringkasan jadwal yang dibuat:
-//    ['schedules_created'=>int, 'total_requests'=>int, 'detail'=>[...]]
-// ─────────────────────────────────────────────────────────────
 function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pickup'): array
 {
-    // ── Pre-generation Clean Up of existing Drafts ──
-    // Revert status of all requests in draft schedules on or after the starting date
+    
     if ($tipe_layanan === 'cleanup') {
         $db->prepare("
             UPDATE cleanup_requests 
@@ -327,7 +244,6 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
         ")->execute([$tanggal]);
     }
 
-    // ── 1. Ambil semua request dikonfirmasi ─────────────────
     if ($tipe_layanan === 'cleanup') {
         $stmt = $db->prepare("
             SELECT cr.id, cr.request_code, cr.nama_pemohon,
@@ -352,14 +268,13 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
         return ['schedules_created' => 0, 'total_requests' => 0, 'detail' => []];
     }
 
-    // ── 2. Normalisasi koordinat ────────────────────────────
     foreach ($confirmedRequests as &$r) {
         $r['lat'] = (float)($r['latitude']  ?? 0);
         $r['lng'] = (float)($r['longitude'] ?? 0);
     }
     unset($r);
 
-    // Fetch active officers for assignment
+    
     $officers = $db->query("SELECT id FROM officers WHERE status='aktif' ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
     $officerCount = count($officers);
     $officerIndex = 0;
@@ -378,26 +293,26 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
 
     try {
         while (!empty($remainingRequests)) {
-            // Priority Rule on remaining requests
+            
             $prioritized = priorityRule($remainingRequests);
             if (empty($prioritized)) {
                 break;
             }
 
-            // Primary/Main district from priority list
+            
             $mainGroup = $prioritized[0];
             $mainKec = $mainGroup['kecamatan'];
             $scheduleRequests = $mainGroup['requests'];
 
-            $maxPoints = 30; // Batas Maksimal 30 Titik (Revisi 2)
+            $maxPoints = 30; 
 
-            // Logika Gabungan Antar Kecamatan (Revisi 1)
-            // Jika request kecamatan utama < 30, ambil request dari kecamatan terdekat
-            // (Disabled to ensure each kecamatan is scheduled on its own day sequentially)
+            
+            
+            
             if (false && count($scheduleRequests) < $maxPoints && count($prioritized) > 1) {
                 $mainCenter = getKecCenter($mainKec);
                 
-                // Hitung jarak kecamatan lain dari kecamatan utama
+                
                 $otherDistricts = [];
                 for ($i = 1; $i < count($prioritized); $i++) {
                     $otherKecName = $prioritized[$i]['kecamatan'];
@@ -415,10 +330,10 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
                     ];
                 }
 
-                // Urutkan berdasarkan jarak terdekat (asc)
+                
                 usort($otherDistricts, fn($a, $b) => $a['distance'] <=> $b['distance']);
 
-                // Masukkan request dari kecamatan terdekat sampai kuota 30 atau request habis
+                
                 foreach ($otherDistricts as $od) {
                     $needed = $maxPoints - count($scheduleRequests);
                     if ($needed <= 0) break;
@@ -432,22 +347,21 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
                 }
             }
 
-            // Batasi scheduleRequests maksimal 30 titik
+            
             if (count($scheduleRequests) > $maxPoints) {
                 $scheduleRequests = array_slice($scheduleRequests, 0, $maxPoints);
             }
 
-            // Kumpulkan semua kecamatan unik yang tergabung dalam jadwal ini
+            
             $kecsInSchedule = array_unique(array_map(fn($r) => $r['kecamatan'], $scheduleRequests));
             $kecNamesString = implode(', ', $kecsInSchedule);
             if (strlen($kecNamesString) > 100) {
                 $kecNamesString = substr($kecNamesString, 0, 97) . '...';
             }
 
-            // Calculate date for this schedule: start date + $schedulesCreated days
+            
             $scheduleDate = date('Y-m-d', strtotime($tanggal . " + $schedulesCreated days"));
 
-            // ── Proteksi jadwal bentrok untuk tanggal ini ──
             foreach ($kecsInSchedule as $kecToCheck) {
                 $stmtCheck = $db->prepare("
                     SELECT COUNT(*) FROM schedules 
@@ -463,7 +377,7 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
                 }
             }
 
-            // Cari atau insert kecamatan_id untuk kecamatan utama
+            
             $kecId = null;
             try {
                 $kecStmt = $db->prepare("SELECT id FROM kecamatan WHERE nama_kecamatan = ? AND aktif = 1 LIMIT 1");
@@ -484,7 +398,6 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
 
             $officerId = (int)$officers[$officerIndex % $officerCount]['id'];
 
-            // ── Buat entri jadwal ──
             $schedStmt = $db->prepare("
                 INSERT INTO schedules (tanggal, kecamatan_id, kecamatan, officer_id, status, tipe_layanan, created_at)
                 VALUES (?, ?, ?, ?, 'draft', ?, NOW())
@@ -492,12 +405,10 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
             $schedStmt->execute([$scheduleDate, $kecId, $kecNamesString, $officerId, $tipe_layanan]);
             $scheduleId = (int)$db->lastInsertId();
 
-            // ── Nearest Neighbor untuk seluruh titik jadwal ini (Revisi 4) ──
-            // Dimulai dari Depot
+            
             $depot = ['lat' => (float)DEPOT_LAT, 'lng' => (float)DEPOT_LNG];
             $route = nearestNeighbor($scheduleRequests, $depot);
 
-            // ── Simpan routes ──
             if ($tipe_layanan === 'cleanup') {
                 $routeStmt = $db->prepare("
                     INSERT INTO routes
@@ -518,7 +429,7 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
                 ");
             }
 
-            // Titik 0 = Depot (Start)
+            
             $routeStmt->execute([$scheduleId, 0, null, 0]);
 
             foreach ($route as $i => $point) {
@@ -528,12 +439,12 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
 
                 $routeStmt->execute([$scheduleId, $urutan, $reqId, $jarak]);
 
-                // Simpan ke schedule_requests untuk sinkronisasi
+                
                 if ($tipe_layanan === 'cleanup') {
                     $db->prepare("INSERT INTO schedule_requests (schedule_id, cleanup_request_id) VALUES (?, ?)")
                        ->execute([$scheduleId, $reqId]);
 
-                    // Update status request → dijadwalkan, assign petugas
+                    
                     $db->prepare("
                         UPDATE cleanup_requests
                         SET status = 'dijadwalkan', 
@@ -549,7 +460,7 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
                     $db->prepare("INSERT INTO schedule_requests (schedule_id, request_id) VALUES (?, ?)")
                        ->execute([$scheduleId, $reqId]);
 
-                    // Update status request → dijadwalkan, assign petugas
+                    
                     $db->prepare("
                         UPDATE pickup_requests
                         SET status = 'dijadwalkan', 
@@ -564,7 +475,6 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
                 }
             }
 
-            // ── Kembali ke Depot di akhir rute (Revisi 4) ──
             $lastPoint = end($route);
             $lastLat = (float)($lastPoint['lat'] ?? $lastPoint['latitude'] ?? 0);
             $lastLng = (float)($lastPoint['lng'] ?? $lastPoint['longitude'] ?? 0);
@@ -580,7 +490,7 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
             $urutanAkhir = count($route) + 1;
             $routeStmt->execute([$scheduleId, $urutanAkhir, null, round($distBackToDepot, 4)]);
 
-            // Hapus request yang sudah dijadwalkan dari sisa request
+            
             $scheduledIds = array_column($scheduleRequests, 'id');
             $remainingRequests = array_values(array_filter(
                 $remainingRequests,
@@ -621,50 +531,3 @@ function generateSchedule(PDO $db, string $tanggal, string $tipe_layanan = 'pick
     ];
 }
 
-// ─────────────────────────────────────────────────────────────
-//  CONTOH PEMANGGILAN (data dummy — uncomment untuk testing)
-// ─────────────────────────────────────────────────────────────
-/*
-// ── Test haversineDistance ──
-$jarak = haversineDistance(1.4748, 124.8421, 1.4800, 124.8500);
-echo "Jarak Wenang ke Wanea: " . round($jarak, 3) . " km\n";
-
-// ── Test nearestNeighbor ──
-$titikDummy = [
-    ['id' => 1, 'request_code' => 'MRH0001', 'nama_pemohon' => 'Budi',   'lat' => 1.4651, 'lng' => 124.8310],
-    ['id' => 2, 'request_code' => 'MRH0002', 'nama_pemohon' => 'Sari',   'lat' => 1.4700, 'lng' => 124.8350],
-    ['id' => 3, 'request_code' => 'MRH0003', 'nama_pemohon' => 'Andi',   'lat' => 1.4620, 'lng' => 124.8280],
-    ['id' => 4, 'request_code' => 'MRH0004', 'nama_pemohon' => 'Maria',  'lat' => 1.4730, 'lng' => 124.8390],
-];
-$depot = ['lat' => DEPOT_LAT, 'lng' => DEPOT_LNG];
-$rute  = nearestNeighbor($titikDummy, $depot);
-echo "\nRute Optimal (Nearest Neighbor):\n";
-foreach ($rute as $i => $titik) {
-    printf("  %d. %s — %s (%.3f km dari sebelumnya)\n",
-        $i + 1,
-        $titik['request_code'],
-        $titik['nama_pemohon'],
-        $titik['distance_from_prev']
-    );
-}
-
-// ── Test priorityRule ──
-$requestsDummy = [
-    ['id'=>1,'kecamatan'=>'Sario',  'lat'=>1.465,'lng'=>124.830],
-    ['id'=>2,'kecamatan'=>'Wenang', 'lat'=>1.474,'lng'=>124.842],
-    ['id'=>3,'kecamatan'=>'Sario',  'lat'=>1.464,'lng'=>124.828],
-    ['id'=>4,'kecamatan'=>'Wanea',  'lat'=>1.480,'lng'=>124.850],
-    ['id'=>5,'kecamatan'=>'Wenang', 'lat'=>1.476,'lng'=>124.845],
-    ['id'=>6,'kecamatan'=>'Sario',  'lat'=>1.466,'lng'=>124.831],
-];
-$prioritas = priorityRule($requestsDummy);
-echo "\nUrutan Prioritas Kecamatan:\n";
-foreach ($prioritas as $i => $p) {
-    echo "  " . ($i+1) . ". " . $p['kecamatan'] . " — " . $p['count'] . " request\n";
-}
-
-// ── Test generateSchedule (butuh koneksi DB aktif) ──
-// require_once __DIR__ . '/config.php';
-// $result = generateSchedule(getDB(), date('Y-m-d', strtotime('next saturday')));
-// print_r($result);
-*/

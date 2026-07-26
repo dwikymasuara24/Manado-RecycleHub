@@ -1,5 +1,5 @@
 <?php
-// profile.php
+
 require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $wa    = trim($_POST['nomor_wa'] ?? '');
     $pw    = trim($_POST['password'] ?? '');
     if ($nama && $email) {
-        // Cek apakah email sudah digunakan oleh user lain
+        
         $chk = $db->prepare("SELECT COUNT(*) FROM users WHERE email = ? AND id != ?");
         $chk->execute([$email, $current_admin_id]);
         if ((int)$chk->fetchColumn() > 0) {
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($pw) {
                     $db->prepare("UPDATE users SET password_hash=? WHERE id=?")->execute([password_hash($pw,PASSWORD_BCRYPT),$current_admin_id]);
                 }
-                // Update session values
+                
                 $_SESSION['user_nama'] = $nama;
                 $_SESSION['user_email'] = $email;
                 

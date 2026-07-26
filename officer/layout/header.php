@@ -1,7 +1,4 @@
 <?php
-// ============================================================
-//  officer/layout/header.php — Sidebar Layout Officer
-// ============================================================
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../../include/auth.php';
 requireRole('officer');
@@ -9,7 +6,6 @@ $_flash = getFlash();
 
 $db = getDB();
 
-// ── Resolve officer_id ────────────────────────────────────────
 $officerId = (int)($_SESSION['officer_id'] ?? 0);
 if (!$officerId) {
     $uid = (int)($_SESSION['user_id'] ?? 0);
@@ -21,13 +17,11 @@ if (!$officerId) {
     }
     if (!$officerId) { session_destroy(); header('Location: '.baseUrl('login.php')); exit; }
     
-    // Update last_seen_at immediately when officer opens any page
     try {
         $db->prepare("UPDATE officers SET last_seen_at = NOW() WHERE id = ?")->execute([$officerId]);
     } catch (Exception $e) {}
 }
 
-// ── Shared data (tersedia di semua halaman officer) ───────────
 try {
     $s = $db->prepare("SELECT o.*, u.email, u.nomor_wa AS user_wa FROM officers o LEFT JOIN users u ON u.id=o.user_id WHERE o.id=?");
     $s->execute([$officerId]);
@@ -66,7 +60,6 @@ try {
     $st = $sq->fetch(PDO::FETCH_ASSOC) ?: $st;
 } catch(Exception $e){}
 
-// Jumlah tugas hari ini (untuk badge sidebar)
 $todayCount = 0;
 $cleanupCount = 0;
 try {
@@ -107,7 +100,6 @@ $page_id = $page_id ?? '';
 body{font-family:var(--font);background:#f0f4f0;color:#1c1c1c;min-height:100vh}
 a{text-decoration:none;color:inherit}
 
-/* ── SIDEBAR ── */
 .sidebar{
   position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
   background:var(--dark);display:flex;flex-direction:column;
@@ -136,7 +128,6 @@ a{text-decoration:none;color:inherit}
 .gps-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
 
-/* ── Collapsible Nav Group ── */
 .nav-group { padding: 0 10px; }
 .nav-group-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -197,7 +188,6 @@ a{text-decoration:none;color:inherit}
   margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,.08);
 }
 
-/* ── TOPBAR ── */
 .topbar{
   position:fixed;top:0;left:var(--sidebar-w);right:0;height:58px;z-index:1000;
   background:#fff;border-bottom:1px solid #e5e7eb;
@@ -214,7 +204,6 @@ a{text-decoration:none;color:inherit}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100}
 .sidebar-overlay.open{display:block}
 
-/* ── MAIN ── */
 .main-wrap{
   margin-left:var(--sidebar-w);margin-top:58px;padding:24px;min-height:calc(100vh - 58px);
   transition:margin-left .35s var(--spring-transit);
@@ -231,7 +220,6 @@ a{text-decoration:none;color:inherit}
   to { opacity:1; transform:translateY(0) }
 }
 
-/* ── CARD ── */
 .card{
   background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px;
   max-width: 100%;
@@ -245,7 +233,6 @@ a{text-decoration:none;color:inherit}
 .card-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin-bottom:14px;color:#1c1c1c;font-family:var(--ui)}
 .ct-icon{font-size:16px}
 
-/* ── STATS ── */
 .stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
 .stat-mini{
   background:#fff;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);text-align:center;border-top:3px solid var(--green);
@@ -258,7 +245,6 @@ a{text-decoration:none;color:inherit}
 .stat-mini .val{font-size:26px;font-weight:800;color:var(--green);font-family:var(--ui)}
 .stat-mini .lbl{font-size:11px;color:#888;margin-top:3px;font-family:var(--ui);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 
-/* ── TASK CARD ── */
 .task-card{
   background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;border-left:4px solid var(--green);
   transition:transform .25s var(--spring-transit), box-shadow .25s ease;
@@ -281,7 +267,6 @@ a{text-decoration:none;color:inherit}
 .task-badge{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:700;font-family:var(--ui)}
 .task-actions{padding:0 16px 14px;display:flex;gap:8px;flex-wrap:wrap}
 
-/* ── BUTTONS ── */
 .btn{
   display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;text-decoration:none;
   transition: transform .25s var(--spring-transit), background-color .2s, box-shadow .25s ease;
@@ -298,7 +283,6 @@ a{text-decoration:none;color:inherit}
 .btn-sm{padding:6px 11px;font-size:11px}
 .btn-full{width:100%;justify-content:center}
 
-/* ── FORM ── */
 .form-group{margin-bottom:13px}
 .form-label{font-size:11px;font-weight:700;color:#555;margin-bottom:5px;display:block;font-family:var(--ui);text-transform:uppercase;letter-spacing:.04em}
 .form-input{
@@ -310,14 +294,12 @@ a{text-decoration:none;color:inherit}
 select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23666'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
 textarea.form-input{resize:vertical;min-height:72px}
 
-/* ── BADGE ── */
 .badge{display:inline-block;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;font-family:var(--ui);transition:transform .2s}
 .badge:hover{transform:scale(1.05)}
 .badge-green{background:#dcfce7;color:#166534}
 .badge-amber{background:#fef3c7;color:#92400e}
 .badge-blue{background:#dbeafe;color:#1e40af}
 
-/* ── TABLE ── */
 .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--ui)}
 thead th{padding:9px 10px;text-align:left;font-weight:700;color:#888;border-bottom:2px solid #f0f0f0;white-space:nowrap;text-transform:uppercase;font-size:10px;letter-spacing:.04em}
@@ -325,7 +307,6 @@ tbody td{padding:9px 10px;border-bottom:1px solid #f5f5f5;vertical-align:middle;
 tbody tr{transition: transform .2s var(--spring-transit), background-color .15s}
 tbody tr:hover{background:#fafafa;transform:scale(1.002)}
 
-/* ── MODAL ── */
 .modal-backdrop{
   position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1300;display:none;align-items:flex-end;
   backdrop-filter:blur(2px);transition:opacity .3s var(--smooth-transit);
@@ -339,7 +320,6 @@ tbody tr:hover{background:#fafafa;transform:scale(1.002)}
 .modal-title{font-size:16px;font-weight:700;margin-bottom:16px;font-family:var(--ui)}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
 
-/* ── PROGRESS ── */
 .progress-wrap{background:#e5e7eb;border-radius:4px;height:8px;overflow:hidden;margin-top:6px}
 .progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .6s var(--spring-transit)}
 
@@ -347,12 +327,10 @@ tbody tr:hover{background:#fafafa;transform:scale(1.002)}
 .info-row .lbl{font-size:13px;color:#666}
 .info-row .val{font-size:13px;font-weight:700}
 
-/* ── EMPTY ── */
 .empty{text-align:center;padding:48px 20px;color:#aaa}
 .empty-icon{font-size:44px;margin-bottom:10px}
 .empty-text{font-size:14px;font-weight:700}
 
-/* ── TOAST ── */
 #toastContainer {
     position: fixed;
     top: 76px !important;
@@ -501,22 +479,34 @@ tbody tr:hover{background:#fafafa;transform:scale(1.002)}
     }
 }
 
-/* ── Centered Flash Notification Overlay Style ── */
+body.flash-active,
+html.flash-active,
+body:has(#flashOverlay:not([style*="display: none"])),
+html:has(#flashOverlay:not([style*="display: none"])) {
+    overflow: hidden !important;
+    height: 100vh !important;
+    touch-action: none !important;
+    -webkit-overflow-scrolling: auto !important;
+}
 .flash-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
-    backdrop-filter: blur(4px);
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
+    overflow: hidden !important;
+    touch-action: none;
+    padding: 16px;
     animation: alert-fade-in 0.25s var(--smooth-transit);
 }
 .flash {
     background: #ffffff !important;
-    border-radius: 16px !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
     padding: 24px 32px !important;
     max-width: 400px;
     width: 90%;
@@ -526,8 +516,10 @@ tbody tr:hover{background:#fafafa;transform:scale(1.002)}
     text-align: center;
     gap: 16px;
     border: none !important;
-    animation: alert-scale-in 0.4s var(--spring-transit) forwards;
+    animation: alert-scale-in 0.35s var(--spring-transit) forwards;
     font-family: var(--font);
+    overflow: hidden !important;
+    box-sizing: border-box;
 }
 .flash-icon {
     font-size: 48px;
@@ -569,10 +561,8 @@ tbody tr:hover{background:#fafafa;transform:scale(1.002)}
     to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
-/* ── MAP ── */
 #officerMap{width:100%;height:400px;border-radius:var(--radius);overflow:hidden;border:1px solid #d1e8f5}
 
-/* ── Collapsed Sidebar Styles ── */
 .btn-sidebar-toggle {
   background: none;
   border: none;
@@ -634,7 +624,6 @@ body.sidebar-collapsed .sidebar-toggle-icon {
   transform: rotate(180deg);
 }
 
-/* ── RESPONSIVE ── */
 @media(max-width:768px){
   body.sidebar-collapsed {
     --sidebar-w: 260px;
@@ -688,7 +677,6 @@ body.sidebar-collapsed .sidebar-toggle-icon {
 }
 </style>
 <script>
-// ── Sidebar Collapse & Nav State Restorer (Early Execution) ──
 const SIDEBAR_COLLAPSED_KEY = 'mrh_officer_sidebar_collapsed';
 const NAV_STATE_KEY = 'mrh_officer_nav_state';
 
@@ -720,7 +708,6 @@ function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('o
 function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('open'); }
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSidebar(); });
 
-// ── Collapsible Nav Groups ──
 function toggleNavGroup(groupId) {
   const group = document.getElementById(groupId);
   if (!group) return;
@@ -756,7 +743,6 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- ══ SIDEBAR ══ -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand" style="display: flex; align-items: center; gap: 10px;">
     <?php
@@ -784,10 +770,10 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
       <span class="nav-group-arrow">▼</span>
     </div>
     <div class="nav-group-items">
-      <a href="dashboard.php" class="nav-item <?= $page_id==='dashboard'?'active':'' ?>" title="Dashboard Statistik">
+      <a href="<?= url('dashboard') ?>" class="nav-item <?= $page_id==='dashboard'?'active':'' ?>" title="Dashboard Statistik">
         <span class="icon">📊</span> <span class="nav-text">Dashboard</span>
       </a>
-      <a href="laporan.php" class="nav-item <?= $page_id==='laporan'?'active':'' ?>" title="Laporan Saya">
+      <a href="<?= url('laporan') ?>" class="nav-item <?= $page_id==='laporan'?'active':'' ?>" title="Laporan Saya">
         <span class="icon">📄</span> <span class="nav-text">Laporan Saya</span>
       </a>
     </div>
@@ -800,18 +786,18 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
       <span class="nav-group-arrow">▼</span>
     </div>
     <div class="nav-group-items">
-      <a href="tugas_hari_ini.php" class="nav-item <?= $page_id==='tugas'?'active':'' ?>" title="Tugas Hari Ini">
+      <a href="<?= url('tugas_hari_ini') ?>" class="nav-item <?= $page_id==='tugas'?'active':'' ?>" title="Tugas Hari Ini">
         <span class="icon">📋</span> <span class="nav-text">Tugas Hari Ini</span>
         <?php if($todayCount>0): ?><span class="nav-badge"><?= $todayCount ?></span><?php endif; ?>
       </a>
-      <a href="cleanup_tasks.php" class="nav-item <?= $page_id==='cleanup'?'active':'' ?>" title="Tugas Clean Up">
+      <a href="<?= url('cleanup_tasks') ?>" class="nav-item <?= $page_id==='cleanup'?'active':'' ?>" title="Tugas Clean Up">
         <span class="icon">🧹</span> <span class="nav-text">Tugas Clean Up</span>
         <?php if($cleanupCount>0): ?><span class="nav-badge"><?= $cleanupCount ?></span><?php endif; ?>
       </a>
-      <a href="semua_tugas.php" class="nav-item <?= $page_id==='semua_tugas'?'active':'' ?>" title="Semua Tugas">
+      <a href="<?= url('semua_tugas') ?>" class="nav-item <?= $page_id==='semua_tugas'?'active':'' ?>" title="Semua Tugas">
         <span class="icon">🗂️</span> <span class="nav-text">Semua Tugas</span>
       </a>
-      <a href="riwayat.php" class="nav-item <?= $page_id==='riwayat'?'active':'' ?>" title="Riwayat Tugas">
+      <a href="<?= url('riwayat') ?>" class="nav-item <?= $page_id==='riwayat'?'active':'' ?>" title="Riwayat Tugas">
         <span class="icon">📜</span> <span class="nav-text">Riwayat Tugas</span>
       </a>
     </div>
@@ -824,23 +810,22 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
       <span class="nav-group-arrow">▼</span>
     </div>
     <div class="nav-group-items">
-      <a href="peta.php" class="nav-item <?= $page_id==='peta'?'active':'' ?>" title="Peta &amp; Rute">
+      <a href="<?= url('peta') ?>" class="nav-item <?= $page_id==='peta'?'active':'' ?>" title="Peta &amp; Rute">
         <span class="icon">🗺️</span> <span class="nav-text">Peta &amp; Rute</span>
       </a>
-      <a href="profil.php" class="nav-item <?= $page_id==='profil'?'active':'' ?>" title="Profil Saya">
+      <a href="<?= url('profil') ?>" class="nav-item <?= $page_id==='profil'?'active':'' ?>" title="Profil Saya">
         <span class="icon">👤</span> <span class="nav-text">Profil Saya</span>
       </a>
     </div>
   </div>
 
   <div class="sidebar-footer">
-    <a href="logout.php" class="nav-item" style="color:rgba(255,110,110,.85)" title="Keluar">
+    <a href="<?= url('logout') ?>" class="nav-item" style="color:rgba(255,110,110,.85)" title="Keluar">
       <span class="icon">🚪</span> <span class="nav-text">Keluar</span>
     </a>
   </div>
 </aside>
 
-<!-- ══ TOPBAR ══ -->
 <div class="topbar">
   <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -858,16 +843,35 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
   </div>
 </div>
 
-<!-- ══ MAIN ══ -->
 <div class="main-wrap">
 <div id="toastContainer"></div>
 
 <?php if ($_flash): ?>
-<div class="flash-overlay" id="flashOverlay">
-  <div class="flash flash-<?= htmlspecialchars($_flash['type']) ?>">
+<div class="flash-overlay" id="flashOverlay" onclick="closeFlashOverlay()">
+  <div class="flash flash-<?= htmlspecialchars($_flash['type']) ?>" onclick="event.stopPropagation()">
     <div class="flash-icon"><?= $_flash['type'] === 'success' ? '✅' : '❌' ?></div>
     <div class="flash-msg"><?= htmlspecialchars($_flash['msg']) ?></div>
-    <button class="flash-close-btn" onclick="document.getElementById('flashOverlay').style.display='none'">Tutup</button>
+    <button class="flash-close-btn" onclick="closeFlashOverlay()">Tutup</button>
   </div>
 </div>
+<script>
+  (function() {
+    document.body.classList.add('flash-active');
+    document.documentElement.classList.add('flash-active');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+  })();
+
+  function closeFlashOverlay() {
+    var fo = document.getElementById('flashOverlay');
+    if (fo) fo.style.display = 'none';
+    document.body.classList.remove('flash-active');
+    document.documentElement.classList.remove('flash-active');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeFlashOverlay();
+  });
+</script>
 <?php endif; ?>

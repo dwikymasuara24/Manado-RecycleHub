@@ -1,8 +1,5 @@
 <?php
-// ============================================================
-//  include/notifications_api.php — AJAX API Notifikasi Real-time
-//  Manado Recycle Hub
-// ============================================================
+
 require_once __DIR__ . '/config.php';
 
 if (session_status() === PHP_SESSION_NONE) session_start();
@@ -18,7 +15,6 @@ $db = getDB();
 $last_id = (int)($_GET['last_id'] ?? 0);
 $action = $_GET['action'] ?? '';
 
-// 1. Mark notification as read
 if ($action === 'mark_read') {
     $notif_id = (int)($_POST['id'] ?? 0);
     if ($notif_id > 0) {
@@ -33,9 +29,8 @@ if ($action === 'mark_read') {
     exit;
 }
 
-// 2. Fetch new notifications
 try {
-    // If last_id is 0, just get the count of unread and the latest 5 notifications
+    
     if ($last_id === 0) {
         $stmtCount = $db->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0");
         $stmtCount->execute([$user_id]);
@@ -52,12 +47,12 @@ try {
             'max_id' => !empty($list) ? (int)$list[0]['id'] : 0
         ]);
     } else {
-        // Fetch only newer notifications since last_id
+        
         $stmtNew = $db->prepare("SELECT * FROM notifications WHERE user_id = ? AND id > ? ORDER BY id ASC");
         $stmtNew->execute([$user_id, $last_id]);
         $new_notifs = $stmtNew->fetchAll();
 
-        // Get total unread count
+        
         $stmtCount = $db->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0");
         $stmtCount->execute([$user_id]);
         $unread_count = (int)$stmtCount->fetchColumn();

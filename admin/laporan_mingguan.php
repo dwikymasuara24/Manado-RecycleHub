@@ -4,7 +4,6 @@ $page_id    = 'laporan_mingguan';
 $page_title = 'Laporan Mingguan';
 $db         = getDB();
 
-// Tentukan minggu yang dipilih
 $weekOffset = (int)($_GET['offset'] ?? 0);
 
 $kecamatans = ['Wenang','Malalayang','Tikala','Paal Dua','Bunaken','Singkil','Mapanget','Wanea','Sario','Tuminting'];
@@ -15,7 +14,6 @@ if ($fKec && !in_array($fKec, $kecamatans)) {
 
 $bulanId = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-// Check if direct month/year overrides are passed
 if (isset($_GET['month']) && isset($_GET['year'])) {
     $month = (int)$_GET['month'];
     $year  = (int)$_GET['year'];
@@ -29,10 +27,10 @@ if (isset($_GET['month']) && isset($_GET['year'])) {
         $baseDate = new DateTime("$year-$month-01");
     }
     
-    // Find the Monday of that week
+    
     $monday = (clone $baseDate)->modify('monday this week');
     
-    // Calculate the week offset relative to today's Monday
+    
     $todayMonday = (new DateTime())->modify('monday this week');
     $diffDays = (int)$todayMonday->diff($monday)->format('%r%a');
     $weekOffset = (int)round($diffDays / 7);
@@ -49,7 +47,6 @@ $endDate    = $sunday->format('Y-m-d');
 $type = $_GET['type'] ?? 'pickup';
 if ($type !== 'cleanup') $type = 'pickup';
 
-// Semua request minggu ini
 if ($type === 'pickup') {
     $sql = "
         SELECT pr.id, pr.request_code, pr.nama_pemohon, pr.partner_name, pr.kecamatan, pr.nomor_wa,
@@ -94,7 +91,6 @@ if ($type === 'pickup') {
 }
 $rows = $stmt->fetchAll();
 
-// ── EXPORT HANDLER LAPORAN MINGGUAN ───────────────────────────
 if (isset($_GET['export'])) {
     $export_type = $_GET['export'];
     $layanan = $type === 'cleanup' ? 'Clean Up Service' : 'Daur Ulang';
@@ -542,13 +538,11 @@ if (isset($_GET['export'])) {
     }
 }
 
-// Statistik
 $total    = count($rows);
 $selesai  = count(array_filter($rows, fn($r) => $r['status']==='selesai'));
 $menunggu = count(array_filter($rows, fn($r) => $r['status']==='menunggu'));
 $berat    = array_sum(array_column($rows,'berat_total_kg'));
 
-// Per hari dalam minggu
 $perHari = [];
 $days = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
 for ($i=0;$i<7;$i++) {
@@ -557,7 +551,6 @@ for ($i=0;$i<7;$i++) {
     $perHari[] = ['hari'=>$days[$i],'tgl'=>$d,'cnt'=>$cnt];
 }
 
-// Per kecamatan minggu ini
 if ($type === 'pickup') {
     $sqlK = "
         SELECT kecamatan, COUNT(*) as cnt, COALESCE(SUM(berat_total_kg), 0) as total_kg FROM pickup_requests 
@@ -994,7 +987,7 @@ require_once __DIR__ . '/layout/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
 <?php
-// Prepare data for Chart.js
+
 $hariLabels = [];
 $hariCounts = [];
 $isSabtuFlags = [];

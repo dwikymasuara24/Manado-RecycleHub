@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     requireCsrfToken();
     $action = $_POST['action'];
 
-    // Dapatkan user ID yang valid atau NULL untuk mencegah error foreign key constraint
+    
     $current_user_id = $_SESSION['user_id'] ?? null;
     if ($current_user_id) {
         $chkUser = $db->prepare("SELECT COUNT(*) FROM users WHERE id = ?");
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($nama && $email) {
             $current_admin_id = $_SESSION['user_id'] ?? 1;
             
-            // Cek apakah email sudah digunakan oleh user lain
+            
             $chk = $db->prepare("SELECT COUNT(*) FROM users WHERE email = ? AND id != ?");
             $chk->execute([$email, $current_admin_id]);
             if ((int)$chk->fetchColumn() > 0) {
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         $hash = password_hash($pw, PASSWORD_BCRYPT);
                         $db->prepare("UPDATE users SET password_hash=? WHERE id=?")->execute([$hash,$current_admin_id]);
                     }
-                    // Update session values
+                    
                     $_SESSION['user_nama'] = $nama;
                     $_SESSION['user_email'] = $email;
                     
@@ -88,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Location: settings.php'); exit;
 }
 
-// Load settings
 $settings = $db->query("SELECT setting_key, setting_value FROM site_settings")->fetchAll(PDO::FETCH_KEY_PAIR);
 $current_admin_id = $_SESSION['user_id'] ?? 1;
 $admin_stmt = $db->prepare("SELECT nama, email FROM users WHERE id = ? LIMIT 1");
@@ -218,8 +217,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-
-
 <script>
 document.getElementById('autoConfirm').addEventListener('change', function() {
   document.getElementById('autoConfirmLabel').textContent = this.checked ? 'Aktif' : 'Nonaktif';
@@ -230,7 +227,5 @@ document.getElementById('saveAdminBtn').addEventListener('click', function(e) {
   if (pw1 && pw1 !== pw2) { e.preventDefault(); showToast('danger','Password tidak cocok!'); }
 });
 </script>
-
-
 
 <?php require_once __DIR__ . '/layout/footer.php'; ?>

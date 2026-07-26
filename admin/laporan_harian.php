@@ -23,7 +23,7 @@ if (isset($_GET['day']) && isset($_GET['month']) && isset($_GET['year'])) {
     $month = (int)$_GET['month'];
     $year  = (int)$_GET['year'];
     
-    // Calculate how many days are in the selected month
+    
     $maxDays = cal_days_in_month(CAL_GREGORIAN, $month, $year);
     $day = min($day, $maxDays);
     $tgl = sprintf('%04d-%02d-%02d', $year, $month, $day);
@@ -32,7 +32,6 @@ if (isset($_GET['day']) && isset($_GET['month']) && isset($_GET['year'])) {
 $type = $_GET['type'] ?? 'pickup';
 if ($type !== 'cleanup') $type = 'pickup';
 
-// Data hari ini
 if ($type === 'pickup') {
     $sql = "
         SELECT pr.id, pr.request_code, pr.nama_pemohon, pr.partner_name, pr.kecamatan, pr.nomor_wa,
@@ -77,7 +76,6 @@ if ($type === 'pickup') {
 }
 $rows = $requests->fetchAll();
 
-// ── EXPORT HANDLER LAPORAN HARIAN ─────────────────────────────
 if (isset($_GET['export'])) {
     $export_type = $_GET['export'];
     $layanan = $type === 'cleanup' ? 'Clean Up Service' : 'Daur Ulang';
@@ -525,7 +523,6 @@ if (isset($_GET['export'])) {
     }
 }
 
-// Statistik hari ini
 $stats = [
     'total'     => count($rows),
     'menunggu'  => count(array_filter($rows, fn($r) => $r['status']==='menunggu')),
@@ -533,7 +530,6 @@ $stats = [
     'berat'     => array_sum(array_column($rows,'berat_total_kg')),
 ];
 
-// Per kecamatan hari ini
 if ($type === 'pickup') {
     $sqlK = "
         SELECT kecamatan, COUNT(*) as cnt, COALESCE(SUM(berat_total_kg), 0) as total_kg FROM pickup_requests 
@@ -969,7 +965,7 @@ require_once __DIR__ . '/layout/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
 <?php
-// Prepare data for Chart.js
+
 $kecLabels = [];
 $kecCounts = [];
 $kecWeights = [];

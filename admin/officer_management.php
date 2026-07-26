@@ -6,11 +6,8 @@ $page_id    = 'officer_management';
 $page_title = 'Petugas';
 $db         = getDB();
 $csrfToken  = csrfToken();
- 
- // ── Auto-migrasi ──────────────────────────────────────────────
- try { $db->exec("ALTER TABLE officers ADD COLUMN officer_type VARCHAR(20) DEFAULT 'Collector'"); } catch (Exception $e) {}
+try { $db->exec("ALTER TABLE officers ADD COLUMN officer_type VARCHAR(20) DEFAULT 'Collector'"); } catch (Exception $e) {}
 
-// ── POST handler ─────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     requireCsrfToken();
     $action = $_POST['action'];
@@ -58,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                ->execute([$nama,$emailGen,$pw,$wa]);
             $uid      = (int)$db->lastInsertId();
             
-            // Generate Code: S01, S02, S03
+            
             $allowedTypes = ['Collector', 'Bin', 'Sack'];
             $safeType = in_array($type, $allowedTypes, true) ? $type : 'Collector';
             $cnt = 1;
@@ -106,7 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         header('Location: officer_management.php'); exit;
     }
 
-    // ── ASSIGN TUGAS (AJAX) ───────────────────────────────
     if ($action === 'assign_task') {
         header('Content-Type: application/json');
         $oid     = (int)($_POST['officer_id']  ?? 0);
@@ -132,7 +128,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // ── UNASSIGN REQUEST (AJAX) ───────────────────────────
     if ($action === 'unassign_request') {
         header('Content-Type: application/json');
         $rid = (int)($_POST['request_id'] ?? 0);
@@ -144,7 +139,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// ── FETCH DATA ───────────────────────────────────────────────
 $fStatus = $_GET['status'] ?? '';
 $search  = trim($_GET['q'] ?? '');
 $where   = '1=1'; $params = [];
@@ -179,7 +173,6 @@ $officers = $stmt->fetchAll();
 
 $thresholdDays = (int)($db->query("SELECT setting_value FROM site_settings WHERE setting_key='inactivity_threshold_days'")->fetchColumn() ?: 7);
 
-// ── Stats ringkas ──
 $stats = $db->query("SELECT
     COUNT(*) AS total,
     SUM(status='aktif') AS aktif,
@@ -187,14 +180,12 @@ $stats = $db->query("SELECT
     SUM(status='nonaktif') AS nonaktif
     FROM officers")->fetch();
 
-// ── Edit data ──
 $editData = null;
 if (!empty($_GET['edit'])) {
     $eid      = (int)$_GET['edit'];
     $editData = $db->query("SELECT o.*, u.email, u.nomor_wa FROM officers o JOIN users u ON u.id=o.user_id WHERE o.id=$eid")->fetch();
 }
 
-// ── Preview data ──
 $previewData  = null;
 $pOfficerReqs = null;
 if (!empty($_GET['preview'])) {
@@ -227,7 +218,6 @@ if (!empty($_GET['preview'])) {
 
 $kecamatans = ['Wenang','Malalayang','Tikala','Paal Dua','Bunaken','Singkil','Mapanget','Wanea','Sario','Tuminting'];
 
-// ── Semua request aktif untuk modal assign (termasuk yang sudah di-assign) ──
 $assignableReqs = $db->query("
     SELECT pr.id, pr.request_code, pr.nama_pemohon, pr.kecamatan, pr.status,
            pr.tanggal_jemput, pr.jam_jemput, pr.officer_id,
@@ -239,7 +229,6 @@ $assignableReqs = $db->query("
     LIMIT 150
 ")->fetchAll();
 
-// ── Helper: inisial nama ──
 function getInitials(string $nama): string {
     $words = preg_split('/\s+/', trim(preg_replace('/[^a-zA-Z ]/', '', $nama)));
     $ini   = strtoupper(substr($words[0] ?? '', 0, 1));
@@ -247,13 +236,11 @@ function getInitials(string $nama): string {
     return $ini ?: '??';
 }
 
-// ── Helper: avatar warna berdasar nama ──
 function avatarColor(string $nama): string {
     $colors = ['#2e7d32','#1565c0','#6a1b9a','#d84315','#00695c','#4527a0','#283593','#37474f'];
     return $colors[crc32($nama) % count($colors)];
 }
 
-// ── Helper: completion rate ──
 function completionRate(int $selesai, int $total): int {
     return $total > 0 ? (int)round($selesai / $total * 100) : 0;
 }
@@ -262,14 +249,12 @@ require_once __DIR__ . '/layout/header.php';
 ?>
 
 <style>
-/* ═══════════════════════════════════════════
    PAGE HEADER
 ═══════════════════════════════════════════ */
 .page-header { margin-bottom: 24px; }
 .page-header h1 { font-size: 22px; font-weight: 800; color: #1e293b; margin: 0 0 4px; }
 .page-header p  { font-size: 13px; color: #94a3b8; margin: 0; }
 
-/* ═══════════════════════════════════════════
    STAT BAR
 ═══════════════════════════════════════════ */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 22px; }
@@ -282,7 +267,6 @@ require_once __DIR__ . '/layout/header.php';
 .stat-card.info   .sc-val { color: #0284c7; }
 .stat-card.muted  .sc-val { color: #94a3b8; }
 
-/* ═══════════════════════════════════════════
    TOOLBAR
 ═══════════════════════════════════════════ */
 .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -291,7 +275,6 @@ require_once __DIR__ . '/layout/header.php';
 .search-input:focus, .filter-select:focus { border-color: var(--green-500, #22c55e); }
 .search-input { min-width: 200px; }
 
-/* ═══════════════════════════════════════════
    OFFICER CARD GRID — layout utama
 ═══════════════════════════════════════════ */
 .officer-grid {
@@ -316,7 +299,6 @@ require_once __DIR__ . '/layout/header.php';
     border-color: #bbf7d0;
 }
 
-/* ── Card header strip ── */
 .oc-header {
     padding: 20px 20px 14px;
     display: flex;
@@ -349,7 +331,6 @@ require_once __DIR__ . '/layout/header.php';
 .badge-cuti     { background: #fef3c7; color: #92400e; }
 .badge-nonaktif { background: #fee2e2; color: #991b1b; }
 
-/* ── Card body rows ── */
 .oc-body { padding: 14px 20px; flex: 1; display: flex; flex-direction: column; gap: 9px; }
 
 .oc-row {
@@ -360,7 +341,6 @@ require_once __DIR__ . '/layout/header.php';
 .oc-row .oc-text { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .oc-row .oc-text-muted { color: #94a3b8; font-weight: 500; }
 
-/* ── Performance bar ── */
 .perf-wrap { margin: 4px 0 2px; }
 .perf-label {
     display: flex; justify-content: space-between;
@@ -378,7 +358,6 @@ require_once __DIR__ . '/layout/header.php';
     transition: width .5s ease;
 }
 
-/* ── Task stat row ── */
 .oc-task-row {
     display: flex; gap: 8px; margin-top: 2px;
 }
@@ -393,7 +372,6 @@ require_once __DIR__ . '/layout/header.php';
 .oc-task-chip.blue  { background: #eff6ff; border-color: #bfdbfe; }
 .oc-task-chip.blue  .tc-val { color: #1d4ed8; }
 
-/* ── Card footer actions ── */
 .oc-footer {
     padding: 12px 16px;
     border-top: 1px solid #f1f5f9;
@@ -414,7 +392,6 @@ require_once __DIR__ . '/layout/header.php';
 .btn-icon.confirm-btn:hover  { border-color: #bbf7d0; background: #f0fdf4; color: #16a34a; }
 .btn-icon.danger:hover       { border-color: #fca5a5; background: #fff5f5; }
 
-/* ── Empty state ── */
 .empty-state {
     grid-column: 1 / -1;
     text-align: center; padding: 60px 0; color: #94a3b8;
@@ -422,7 +399,6 @@ require_once __DIR__ . '/layout/header.php';
 .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state p { font-weight: 600; font-size: 14px; }
 
-/* ═══════════════════════════════════════════
    MODAL
 ═══════════════════════════════════════════ */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(3px); }
@@ -442,7 +418,6 @@ require_once __DIR__ . '/layout/header.php';
 .form-input { border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 13px; outline: none; transition: border .2s, box-shadow .2s; font-family: inherit; width: 100%; box-sizing: border-box; background: #f8fafc; }
 .form-input:focus { border-color: var(--green-500, #22c55e); box-shadow: 0 0 0 3px rgba(34,197,94,.12); background: #fff; }
 
-/* ── Preview modal layout dari detail.php ── */
 .detail-layout { display: grid; grid-template-columns: 1.15fr 1.5fr; gap: 20px; align-items: start; }
 .dcard { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
 .dcard:last-child { margin-bottom: 0; }
@@ -463,13 +438,11 @@ require_once __DIR__ . '/layout/header.php';
 .pl { min-width: 110px; font-weight: 700; color: #64748b; font-size: 11px; padding-top: 1px; text-transform: uppercase; letter-spacing: .3px; }
 .pv { color: #1e293b; flex: 1; word-break: break-word; font-weight: 600; font-size: 13px; }
 
-/* ── Recent requests mini table ── */
 .mini-table { width: 100%; border-collapse: collapse; font-size: 11px; }
 .mini-table th { background: #f8fafc; padding: 7px 10px; text-align: left; color: #64748b; font-size: 10px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
 .mini-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 .mini-table tr:last-child td { border-bottom: none; }
 
-/* ── Completion rate bar ── */
 .rate-wrap { background: #f8fafc; border-radius: 10px; padding: 12px 14px; text-align: center; }
 .rate-val { font-size: 26px; font-weight: 800; color: var(--green-700, #2e7d32); line-height: 1; }
 .rate-lbl { font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
@@ -491,7 +464,6 @@ require_once __DIR__ . '/layout/header.php';
   <h1>👷 Manajemen Petugas (Officer)</h1>
 </div>
 
-<!-- ── STAT CARDS ── -->
 <div class="stat-grid">
   <div class="stat-card">
     <span class="sc-label">Total Petugas</span>
@@ -548,7 +520,6 @@ require_once __DIR__ . '/layout/header.php';
     </div>
   </div>
 
-  <!-- ── OFFICER CARD GRID ── -->
   <div class="officer-grid">
     <?php if ($officers): ?>
     <?php foreach ($officers as $o):
@@ -561,7 +532,7 @@ require_once __DIR__ . '/layout/header.php';
       $stLabel  = match($o['status']) { 'aktif' => '✅ Aktif', 'cuti' => '🟡 Cuti', 'nonaktif' => '🔴 Nonaktif', default => $o['status'] };
       $stClass  = 'badge-'.($o['status'] ?? 'nonaktif');
 
-      // Hitung ketidakaktifan
+      
       $lastActive = $o['last_active_date'];
       $inactiveDays = null;
       $isInactive = false;
@@ -706,9 +677,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ ADMIN: MANAJEMEN ZONA & EFISIENSI RUTE REMOVED ══ -->
-
-<!-- ═══════════════════════════════════════════
      MODAL: TAMBAH / EDIT PETUGAS
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalOfficer" <?= $editData ? 'style="display:flex"' : '' ?>>
@@ -807,7 +775,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
      MODAL: PREVIEW DETAIL — layout dari detail.php
 ═══════════════════════════════════════════ -->
 <?php if ($previewData):
@@ -956,7 +923,6 @@ require_once __DIR__ . '/layout/header.php';
 </div>
 <?php endif; ?>
 
-<!-- ═══════════════════════════════════════════
      CSS TAMBAHAN: ASSIGN TUGAS
 ═══════════════════════════════════════════ -->
 <style>
@@ -990,7 +956,6 @@ require_once __DIR__ . '/layout/header.php';
 }
 </style>
 
-<!-- ═══════════════════════════════════════════
      MODAL: ASSIGN TUGAS KE OFFICER
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalAssignTask">
@@ -1101,7 +1066,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
      MODAL: HAPUS
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalDelete">
@@ -1149,7 +1113,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-/* ══════════════════════════════════════════════
    ASSIGN TASK — JS
 ══════════════════════════════════════════════ */
 

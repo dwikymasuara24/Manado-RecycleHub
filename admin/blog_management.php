@@ -7,7 +7,6 @@ $page_title = 'Manajemen Artikel';
 $db         = getDB();
 $csrfToken  = csrfToken();
 
-// Handle POST actions (Save, Delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     requireCsrfToken();
     $action = $_POST['action'];
@@ -18,14 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $konten        = sanitizeRichText(trim($_POST['konten'] ?? ''));
         $gambar_url    = trim($_POST['gambar_url'] ?? '');
 
-        // Handle file upload if present
+        
         if (isset($_FILES['gambar_file']) && $_FILES['gambar_file']['error'] === UPLOAD_ERR_OK) {
             $file_tmp = $_FILES['gambar_file']['tmp_name'];
             $file_name = $_FILES['gambar_file']['name'];
             
-            // Extract extension
+            
             $ext = pathinfo($file_name, PATHINFO_EXTENSION);
-            // Clean file name
+            
             $clean_name = preg_replace('/[^a-zA-Z0-9_\-]/', '_', pathinfo($file_name, PATHINFO_FILENAME));
             $new_filename = 'blog_' . time() . '_' . $clean_name . '.' . $ext;
             
@@ -52,11 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             exit;
         }
 
-        // Generate slug
+        
         $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower($judul));
         $slug = trim($slug, '-');
 
-        // Check if slug is unique
+        
         $checkStmt = $db->prepare("SELECT id FROM blog_posts WHERE slug = ? AND id != ?");
         $checkStmt->execute([$slug, $id]);
         if ($checkStmt->fetch()) {
@@ -92,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Search and Filter query parameters
 $search = trim($_GET['q'] ?? '');
 $filter_status = trim($_GET['status'] ?? '');
 $filter_platform = trim($_GET['platform'] ?? '');
@@ -119,7 +117,6 @@ $stmt = $db->prepare("SELECT bp.*, u.nama AS author_name FROM blog_posts bp LEFT
 $stmt->execute($params);
 $posts = $stmt->fetchAll();
 
-// Edit prefill logic
 $editData = null;
 if (!empty($_GET['edit'])) {
     $eid = (int)$_GET['edit'];

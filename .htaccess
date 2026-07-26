@@ -1,0 +1,16 @@
+Options +FollowSymLinks -Indexes
+DirectoryIndex index.php home.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^officer/?$ officer/dashboard.php [L,QSA]
+    RewriteRule ^admin/?$ admin/dashboard.php [L,QSA]
+
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.*)$ $1.php [L,QSA]
+</IfModule>

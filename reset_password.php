@@ -1,7 +1,5 @@
 <?php
-// ============================================================
-//  reset_password.php — Halaman Pengaturan Ulang Password Baru
-// ============================================================
+
 require_once __DIR__ . '/include/config.php';
 
 $error = '';
@@ -15,7 +13,7 @@ if (empty($token)) {
     $db = getDB();
     
     try {
-        // Cari user yang memiliki token tersebut dan belum expired
+        
         $stmt = $db->prepare("
             SELECT id, nama, reset_token_expires_at 
             FROM   users 
@@ -28,7 +26,7 @@ if (empty($token)) {
         if (!$user) {
             $error = 'Tautan reset password tidak valid atau telah kedaluwarsa.';
         } else {
-            // Periksa kedaluwarsa token
+            
             $expires = strtotime($user['reset_token_expires_at']);
             if (time() > $expires) {
                 $error = 'Tautan reset password tidak valid atau telah kedaluwarsa.';
@@ -41,7 +39,6 @@ if (empty($token)) {
     }
 }
 
-// Penanganan Form Submit Password Baru
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_id > 0) {
     $pass = $_POST['password'] ?? '';
     $confirm_pass = $_POST['confirm_password'] ?? '';
@@ -56,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_id > 0) {
         try {
             $hash = password_hash($pass, PASSWORD_BCRYPT);
             
-            // Simpan password baru dan bersihkan token reset
+            
             $update = $db->prepare("
                 UPDATE users 
                 SET    password_hash = ?, reset_token = NULL, reset_token_expires_at = NULL 
@@ -64,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_id > 0) {
             ");
             $update->execute([$hash, $user_id]);
             
-            // Set flash message sukses
+            
             if (session_status() === PHP_SESSION_NONE) session_start();
             flash('success', 'Password Anda berhasil diperbarui! Silakan login menggunakan password baru Anda.');
             $success = true;

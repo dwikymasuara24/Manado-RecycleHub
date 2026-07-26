@@ -6,7 +6,6 @@ $page_id    = 'idea_management';
 $page_title = 'Kotak Ide';
 $db         = getDB();
 
-// Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
 
@@ -36,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Search and filter query parameters
 $search = trim($_GET['q'] ?? '');
 $filter_status = trim($_GET['status'] ?? '');
 
@@ -58,7 +56,6 @@ $stmt = $db->prepare("SELECT ib.*, a.nama AS admin_name FROM idea_box ib LEFT JO
 $stmt->execute($params);
 $ideas = $stmt->fetchAll();
 
-// Edit / Detail modal prefill
 $detailData = null;
 if (!empty($_GET['detail'])) {
     $did = (int)$_GET['detail'];

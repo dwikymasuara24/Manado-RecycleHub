@@ -1,14 +1,9 @@
 <?php
-// ============================================================
-//  cleanup_service.php — Permintaan Layanan Clean Up
-//  Manado Recycle Hub · Clean Up Service Module
-//  5-step wizard · Desktop responsive · Order tracking
-// ============================================================
+
 require_once __DIR__ . '/include/config.php';
 require_once __DIR__ . '/include/auth.php';
 
-// ── CONFIGURATION: MASUKKAN GOOGLE MAPS API KEY ANDA DI SINI ──
-$google_maps_api_key = getGmapsKey(); // Silakan masukkan Google Maps API Key Anda di sini
+$google_maps_api_key = getGmapsKey(); 
 
 $pdo = getDB();
 
@@ -38,7 +33,7 @@ if (isset($_GET['ajax_action']) && $_GET['ajax_action'] === 'get_live_location')
         $stmt->execute([$id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($data) {
-            // Jika bukan admin/petugas, pastikan status tugas sedang aktif agar bisa dilacak oleh warga/mitra
+            
             if (!$canSeeLiveLocation) {
                 $allowedStatus = ['dalam_perjalanan', 'sedang_diproses', 'sedang_cleanup'];
                 if (!in_array($data['status'], $allowedStatus, true)) {
@@ -56,7 +51,6 @@ if (isset($_GET['ajax_action']) && $_GET['ajax_action'] === 'get_live_location')
     exit;
 }
 
-// --- AUTO-MIGRATION: Create tables if not exist ---
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS `cleanup_requests` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -92,7 +86,7 @@ try {
         KEY `idx_cleanup_status` (`status`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
 
-    // Add new columns and update enum if they don't exist
+    
     try { $pdo->exec("ALTER TABLE cleanup_requests MODIFY COLUMN status enum('menunggu','dikonfirmasi','dijadwalkan','dalam_perjalanan','sedang_diproses','sedang_cleanup','selesai','dibatalkan') NOT NULL DEFAULT 'menunggu'"); } catch (Exception $e) {}
     try { $pdo->exec("ALTER TABLE cleanup_requests ADD COLUMN foto_lokasi VARCHAR(255) DEFAULT NULL AFTER alamat_jemput"); } catch (Exception $e) {}
     try {
@@ -115,7 +109,7 @@ try {
         KEY `idx_cleanup_item_req` (`cleanup_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
 
-    // Add trigger if not exists
+    
     $pdo->exec("DROP TRIGGER IF EXISTS `trg_cleanup_request_code` ");
     $pdo->exec("CREATE TRIGGER `trg_cleanup_request_code` BEFORE INSERT ON `cleanup_requests` FOR EACH ROW BEGIN
         DECLARE v_code VARCHAR(20);
@@ -130,15 +124,12 @@ try {
     END");
 } catch (Exception $e) { }
 
-
-// ── Kategori Clean Up ───────────────────────────────────────────
 $cleanup_types = [
     'acara'      => ['label' => 'Bersih-bersih Acara',  'icon' => '🎉', 'desc' => 'Pembersihan pasca event/acara'],
     'rumah'      => ['label' => 'Pembersihan Rumah',    'icon' => '🏠', 'desc' => 'Rumah tinggal atau kos-kosan'],
     'kantor'     => ['label' => 'Pembersihan Kantor',   'icon' => '🏢', 'desc' => 'Area perkantoran atau ruko'],
 ];
 
-// ── Kecamatan ─────────────────────────────────────────────────
 $kec_opts = [
     'bunaken'           => 'Bunaken',
     'bunaken_kepulauan' => 'Bunaken Kepulauan',
@@ -154,7 +145,6 @@ $kec_opts = [
     'wenang'            => 'Wenang',
 ];
 
-// ── Tab state ─────────────────────────────────────────────────
 $active_tab  = $_GET['tab'] ?? 'form';
 $track_query = '';
 $track_res   = [];
@@ -162,9 +152,9 @@ $track_res   = [];
 if ($active_tab === 'track') {
     $track_query = trim($_GET['q'] ?? '');
     if ($track_query !== '') {
-        // Normalize search term: remove non-digits for phone searching
+        
         $norm_q = preg_replace('/\D/', '', $track_query);
-        // Strip leading 62 or 0 if present to get local digits
+        
         if (strpos($norm_q, '62') === 0) {
             $norm_q = substr($norm_q, 2);
         } elseif (strpos($norm_q, '0') === 0) {
@@ -216,7 +206,6 @@ if ($active_tab === 'track') {
     }
 }
 
-// ── POST handler ─────────────────────────────────────────────
 $submitted    = false;
 $errors       = [];
 $db_error_msg = '';
@@ -251,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
             $lat = ($lat_raw !== '' && is_numeric($lat_raw)) ? floatval($lat_raw) : null;
             $lng = ($lng_raw !== '' && is_numeric($lng_raw)) ? floatval($lng_raw) : null;
 
-            // Upload Foto Lokasi
+            
             $foto_lokasi = null;
             if (!empty($_FILES['foto_lokasi']['name']) && $_FILES['foto_lokasi']['error'] === UPLOAD_ERR_OK) {
                 $ext = strtolower(pathinfo($_FILES['foto_lokasi']['name'], PATHINFO_EXTENSION));
@@ -263,12 +252,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
                 }
             }
 
-            // User request tidak secara otomatis mengisi jam kerja dan biaya.
-            // Biaya dan jam akan ditentukan oleh Admin.
+            
+            
             $estimasi_jam_kerja = null;
             $biaya_estimasi = null;
 
-            // Generate Request Code MRH-C-XXX
+            
             $request_code = generateSmartCode($pdo, 'cleanup_requests', 'request_code', 'MRH-C');
 
             $st = $pdo->prepare("
@@ -291,10 +280,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
             $pdo->commit();
             $submitted = true;
 
-            // Kirim notifikasi email otomatis ke admin untuk order clean up baru
+            
             triggerCleanupOrderEmail($pdo, $last_id);
 
-            // Kirim notifikasi sistem ke Admin
+            
             createNotification($pdo, 'admin', 'Request Clean Up Baru', "Permohonan layanan clean up ($request_code) oleh " . $nm . " telah diajukan.", 'sistem', $last_id, 'cleanup_requests');
 
             $sub_data = [
@@ -314,7 +303,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
     }
 }
 
-// ── Form values (preserved) ───────────────────────────────────
 $f = fn($k, $d = '') => clean($_POST[$k] ?? $d);
 $v = [
     'service' => $f('service_type'),
@@ -376,7 +364,6 @@ $track_step_defs = [
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-/* ── Same CSS as daur_ulang.php to keep layout consistent ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
     --gd:   #1c6434; --gm:   #6aa84f; --gl:   #e8f5e9; --gml:  #c8e6c9;
@@ -393,17 +380,14 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 .tabs { display: flex; background: var(--wh); border-bottom: 2px solid var(--gml); padding: 0 20px; gap: 4px; justify-content: center; }
 .tab-btn { padding: 13px 22px; font-size: .9rem; font-weight: 800; color: var(--tl); text-decoration: none; border-bottom: 3px solid transparent; transition: all .2s; }
 .tab-btn.active { color: var(--gd); border-bottom-color: var(--gd); }
-/* ── Page Wrapper ────────────────────────────────────────────── */
 .page-wrapper {
     max-width: 680px;
     margin: 0 auto;
     padding: 28px 16px 60px;
 }
 
-/* ── Sidebar stepper (hidden on mobile, shown on desktop) ───── */
 .sidebar-stepper { display: none; }
 
-/* ── Top stepper (mobile) ────────────────────────────────────── */
 .top-stepper {
     margin-bottom: 18px;
 }
@@ -464,7 +448,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
     margin-bottom: 4px;
 }
 
-/* ── Card ────────────────────────────────────────────────────── */
 .card {
     background: var(--wh);
     border-radius: var(--rad);
@@ -477,7 +460,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
     box-shadow: 0 8px 32px rgba(46,125,50,.15);
 }
 
-/* ── Form Step ───────────────────────────────────────────────── */
 .form-step { display: none; padding: 28px 24px 8px; }
 .form-step.active {
     display: block;
@@ -517,7 +499,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 .form-input { width: 100%; padding: 12px 16px; border: 2px solid var(--gml); border-radius: 12px; font-family: inherit; font-size: .95rem; font-weight: 600; color: var(--td); outline: none; transition: border-color .25s var(--smooth-transit), background-color .25s, box-shadow .25s var(--smooth-transit); }
 .form-input:focus { border-color: var(--gm); box-shadow: 0 0 0 4px rgba(74, 102, 73, 0.12); }
 
-/* ── Card Footer / Nav Buttons ───────────────────────────────── */
 .card-footer {
     display: flex;
     align-items: center;
@@ -543,7 +524,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 .btn-submit { background: rgba(0,0,0,.10); }
 .btn-nav svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ── GPS ─────────────────────────────────────────────────────── */
 .btn-gps {
     width: 100%; display: flex; align-items: center; justify-content: center;
     gap: 9px; padding: 12px 16px; background: var(--blu); color: #fff;
@@ -621,13 +601,11 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 .fw.gps-inp input[type="text"]:focus { border-color: var(--blu); background: #fff; }
 .fw.gps-inp label { color: #5c85d6; }
 
-/* ── Review (Step 5) ─────────────────────────────────────────── */
 .review-card { border: 2px solid var(--gl); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
 .review-row { display: flex; padding: 12px 16px; border-bottom: 1px solid var(--gl); font-size: .9rem; }
 .review-row:last-child { border-bottom: none; }
 .rl { width: 140px; font-weight: 700; color: var(--tl); }
 .rv { flex: 1; font-weight: 800; color: var(--td); }
-/* ── Success Screen ──────────────────────────────────────────── */
 .success-wrap { max-width: 620px; margin: 0 auto; padding: 10px 0 40px; }
 .success-card { background: var(--wh); border-radius: var(--rad); box-shadow: var(--shad); overflow: hidden; }
 .success-head { background: linear-gradient(135deg, var(--gd), var(--gm)); padding: 36px 24px 28px; text-align: center; }
@@ -660,7 +638,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 .btn-new:hover { background: var(--gl); border-color: var(--gm); }
 @media (min-width: 900px) { .success-wrap { max-width: 620px; } }
 
-/* ── Tracking Tab ────────────────────────────────────────────── */
 .track-wrap { padding: 28px 16px 60px; max-width: 680px; margin: 0 auto; }
 .track-search {
     background: var(--wh); border-radius: var(--rad);
@@ -908,7 +885,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
     .cleanup-item { flex: 1 1 100%; max-width: 100%; }
     .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .55rem; width: 64px; margin: 0 -8px; }
 }
-/* ===== FOOTER ===== */
 .site-footer {
     padding: 24px 0 32px;
     background: var(--wh);
@@ -928,7 +904,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
     margin: 0 auto;
     padding: 0 48px;
 }
-/* ── Centered Flash Notification Overlay Style ── */
 .flash-overlay {
     position: fixed;
     inset: 0;
@@ -1094,7 +1069,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
         <?php else: ?>
             <div class="page-wrapper">
 
-                <!-- ── Sidebar Stepper (desktop) ──────────────────────────── -->
                 <aside class="sidebar-stepper" id="sidebarStepper">
                     <div class="ss-title">Langkah Pengisian</div>
                     <?php
@@ -1116,7 +1090,6 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
                     <?php endforeach; ?>
                 </aside>
 
-                <!-- ── Form Main ──────────────────────────────────────────── -->
                 <main class="form-main">
                     <!-- Top stepper (mobile only) -->
                     <div class="top-stepper" id="topStepper">
@@ -1885,13 +1858,10 @@ window.initLeafletMapFallback = function() {
     }
 };
 
-
-
 // Init UI
 updateStepperUI();
 updateButtons();
 
-// ── Map Location Search Feature ──
 (function initMapSearch() {
     var searchInput = document.getElementById('mapSearchInput');
     var clearBtn = document.getElementById('clearSearchBtn');
@@ -2106,7 +2076,6 @@ setTimeout(function() {
     }
 }, 300);
 
-// ── Live Tracking Maps Initialization ──
 (function initLiveTrackingMaps() {
     var mapsList = document.querySelectorAll('.live-tracking-map');
     mapsList.forEach(function(mapEl) {

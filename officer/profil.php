@@ -3,9 +3,7 @@ $page_id    = 'profil';
 $page_title = 'Profil Saya';
 require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/layout/header.php';
-// $officer, $st, $officerId sudah tersedia dari header.php
 
-// Query waste categories collected by this officer
 $wasteData = [];
 try {
     $wasteRows = $db->prepare("

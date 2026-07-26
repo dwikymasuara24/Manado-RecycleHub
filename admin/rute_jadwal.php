@@ -1,21 +1,20 @@
 <?php
 require_once __DIR__ . '/../include/config.php';
-require_once __DIR__ . '/../include/algorithms.php'; // defines DEPOT_LAT/LNG, all algorithm functions
+require_once __DIR__ . '/../include/algorithms.php'; 
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
 $page_id    = 'rute_jadwal';
 $page_title = 'Rute & Jadwal';
 $db         = getDB();
 
-// --- AUTO-MIGRATION: Add cleanup columns to schedules, routes, and schedule_requests if needed ---
 try {
-    // 1. Add tipe_layanan to schedules if not exists
+    
     $columns = $db->query("SHOW COLUMNS FROM schedules")->fetchAll(PDO::FETCH_COLUMN);
     if (!in_array('tipe_layanan', $columns)) {
         $db->exec("ALTER TABLE schedules ADD COLUMN tipe_layanan VARCHAR(20) DEFAULT 'pickup' AFTER status");
     }
 
-    // 2. Add cleanup_request_id to routes if not exists
+    
     $routeColumns = $db->query("SHOW COLUMNS FROM routes")->fetchAll(PDO::FETCH_COLUMN);
     if (!in_array('cleanup_request_id', $routeColumns)) {
         $db->exec("ALTER TABLE routes ADD COLUMN cleanup_request_id BIGINT UNSIGNED DEFAULT NULL AFTER pickup_request_id");
@@ -24,7 +23,7 @@ try {
         } catch(Exception $e) {}
     }
 
-    // 3. Add cleanup_request_id to schedule_requests if not exists
+    
     $srColumns = $db->query("SHOW COLUMNS FROM schedule_requests")->fetchAll(PDO::FETCH_COLUMN);
     if (!in_array('cleanup_request_id', $srColumns)) {
         $db->exec("ALTER TABLE schedule_requests ADD COLUMN cleanup_request_id BIGINT UNSIGNED DEFAULT NULL AFTER request_id");
@@ -36,10 +35,9 @@ try {
         } catch(Exception $e) {}
     }
 } catch (Exception $e) {
-    // ignore or log
+    
 }
 
-// ── AJAX: Generate Schedule ──────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'generate_schedule') {
     header('Content-Type: application/json');
     try {
@@ -53,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'gener
     exit;
 }
 
-// ── AJAX: Reset jadwal (hapus schedules draft untuk tanggal) ─
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset_schedule') {
     header('Content-Type: application/json');
     try {
@@ -61,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset
         if (!$tanggal) throw new Exception('Tanggal kosong.');
         $tipe = $_POST['tipe'] ?? 'pickup';
         
-        // Kembalikan status request ke 'dikonfirmasi'
+        
         if ($tipe === 'cleanup') {
             $db->prepare("UPDATE cleanup_requests SET status='dikonfirmasi' WHERE id IN (
                 SELECT cleanup_request_id FROM schedule_requests WHERE schedule_id IN (
@@ -86,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset
     exit;
 }
 
-// ── Pusat tiap kecamatan — koordinat nyata Kota Manado ───────
 $kecCenters = [
     'Wenang'            => ['lat'=>1.4748,  'lng'=>124.8421],
     'Malalayang'        => ['lat'=>1.4522,  'lng'=>124.8015],
@@ -111,7 +107,6 @@ function namaHariID(DateTime $dt): string {
 $gmapsKey = getGmapsKey();
 $tipe = $_GET['tipe'] ?? 'pickup';
 
-// ── Priority data dari DB + algoritma PHP ────────────────────
 if ($tipe === 'pickup') {
     $confirmedRaw = $db->query("SELECT id, request_code, nama_pemohon, kecamatan, latitude, longitude, 'pickup' as tipe_layanan
         FROM pickup_requests WHERE status='dikonfirmasi' AND kecamatan IS NOT NULL")->fetchAll();
@@ -133,10 +128,8 @@ foreach ($confirmedRaw as &$r) {
     $r['lng'] = (float)($r['longitude'] ?? 0);
 }
 unset($r);
-$prioritizedKec = priorityRule($confirmedRaw); // Priority Rule algorithm
+$prioritizedKec = priorityRule($confirmedRaw); 
 
-// Data untuk tabel priority (semua status aktif, bukan hanya dikonfirmasi)
-// Terintegrasi dengan jadwal real-time
 if ($tipe === 'pickup') {
     $priorityData = $db->query("
         SELECT r.kecamatan, 
@@ -186,7 +179,6 @@ if ($tipe === 'pickup') {
     ")->fetchAll();
 }
 
-// Sort $priorityData in PHP to align with the new tie-breaker logic (distance to Depot first, then alphabet)
 usort($priorityData, function($a, $b) {
     if ($a['cnt'] !== $b['cnt']) {
         return $b['cnt'] <=> $a['cnt'];
@@ -201,7 +193,6 @@ usort($priorityData, function($a, $b) {
     return strcmp($a['kecamatan'], $b['kecamatan']);
 });
 
-// ── Officer matching per kecamatan ───────────────────────────
 $allOfficers = $db->query("SELECT id, nama FROM officers WHERE status='aktif' ORDER BY id ASC")->fetchAll();
 function officerForKec(int $index, array $officers): string {
     $count = count($officers);
@@ -211,7 +202,6 @@ function officerForKec(int $index, array $officers): string {
     return '<span style="color:#ccc">Belum ditugaskan</span>';
 }
 
-// ── Request untuk kecamatan terpilih (NN preview) ────────────
 $selectedKec = $_GET['kec'] ?? ($prioritizedKec[0]['kecamatan'] ?? ($priorityData[0]['kecamatan'] ?? ''));
 $kecRequests = [];
 if ($selectedKec) {
@@ -278,7 +268,7 @@ if ($selectedKec) {
             $kecRequests = $s->fetchAll();
         }
     }
-    // Gunakan koordinat nyata; fallback ke pusat kecamatan + jitter
+    
     foreach ($kecRequests as &$req) {
         $center = $kecCenters[$req['kecamatan']] ?? ['lat' => DEPOT_LAT, 'lng' => DEPOT_LNG];
         $req['lat'] = (float)($req['latitude'])  ?: $center['lat'] + (mt_rand(-50,50)/10000);
@@ -287,7 +277,6 @@ if ($selectedKec) {
     unset($req);
 }
 
-// ── Jadwal yang sudah di-generate (dari tabel schedules) ──────
 $existingSchedules = [];
 try {
     $whereClause = "";
@@ -310,9 +299,8 @@ try {
         ORDER BY s.tanggal DESC, s.id DESC
         LIMIT 50
     ")->fetchAll();
-} catch (PDOException $e) { /* tabel belum ada */ }
+} catch (PDOException $e) {  }
 
-// Stats ringkas
 $totalDikonfirmasi = count($confirmedRaw);
 if ($tipe === 'pickup') {
     $totalDijadwalkan  = (int)$db->query("SELECT COUNT(*) FROM pickup_requests WHERE status='dijadwalkan'")->fetchColumn();
@@ -526,7 +514,7 @@ require_once __DIR__ . '/layout/header.php';
             $rankCls  = $i===0 ? 'rank-1' : ($i===1 ? 'rank-2' : ($i===2 ? 'rank-3' : 'rank-n'));
             $rowCls   = $i===0 ? 'priority-row-1' : ($i===1 ? 'priority-row-2' : '');
             
-            // Logika Jadwal Real-time
+            
             $hasJadwal = !empty($p['last_tgl']) && $p['count_jadwal'] > 0;
             if ($hasJadwal) {
               $jadwalDt = new DateTime($p['last_tgl']);
@@ -538,7 +526,7 @@ require_once __DIR__ . '/layout/header.php';
               $jadwalStatus = "<span style='color:#f59e0b;font-size:10px;font-weight:700'>⚡ SIAP GENERATE</span>";
             }
 
-            // Logika Petugas Real-time
+            
             $petugasList = !empty($p['officer_names']) ? $p['officer_names'] : officerForKec($i, $allOfficers);
             if ($p['count_jadwal'] == 0) {
               $petugasText = "<span style='color:#94a3b8;font-style:italic'>" . $petugasList . " (Saran)</span>";
@@ -637,7 +625,6 @@ require_once __DIR__ . '/layout/header.php';
     <strong>Metode: Nearest Neighbor</strong> — Dari titik depot, sistem memilih lokasi terdekat secara berurutan hingga semua titik terkunjungi.
   </div>
   
-
 
   <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <form method="GET" style="display:flex;gap:8px;align-items:center">
@@ -993,7 +980,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 });
 
-// ── Generate Jadwal (calls PHP generateSchedule()) ──────────
 async function generateScheduleNow() {
   const btn    = document.getElementById('btnGenSched');
   const status = document.getElementById('genSchedStatus');
@@ -1030,7 +1016,6 @@ async function generateScheduleNow() {
   }
 }
 
-// ── Reset Draft Jadwal ────────────────────────────────────────
 async function resetSchedule() {
   const tanggal = document.getElementById('genSchedDate')?.value || '';
   if (!tanggal) { customAlert('Pilih tanggal terlebih dahulu.'); return; }
@@ -1062,7 +1047,6 @@ async function resetSchedule() {
   }
 }
 
-// ── Custom Centered Alert Dialog ──────────────────────────────
 function customAlert(msg) {
   const existing = document.getElementById('customAlertOverlay');
   if (existing) existing.remove();

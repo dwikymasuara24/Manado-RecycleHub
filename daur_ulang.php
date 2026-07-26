@@ -1,14 +1,9 @@
 <?php
-// ============================================================
-//  daur_ulang.php — Permintaan Jemput Sampah
-//  Manado Recycle Hub · v4.1
-//  5-step wizard · Desktop responsive · Order tracking
-// ============================================================
+
 require_once __DIR__ . '/include/config.php';
 require_once __DIR__ . '/include/auth.php';
 
-// ── CONFIGURATION: MASUKKAN GOOGLE MAPS API KEY ANDA DI SINI ──
-$google_maps_api_key = getGmapsKey(); // Silakan masukkan Google Maps API Key Anda di sini
+$google_maps_api_key = getGmapsKey(); 
 
 $pdo = getDB();
 
@@ -38,7 +33,7 @@ if (isset($_GET['ajax_action']) && $_GET['ajax_action'] === 'get_live_location')
         $stmt->execute([$id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($data) {
-            // Jika bukan admin/petugas, pastikan status tugas sedang aktif agar bisa dilacak oleh warga/mitra
+            
             if (!$canSeeLiveLocation) {
                 $allowedStatus = ['dalam_perjalanan', 'sedang_diproses', 'sedang_cleanup'];
                 if (!in_array($data['status'], $allowedStatus, true)) {
@@ -56,7 +51,6 @@ if (isset($_GET['ajax_action']) && $_GET['ajax_action'] === 'get_live_location')
     exit;
 }
 
-// ── Migrasi kolom (idempotent) ────────────────────────────────
 foreach ([
     "ALTER TABLE pickup_requests ADD COLUMN kecamatan        VARCHAR(100)  NULL",
     "ALTER TABLE pickup_requests ADD COLUMN kelurahan        VARCHAR(100)  NULL",
@@ -85,7 +79,6 @@ foreach ([
     }
 }
 
-// ── Kategori sampah ───────────────────────────────────────────
 $dbCats      = $pdo->query("SELECT kode, name AS label, ikon_emoji AS icon FROM waste_categories WHERE is_active=1 ORDER BY id")->fetchAll();
 $barang_opts = [];
 foreach ($dbCats as $c) $barang_opts[$c['kode']] = ['label' => $c['label'], 'icon' => $c['icon']];
@@ -99,7 +92,6 @@ if (empty($barang_opts)) $barang_opts = [
     'furniture_bekas' => ['label' => 'Furniture Bekas', 'icon' => '🪑'],
 ];
 
-// ── Kecamatan ─────────────────────────────────────────────────
 $kec_opts = [
     'bunaken'           => 'Bunaken',
     'bunaken_kepulauan' => 'Bunaken Kepulauan',
@@ -115,7 +107,6 @@ $kec_opts = [
     'wenang'            => 'Wenang',
 ];
 
-// ── Tab state ─────────────────────────────────────────────────
 $active_tab  = $_GET['tab'] ?? 'form';
 $track_query = '';
 $track_res   = [];
@@ -123,9 +114,9 @@ $track_res   = [];
 if ($active_tab === 'track') {
     $track_query = trim($_GET['q'] ?? '');
     if ($track_query !== '') {
-        // Normalize search term: remove non-digits for phone searching
+        
         $norm_q = preg_replace('/\D/', '', $track_query);
-        // Strip leading 62 or 0 if present to get local digits
+        
         if (strpos($norm_q, '62') === 0) {
             $norm_q = substr($norm_q, 2);
         } elseif (strpos($norm_q, '0') === 0) {
@@ -185,7 +176,6 @@ if ($active_tab === 'track') {
     }
 }
 
-// ── POST handler ─────────────────────────────────────────────
 $submitted    = false;
 $errors       = [];
 $db_error_msg = '';
@@ -211,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
             $pdo->beginTransaction();
 
             $pt  = trim(clean($_POST['place_type'] ?? ''));
-            $pkt = 'R'; // default
+            $pkt = 'R'; 
             if ($pt === 'Household') {
                 $pkt = 'R';
             } elseif ($pt === 'Public') {
@@ -245,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
             $bnum = preg_replace('/[^\d.]/', '', str_replace(',', '.', $brat));
             $bdec = ($bnum !== '') ? (float)$bnum : null;
 
-            // Tanggal dan jam ditentukan oleh admin/officer, tidak lagi diisi oleh user
+            
             $tgl = null;
             $jam = null;
 
@@ -271,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
             ]);
             $pid = (int)$pdo->lastInsertId();
 
-            // Kirim notifikasi sistem ke Admin
+            
             createNotification($pdo, 'admin', 'Request Penjemputan Baru', "Permohonan penjemputan sampah ($request_code) oleh " . $nm . " telah diajukan.", 'pickup', $pid, 'pickup_requests');
 
             if (!empty($_POST['barang'])) {
@@ -287,13 +277,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
                 }
             }
 
-            // Kirim notifikasi email otomatis saat order masuk
+            
             triggerNewOrderEmail($pdo, $pid);
 
             $pdo->commit();
             $submitted = true;
 
-            // Store display values for success screen
+            
             $sub_data = [
                 'nama'   => $nm,
                 'wa'     => $ac . $wa,
@@ -316,7 +306,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'subm
     }
 }
 
-// ── Form values (preserved after validation errors) ───────────
 $f = fn($k, $d = '') => clean($_POST[$k] ?? $d);
 $v = [
     'barang'  => $_POST['barang']  ?? [],
@@ -339,7 +328,6 @@ $v = [
     'ppkg'    => $f('price_per_kg'),
 ];
 
-// Map errors back to the step they belong to
 $init_step = 1;
 if (!empty($errors)) {
     if (in_array('berat_kg', $errors) || in_array('database_error', $errors))                           $init_step = 4;
@@ -348,7 +336,6 @@ if (!empty($errors)) {
     else $init_step = 1;
 }
 
-// ── Tracking: status → step index ────────────────────────────
 $status_step_map = [
     'menunggu'        => 1,
     'dikonfirmasi'    => 2,
@@ -385,7 +372,6 @@ $track_step_defs = [
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-/* ── Reset & Variables ───────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -417,7 +403,6 @@ body {
     flex-direction: column;
 }
 
-/* ── Top Navbar ──────────────────────────────────────────────── */
 .top-nav {
     background: var(--gd);
     padding: 12px 24px;
@@ -451,7 +436,6 @@ body {
     letter-spacing: .02em;
 }
 
-/* ── Tab Switcher ────────────────────────────────────────────── */
 .tabs {
     display: flex;
     background: var(--wh);
@@ -477,17 +461,14 @@ body {
 .tab-btn:hover { color: var(--gm); border-bottom-color: var(--gml); }
 .tab-btn.active { color: var(--gd); border-bottom-color: var(--gd); }
 
-/* ── Page Wrapper ────────────────────────────────────────────── */
 .page-wrapper {
     max-width: 680px;
     margin: 0 auto;
     padding: 28px 16px 60px;
 }
 
-/* ── Sidebar stepper (hidden on mobile, shown on desktop) ───── */
 .sidebar-stepper { display: none; }
 
-/* ── Top stepper (mobile) ────────────────────────────────────── */
 .top-stepper {
     margin-bottom: 18px;
 }
@@ -548,7 +529,6 @@ body {
     margin-bottom: 4px;
 }
 
-/* ── Card ────────────────────────────────────────────────────── */
 .card {
     background: var(--wh);
     border-radius: var(--rad);
@@ -561,7 +541,6 @@ body {
     box-shadow: 0 8px 32px rgba(46,125,50,.15);
 }
 
-/* ── Form Step ───────────────────────────────────────────────── */
 .form-step { display: none; padding: 28px 24px 8px; }
 .form-step.active {
     display: block;
@@ -586,7 +565,6 @@ body {
     line-height: 1.5;
 }
 
-/* ── Barang Grid ─────────────────────────────────────────────── */
 .barang-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -629,7 +607,6 @@ body {
 }
 .barang-item:hover .barang-label { border-color: var(--gm); }
 
-/* ── Field Wrap ──────────────────────────────────────────────── */
 .fw { margin-top: 14px; text-align: left; }
 .fw:first-of-type { margin-top: 0; }
 .fw label {
@@ -694,7 +671,6 @@ body {
 
 .fhint { font-size: .73rem; font-weight: 600; color: var(--tl); margin-top: 4px; }
 
-/* ── Advanced Toggle ─────────────────────────────────────────── */
 .adv-toggle {
     display: flex;
     align-items: center;
@@ -717,7 +693,6 @@ body {
 .adv-panel { display: none; }
 .adv-panel.open { display: block; }
 
-/* ── Error Messages ──────────────────────────────────────────── */
 .errmsg {
     display: inline-block;
     background: var(--red); color: #fff;
@@ -738,7 +713,6 @@ body {
     padding: 5px 9px; margin-top: 7px; word-break: break-word;
 }
 
-/* ── GPS ─────────────────────────────────────────────────────── */
 .btn-gps {
     width: 100%; display: flex; align-items: center; justify-content: center;
     gap: 9px; padding: 12px 16px; background: var(--blu); color: #fff;
@@ -816,7 +790,6 @@ body {
 .fw.gps-inp input[type="text"]:focus { border-color: var(--blu); background: #fff; }
 .fw.gps-inp label { color: #5c85d6; }
 
-/* ── Review (Step 5) ─────────────────────────────────────────── */
 .review-box {
     background: var(--gl);
     border: 1.5px solid var(--gml);
@@ -837,7 +810,6 @@ body {
 .rl { color: var(--tl); font-weight: 700; flex-shrink: 0; min-width: 110px; }
 .rv { color: var(--td); font-weight: 700; text-align: right; word-break: break-word; }
 
-/* ── Card Footer / Nav Buttons ───────────────────────────────── */
 .card-footer {
     display: flex;
     align-items: center;
@@ -865,7 +837,6 @@ body {
 #btnPrev { display: none; }
 #btnSubmit { display: none; }
 
-/* ── Tracking Tab ────────────────────────────────────────────── */
 .track-wrap { padding: 28px 16px 60px; max-width: 680px; margin: 0 auto; }
 .track-search {
     background: var(--wh); border-radius: var(--rad);
@@ -973,7 +944,6 @@ body {
 }
 .track-schedule strong { color: var(--gd); }
 
-/* ── Success Screen ──────────────────────────────────────────── */
 .success-wrap { max-width: 620px; margin: 0 auto; padding: 28px 16px 60px; }
 .success-card {
     background: var(--wh); border-radius: var(--rad);
@@ -1056,7 +1026,6 @@ body {
     width: 100%;
 }
 
-/* ── ─── ─── DESKTOP LANDSCAPE (≥900px) ─── ─── ── */
 @media (min-width: 900px) {
 
     body { padding: 0; }
@@ -1189,7 +1158,6 @@ body {
     }
 }
 
-/* ── Mobile ──────────────────────────────────────────────────── */
 @media (max-width: 420px) {
     .barang-grid { grid-template-columns: repeat(3, 1fr); }
     .frow { flex-direction: column; gap: 14px; }
@@ -1201,7 +1169,6 @@ body {
     .barang-grid { grid-template-columns: repeat(2, 1fr); }
     .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .55rem; width: 64px; margin: 0 -8px; }
 }
-/* ===== FOOTER ===== */
 .site-footer {
     padding: 24px 0 32px;
     background: var(--wh);
@@ -1221,7 +1188,10 @@ body {
     margin: 0 auto;
     padding: 0 48px;
 }
-/* ── Centered Flash Notification Overlay Style ── */
+body:has(#flashOverlay:not([style*="display: none"])),
+html:has(#flashOverlay:not([style*="display: none"])) {
+    overflow: hidden !important;
+}
 .flash-overlay {
     position: fixed;
     inset: 0;
@@ -1231,6 +1201,8 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 10000;
+    overflow: hidden !important;
+    touch-action: none;
     animation: alert-fade-in 0.25s ease-out;
 }
 .flash {
@@ -1324,7 +1296,6 @@ body {
 </head>
 <body>
 
-<!-- ── Top Navbar ────────────────────────────────────────────── -->
 <nav class="top-nav">
     <a href="home.php" class="back-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1337,7 +1308,6 @@ body {
 </nav>
 
 <?php if ($submitted): ?>
-<!-- ══════════════════════════════════════════════════════════
      SUCCESS SCREEN
 ══════════════════════════════════════════════════════════ -->
 <div class="success-wrap">
@@ -1389,7 +1359,6 @@ body {
 
 <?php else: ?>
 
-<!-- ── Tab Switcher ──────────────────────────────────────────── -->
 <div class="tabs">
     <a href="?tab=form" class="tab-btn <?= $active_tab === 'form' ? 'active' : '' ?>">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
@@ -1402,7 +1371,6 @@ body {
 </div>
 
 <?php if ($active_tab === 'track'): ?>
-<!-- ══════════════════════════════════════════════════════════
      TRACKING TAB
 ══════════════════════════════════════════════════════════ -->
 <div class="track-wrap">
@@ -1522,7 +1490,6 @@ body {
 </div>
 
 <?php else: ?>
-<!-- ══════════════════════════════════════════════════════════
      FORM TAB — 5-Step Wizard
 ══════════════════════════════════════════════════════════ -->
 
@@ -1534,14 +1501,26 @@ body {
             Gagal menyimpan data. Silakan coba lagi.
             <?php if ($db_error_msg): ?><div style="font-size: 11px; color: #dc2626; margin-top: 6px; font-family: monospace; background: #fef2f2; padding: 6px; border-radius: 4px;"><?= htmlspecialchars($db_error_msg) ?></div><?php endif; ?>
         </div>
-        <button type="button" class="flash-close-btn" onclick="document.getElementById('flashOverlay').style.display='none'">Tutup</button>
+        <button type="button" class="flash-close-btn" onclick="closeFlashOverlay()">Tutup</button>
     </div>
 </div>
+<script>
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+  function closeFlashOverlay() {
+    var fo = document.getElementById('flashOverlay');
+    if (fo) fo.style.display = 'none';
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeFlashOverlay();
+  });
+</script>
 <?php endif; ?>
 
 <div class="page-wrapper">
 
-    <!-- ── Sidebar Stepper (desktop) ──────────────────────────── -->
     <aside class="sidebar-stepper" id="sidebarStepper">
         <div class="ss-title">Langkah Pengisian</div>
         <?php
@@ -1563,7 +1542,6 @@ body {
         <?php endforeach; ?>
     </aside>
 
-    <!-- ── Form Main ──────────────────────────────────────────── -->
     <main class="form-main">
         <!-- Top stepper (mobile only) -->
         <div class="top-stepper" id="topStepper">
@@ -1589,7 +1567,6 @@ body {
         <form id="mainForm" method="POST" action="" novalidate>
             <input type="hidden" name="_action" value="submit_form">
 
-            <!-- ══════════════════════════════
                  STEP 1 — JENIS SAMPAH
             ══════════════════════════════ -->
             <div class="form-step <?= $init_step === 1 ? 'active' : '' ?>" id="step-1">
@@ -1618,7 +1595,6 @@ body {
                 <div style="height:20px"></div>
             </div>
 
-            <!-- ══════════════════════════════
                  STEP 2 — IDENTITAS
             ══════════════════════════════ -->
             <div class="form-step <?= $init_step === 2 ? 'active' : '' ?>" id="step-2">
@@ -1699,7 +1675,6 @@ body {
                 <div style="height:20px"></div>
             </div>
 
-            <!-- ══════════════════════════════
                  STEP 3 — LOKASI
             ══════════════════════════════ -->
             <div class="form-step <?= $init_step === 3 ? 'active' : '' ?>" id="step-3">
@@ -1789,7 +1764,6 @@ body {
                 <div style="height:20px"></div>
             </div>
 
-            <!-- ══════════════════════════════
                  STEP 4 — JADWAL & BERAT
             ══════════════════════════════ -->
             <div class="form-step <?= $init_step === 4 ? 'active' : '' ?>" id="step-4">
@@ -1817,7 +1791,6 @@ body {
                 <div style="height:20px"></div>
             </div>
 
-            <!-- ══════════════════════════════
                  STEP 5 — KONFIRMASI
             ══════════════════════════════ -->
             <div class="form-step" id="step-5">
@@ -1858,8 +1831,8 @@ body {
     </main>
 </div><!-- end .page-wrapper -->
 
-<?php endif; // end track/form tab ?>
-<?php endif; // end submitted/not ?>
+<?php endif; ?>
+<?php endif; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1869,7 +1842,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 'use strict';
 
-// ── Step Navigation ───────────────────────────────────────────
 var currentStep = <?= $init_step ?>;
 var totalSteps  = 5;
 
@@ -1945,7 +1917,6 @@ function updateStepperUI() {
     }
 }
 
-// ── Validation ────────────────────────────────────────────────
 function validateStep(step) {
     var ok = true;
     if (step === 1) {
@@ -2009,7 +1980,6 @@ function showInlineErr(stepId, msg) {
     }, 3000);
 }
 
-// ── Review Builder (Step 5) ───────────────────────────────────
 function buildReview() {
     var rows = document.getElementById('reviewRows');
     if (!rows) return;
@@ -2045,7 +2015,6 @@ function escHtml(s) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── Advanced Toggle ───────────────────────────────────────────
 function toggleAdv() {
     var toggle = document.getElementById('advToggle');
     var panel  = document.getElementById('advPanel');
@@ -2054,7 +2023,6 @@ function toggleAdv() {
     panel.classList.toggle('open');
 }
 
-// ── GPS / Google Maps ─────────────────────────────────────────
 window.initGoogleMap = function() {
     var mapEl = document.getElementById('pickerMap');
     if (!mapEl) return;
@@ -2400,15 +2368,12 @@ window.initLeafletMapFallback = function() {
     }
 };
 
-
-
 (function init() {
     updateStepperUI();
     updateButtons();
     // If returning from server error, populate review
     if (currentStep === 5) buildReview();
 
-    // ── Map Location Search Feature ──
     (function initMapSearch() {
         var searchInput = document.getElementById('mapSearchInput');
         var clearBtn = document.getElementById('clearSearchBtn');
@@ -2627,7 +2592,6 @@ window.initLeafletMapFallback = function() {
         checkKec();
     }
 
-    // ── Live Tracking Maps Initialization ──
     (function initLiveTrackingMaps() {
         var mapsList = document.querySelectorAll('.live-tracking-map');
         mapsList.forEach(function(mapEl) {

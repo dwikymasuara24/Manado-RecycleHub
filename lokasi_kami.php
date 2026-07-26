@@ -28,7 +28,6 @@ $nav_items = [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Comfortaa', sans-serif;
@@ -39,7 +38,6 @@ $nav_items = [
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; display: block; }
 
-        /* ===== CSS VARIABLES ===== */
         :root {
             --green-primary:  rgba(28, 100, 52, 1);
             --green-light:    rgba(214, 228, 195, 1);
@@ -55,7 +53,6 @@ $nav_items = [
             --text-dark:        rgba(28, 28, 28, 1);
         }
 
-        /* ===== TOP NAVBAR ===== */
         header {
             position: fixed;
             top: 0; left: 0;
@@ -88,7 +85,6 @@ $nav_items = [
             color: var(--text-light);
         }
 
-        /* ===== DESKTOP NAV ===== */
         .navbar-nav {
             display: flex;
             list-style: none;
@@ -109,7 +105,6 @@ $nav_items = [
             border-bottom: 2px solid var(--text-light);
         }
 
-        /* ===== HAMBURGER ===== */
         .hamburger {
             display: none;
             flex-direction: column;
@@ -126,7 +121,6 @@ $nav_items = [
             transition: .3s;
         }
 
-        /* ===== MOBILE SIDEBAR ===== */
         .sidebar-nav {
             display: flex;
             position: fixed;
@@ -209,7 +203,6 @@ $nav_items = [
             line-height: 1.38;
         }
 
-        /* ===== CONTENT SECTION ===== */
         .content-section {
             max-width: 1280px;
             margin: 0 auto;
@@ -220,7 +213,6 @@ $nav_items = [
             align-items: start;
         }
 
-        /* ===== LEFT COLUMN ===== */
         .info-col {
             display: flex;
             flex-direction: column;
@@ -280,7 +272,6 @@ $nav_items = [
             opacity: 0.9;
         }
 
-        /* ===== RIGHT COLUMN (MAP) ===== */
         .map-col {
             border-radius: 16px;
             overflow: hidden;
@@ -295,7 +286,6 @@ $nav_items = [
             display: block;
         }
 
-        /* ===== FOOTER ===== */
         .site-footer {
             padding: 24px 0 32px;
             background: var(--light-bg);
@@ -310,7 +300,6 @@ $nav_items = [
             margin-bottom: 4px;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 767px) {
             .navbar { padding: 0 20px; }
             .navbar-brand .brand-name { font-size: 13pt; }

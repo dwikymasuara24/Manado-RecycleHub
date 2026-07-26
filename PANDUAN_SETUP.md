@@ -82,3 +82,20 @@ Lalu di `settings.php`, tambahkan form field untuk API key di section **Info Sit
 - 🗺️ Heatmap permintaan per kelurahan
 - 📈 Prediksi demand berbasis tren historis
 
+---
+
+## 7. Konfigurasi Clean URLs (Tanpa `.php`) Saat Deploy
+
+Seluruh sistem telah dikonfigurasi untuk menggunakan **Clean URLs** (contoh: `https://manado-recyclehub.codefour22.my.id/officer/cleanup_tasks`).
+
+### A. Untuk Server Apache / Laragon / cPanel:
+File `.htaccess` sudah tersedia di folder root project (`.htaccess`). Memastikan `mod_rewrite` diaktifkan di server Apache.
+
+### B. Untuk Server Nginx:
+Tambahkan aturan berikut di dalam file konfigurasi Nginx server block (`/etc/nginx/sites-available/...`):
+```nginx
+location / {
+    try_files $uri $uri/ $uri.php?$args;
+}
+```
+Aturan ini akan secara otomatis memetakan permintaan URL tanpa ekstensi `.php` (misal `/officer/cleanup_tasks`) ke file fisik `.php` yang ada di server.

@@ -1,12 +1,10 @@
 <?php
-// ============================================================
-//  forgot_password.php — Halaman Permintaan Reset Password
-// ============================================================
+
 require_once __DIR__ . '/include/config.php';
 
 $error = '';
 $success_msg = '';
-$dev_reset_link = ''; // Tautan bantuan untuk localhost
+$dev_reset_link = ''; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -17,36 +15,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db = getDB();
         
         try {
-            // 1. Migrasi otomatis kolom token jika belum ada
+            
             $checkCol = $db->query("SHOW COLUMNS FROM users LIKE 'reset_token'")->fetch();
             if (!$checkCol) {
                 $db->exec("ALTER TABLE users ADD COLUMN reset_token VARCHAR(255) NULL");
                 $db->exec("ALTER TABLE users ADD COLUMN reset_token_expires_at DATETIME NULL");
             }
             
-            // 2. Cari user berdasarkan email
+            
             $stmt = $db->prepare("SELECT id, nama FROM users WHERE email = ? AND is_active = 1");
             $stmt->execute([$email]);
             $user = $stmt->fetch();
             
             if ($user) {
-                // 3. Generate token unik & waktu kedaluwarsa (1 jam)
+                
                 $token = bin2hex(random_bytes(16));
                 $expires_at = date('Y-m-d H:i:s', strtotime('+1 hour'));
                 
-                // 4. Update data token di database
+                
                 $update = $db->prepare("UPDATE users SET reset_token = ?, reset_token_expires_at = ? WHERE id = ?");
                 $update->execute([$token, $expires_at, $user['id']]);
                 
-                // 5. Buat tautan reset password
-                // Mendapatkan base URL dinamis
+                
+                
                 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
                 $host = $_SERVER['HTTP_HOST'];
                 $uri = $_SERVER['REQUEST_URI'];
                 $dir = dirname($uri);
                 $reset_link = $protocol . $host . rtrim($dir, '/\\') . '/reset_password.php?token=' . $token;
                 
-                // 6. Siapkan isi email
+                
                 $subject = "[MRH] Permintaan Reset Password";
                 $body = "Halo " . $user['nama'] . ",\n\n";
                 $body .= "Kami menerima permintaan untuk mereset password akun Anda di Manado Recycle Hub.\n";
@@ -64,26 +62,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $headers .= "Reply-To: $fromEmail\r\n";
                 $headers .= "X-Mailer: PHP/" . phpversion();
                 
-                // Kirim email
+                
                 sendRealEmailViaSMTP($email, $subject, $body, $headers);
                 
-                // Catat ke file log email tanpa menuliskan link reset
+                
                 $logFile = PROJECT_ROOT . '/uploads/email_logs.txt';
                 $logEntry = "[" . date('Y-m-d H:i:s') . "] PASSWORD RESET EMAIL SENT TO: $email\n\n";
                 file_put_contents($logFile, $logEntry, FILE_APPEND);
                 
                 $success_msg = 'Jika email terdaftar, tautan reset password akan dikirim.';
                 
-                // Deteksi localhost untuk membatasi tampilan pintasan link reset
+                
                 $host = $_SERVER['HTTP_HOST'] ?? '';
                 $is_localhost = in_array($host, ['localhost', '127.0.0.1', '[::1]']) 
                     || (strpos($host, 'localhost:') === 0) 
                     || (strpos($host, '127.0.0.1:') === 0);
                 
                 if ($is_localhost) {
-                    $dev_reset_link = $reset_link; // Untuk kemudahan testing di localhost
+                    $dev_reset_link = $reset_link; 
                 } else {
-                    $dev_reset_link = ''; // Sembunyikan sepenuhnya di server produksi / hosting
+                    $dev_reset_link = ''; 
                 }
             } else {
                 $success_msg = 'Jika email terdaftar, tautan reset password akan dikirim.';

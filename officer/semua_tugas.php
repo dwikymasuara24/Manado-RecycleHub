@@ -4,7 +4,6 @@ $page_title = 'Semua Tugas';
 require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/layout/header.php';
 
-// ── Data: semua tugas aktif officer ──────────────────────────
 $filter  = $_GET['status'] ?? 'aktif';
 $where   = $filter === 'semua' ? "pr.officer_id=?" : "pr.officer_id=? AND pr.status NOT IN ('selesai','dibatalkan')";
 $params  = [$officerId];

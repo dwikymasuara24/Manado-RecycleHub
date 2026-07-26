@@ -1,13 +1,8 @@
 <?php
-// ============================================================
-//  register.php — Registrasi Admin & Officer/Petugas
-//  Manado Recycle Hub
-//  Sinkron penuh dengan: users + officers (hub.sql)
-// ============================================================
+
 require_once __DIR__ . '/include/config.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-// Kalau sudah login, redirect sesuai role
 if (!empty($_SESSION['user_id'])) {
     $r = $_SESSION['role_name'] ?? '';
     header('Location: ' . ($r === 'admin' ? 'admin/dashboard.php' : ($r === 'officer' ? 'officer/officer_console.php' : 'index.php')));
@@ -19,7 +14,6 @@ $errors  = [];
 $success = false;
 $old     = [];
 
-// ── Auto-migrasi aman: tambah kolom yang belum ada ───────────
 $migrateCols = [
     'users' => [
         'nomor_wa'      => "ALTER TABLE `users` ADD COLUMN `nomor_wa`      VARCHAR(20)  DEFAULT NULL",
@@ -54,15 +48,12 @@ foreach ($migrateCols as $tbl => $cols) {
     }
 }
 
-// ── Ambil roles admin & officer dari DB ───────────────────────
 $allowedRoles = $db->query("SELECT id, name, description FROM roles WHERE name IN ('admin','officer') ORDER BY name")->fetchAll();
 $roleMap      = [];
 foreach ($allowedRoles as $rl) $roleMap[$rl['id']] = $rl;
 
-// ── Kecamatan zona tugas officer ─────────────────────────────
 $kecamatans = ['Wenang','Malalayang','Tikala','Paal Dua','Bunaken','Singkil','Mapanget','Wanea','Sario','Tuminting'];
 
-// ── Generate officer_code unik ────────────────────────────────
 function nextOfficerCode(PDO $db): string {
     $cnt = 1;
     do {
@@ -75,11 +66,8 @@ function nextOfficerCode(PDO $db): string {
     return $code;
 }
 
-// ── Cek kolom yang benar-benar ada di tabel officers ─────────
 $officerCols = $db->query("SHOW COLUMNS FROM officers")->fetchAll(PDO::FETCH_COLUMN);
 
-// ── POST handler ──────────────────────────────────────────────
-// Opsi jenis kendaraan
 $jenisKendaraanOpts = ['Motor','Mobil Pick-up','Truk Kecil','Truk Sedang','Gerobak Motor'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -92,9 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nomor_wa      = preg_replace('/\D/', '', trim($_POST['nomor_wa'] ?? ''));
     $jenis_kend    = trim($_POST['jenis_kendaraan'] ?? '');
     $nomor_plat    = strtoupper(trim($_POST['nomor_plat'] ?? ''));
-    $nip           = preg_replace('/\D/', '', trim($_POST['nip'] ?? '')); // angka saja
+    $nip           = preg_replace('/\D/', '', trim($_POST['nip'] ?? '')); 
 
-    // ── Validasi ──────────────────────────────────────────────
     if (!isset($roleMap[$role_id]))
         $errors[] = 'Role tidak valid. Pilih Admin atau Officer.';
     if (strlen($nama) < 3)
@@ -112,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($nomor_plat)) $errors[] = 'Nomor plat kendaraan wajib diisi untuk Officer.';
     }
 
-    // Cek email unik
+    
     if (empty($errors)) {
         $chk = $db->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
         $chk->execute([$email]);
@@ -120,13 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Email ' . htmlspecialchars($email) . ' sudah terdaftar.';
     }
 
-    // ── Simpan ke DB ──────────────────────────────────────────
     if (empty($errors)) {
         $db->beginTransaction();
         try {
             $hash = password_hash($pass, PASSWORD_BCRYPT);
 
-            // Bangun kolom INSERT secara dinamis sesuai kolom yang ada
+            
             $userCols   = $db->query("SHOW COLUMNS FROM users")->fetchAll(PDO::FETCH_COLUMN);
             $insertCols = ['role_id','nama','email','password_hash'];
             $insertVals = [$role_id, $nama, $email, $hash];
@@ -142,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $uid = (int)$db->lastInsertId();
 
-            // Officer → tambah ke tabel officers
+            
             if ($roleMap[$role_id]['name'] === 'officer') {
                 $code = nextOfficerCode($db);
 
@@ -194,7 +180,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
         body { font-family:'Inter',sans-serif; background:#f8fafc; color:#1e293b; display:flex; min-height:100vh; }
 
-        /* ── Split Layout ── */
         .split { display:flex; width:100%; }
         .left {
             flex:1; min-width:0;
@@ -212,14 +197,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .feature-item { display:flex; align-items:center; gap:10px; font-size:14px; opacity:.92; }
         .fi-icon { font-size:18px; }
 
-        /* ── Right panel ── */
         .right { width:100%; max-width:560px; background:#fff; display:flex; flex-direction:column; justify-content:center; padding:48px 52px; overflow-y:auto; box-shadow:-8px 0 28px rgba(0,0,0,.06); }
 
         .reg-header { margin-bottom:28px; }
         .reg-header h2 { font-size:26px; font-weight:800; color:#0f172a; margin-bottom:6px; }
         .reg-header p  { color:#64748b; font-size:13.5px; }
 
-        /* ── Role selector ── */
         .role-tabs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; }
         .role-tab { border:2px solid #e2e8f0; border-radius:12px; padding:14px 16px; cursor:pointer; transition:all .2s; background:#f8fafc; display:flex; align-items:center; gap:10px; }
         .role-tab:hover { border-color:#86efac; background:#f0fdf4; }
@@ -229,7 +212,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .rt-info .rt-title { font-size:14px; font-weight:700; color:#1e293b; }
         .rt-info .rt-sub   { font-size:11px; color:#64748b; margin-top:2px; }
 
-        /* ── Form ── */
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
         .form-group { margin-bottom:16px; }
         .form-label { display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:7px; text-transform:uppercase; letter-spacing:.04em; }
@@ -237,7 +219,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .form-input:focus, .form-select:focus { border-color:var(--gl); background:#fff; box-shadow:0 0 0 4px rgba(34,197,94,.1); }
         .form-input.error, .form-select.error { border-color:#f87171; }
 
-        /* ── Zona chips ── */
         .zona-grid { display:flex; flex-wrap:wrap; gap:7px; margin-top:4px; }
         .zona-chip { position:relative; }
         .zona-chip input { position:absolute; opacity:0; width:0; height:0; }
@@ -245,15 +226,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .zona-chip input:checked + label { border-color:var(--g); background:#f0fdf4; color:var(--g); }
         .zona-chip label:hover { border-color:#86efac; background:#f0fdf4; }
 
-        /* ── Officer extra fields ── */
         #officerFields { display:none; }
         #officerFields.show { display:block; }
 
-        /* ── Password strength ── */
         .pass-strength { height:4px; border-radius:2px; background:#e2e8f0; margin-top:7px; overflow:hidden; }
         .pass-fill { height:100%; border-radius:2px; width:0; transition:width .3s, background .3s; }
 
-        /* ── Centered Flash Notification Overlay Style ── */
+        body:has(#flashOverlay:not([style*="display: none"])),
+        html:has(#flashOverlay:not([style*="display: none"])) {
+            overflow: hidden !important;
+        }
         .flash-overlay {
             position: fixed;
             inset: 0;
@@ -263,6 +245,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             justify-content: center;
             z-index: 10000;
+            overflow: hidden !important;
+            touch-action: none;
             animation: alert-fade-in 0.25s ease-out;
         }
         .flash {
@@ -316,7 +300,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             to { transform: scale(1) translateY(0); }
         }
 
-        /* ── Submit ── */
         .btn-submit { width:100%; padding:14px; background:var(--g); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s; margin-top:8px; font-family:'Inter',sans-serif; }
         .btn-submit:hover { background:#144f29; transform:translateY(-2px); box-shadow:0 8px 18px rgba(28,100,52,.22); }
         .btn-submit:active { transform:none; }
@@ -374,7 +357,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
 <div class="split">
-    <!-- ── LEFT SIDE ── -->
     <div class="left">
         <div class="brand">
             <div class="brand-logo">M</div>
@@ -389,7 +371,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- ── RIGHT SIDE ── -->
     <div class="right">
         <?php if ($success): ?>
         <!-- SUCCESS STATE -->
@@ -419,9 +400,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div style="font-weight: 800; margin-bottom: 8px; text-align: center;">Mohon perbaiki kesalahan berikut:</div>
                     <ul style="margin-left: 20px; font-size: 13px; font-weight: 600; color: #4b5563;"><?php foreach ($errors as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?></ul>
                 </div>
-                <button type="button" class="flash-close-btn" onclick="document.getElementById('flashOverlay').style.display='none'">Tutup</button>
+                <button type="button" class="flash-close-btn" onclick="closeFlashOverlay()">Tutup</button>
             </div>
         </div>
+        <script>
+          document.body.style.overflow = 'hidden';
+          document.documentElement.style.overflow = 'hidden';
+          function closeFlashOverlay() {
+            var fo = document.getElementById('flashOverlay');
+            if (fo) fo.style.display = 'none';
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+          }
+          document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeFlashOverlay();
+          });
+        </script>
         <?php endif; ?>
 
         <form method="POST" action="" id="regForm">
@@ -519,7 +513,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="officerFields" class="<?= (isset($old['role_id']) && ($roleMap[(int)$old['role_id']]['name'] ?? '') === 'officer') ? 'show' : '' ?>">
                 <div class="divider">Detail Petugas Lapangan</div>
 
-
                 <!-- NIP -->
                 <div class="form-group" style="margin-top:4px">
                     <label class="form-label" for="nip">NIP <span style="font-weight:400;color:#94a3b8;text-transform:none">(Nomor Induk Pegawai, opsional)</span></label>
@@ -587,7 +580,6 @@ function togglePasswordVisibility(inputId, btnId) {
     }
 }
 
-// ── Role selector ─────────────────────────────────────────────
 <?php
 $officerRoleIds = array_values(array_filter($allowedRoles, fn($r) => $r['name'] === 'officer'));
 $officerRoleId  = $officerRoleIds[0]['id'] ?? 0;
@@ -615,9 +607,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
-
-// ── Password strength ──────────────────────────────────────────
 function updateStrength(val) {
     const fill = document.getElementById('passFill');
     let score = 0;
@@ -630,7 +619,6 @@ function updateStrength(val) {
     fill.style.background = colors[score - 1] || '#e2e8f0';
 }
 
-// ── Confirm password match ──────────────────────────────────────
 document.getElementById('regForm').addEventListener('submit', function(e) {
     const p  = document.getElementById('password').value;
     const pc = document.getElementById('password_conf').value;

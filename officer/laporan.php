@@ -6,7 +6,6 @@ requireRole('officer');
 
 $db = getDB();
 
-// Resolve officer_id
 $officerId = (int)($_SESSION['officer_id'] ?? 0);
 if (!$officerId) {
     $uid = (int)($_SESSION['user_id'] ?? 0);
@@ -18,7 +17,6 @@ if (!$officerId) {
     }
 }
 
-// Fetch officer details
 $officer = null;
 if ($officerId) {
     try {
@@ -31,7 +29,6 @@ if (!$officer) {
     $officer = ['id'=>$officerId,'nama'=>'Petugas','officer_code'=>'S01','kendaraan'=>'-','status'=>'aktif','email'=>'','user_wa'=>''];
 }
 
-// Period & type filters
 $tgl_mulai = $_GET['tgl_mulai'] ?? date('Y-m-01');
 $tgl_selesai = $_GET['tgl_selesai'] ?? date('Y-m-d');
 $type = $_GET['type'] ?? 'all';
@@ -41,7 +38,6 @@ if (!in_array($type, ['all', 'pickup', 'cleanup'])) {
 
 $rows = [];
 
-// Fetch Pickup Requests for this officer in period
 if ($type === 'all' || $type === 'pickup') {
     $pickupStmt = $db->prepare("
         SELECT 
@@ -71,7 +67,6 @@ if ($type === 'all' || $type === 'pickup') {
     }
 }
 
-// Fetch Cleanup Requests for this officer in period
 if ($type === 'all' || $type === 'cleanup') {
     $cleanupStmt = $db->prepare("
         SELECT 
@@ -100,14 +95,12 @@ if ($type === 'all' || $type === 'cleanup') {
     }
 }
 
-// Sort $rows by date DESC
 usort($rows, function($a, $b) {
     $dateA = $a['tanggal_tugas'] ?? date('Y-m-d', strtotime($a['created_at']));
     $dateB = $b['tanggal_tugas'] ?? date('Y-m-d', strtotime($b['created_at']));
     return strcmp($dateB, $dateA);
 });
 
-// EXPORT HANDLER (Must be placed before requiring header.php to prevent header output conflicts)
 if (isset($_GET['export'])) {
     $export_type = $_GET['export'];
     $filename = 'laporan_petugas_' . $officer['officer_code'] . '_' . $tgl_mulai . '_to_' . $tgl_selesai;
@@ -318,13 +311,10 @@ if (isset($_GET['export'])) {
     }
 }
 
-// ── REQUIRE SIDEBAR HEADER ──
-// Now it is safe to output HTML and import the header, as the export headers check has passed.
 $page_id = 'laporan';
 $page_title = 'Laporan Saya';
 require_once __DIR__ . '/layout/header.php';
 
-// Calculate Stats for current page display
 $stat_total = count($rows);
 $stat_selesai = count(array_filter($rows, fn($r) => $r['status'] === 'selesai'));
 $stat_aktif = count(array_filter($rows, fn($r) => !in_array($r['status'], ['selesai', 'dibatalkan'])));

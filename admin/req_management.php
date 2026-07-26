@@ -1,11 +1,5 @@
 <?php
-// ============================================================
-//  req_management.php — Admin Panel: Manajemen Request Jemput Sampah
-//  Manado Recycle Hub
-//  Sinkron penuh dengan daur_ulang_form.php (user console)
-//  berat_total_kg (DECIMAL) tampil langsung di tabel
-//  Preview: estimasi_kg tampil dari data yang disimpan user console
-// ============================================================
+
 require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
@@ -14,12 +8,11 @@ $page_title = 'Manajemen Request';
 $db         = getDB();
 $csrfToken  = csrfToken();
 
-// ── Auto-migrasi kolom ───────────────────────────────────────
 $itemMigrations = [
     "ALTER TABLE pickup_request_items ADD COLUMN estimasi_kg DECIMAL(10,2) NULL",
     "ALTER TABLE pickup_request_items ADD COLUMN aktual_kg   DECIMAL(10,2) NULL",
     "ALTER TABLE pickup_request_items ADD COLUMN catatan     TEXT          NULL",
-    // GPS + geo
+    
     "ALTER TABLE pickup_requests ADD COLUMN latitude          DECIMAL(10,8) NULL",
     "ALTER TABLE pickup_requests ADD COLUMN longitude         DECIMAL(11,8) NULL",
     "ALTER TABLE pickup_requests ADD COLUMN place_id          VARCHAR(255)  NULL",
@@ -34,10 +27,6 @@ foreach ($itemMigrations as $mq) {
     }
 }
 
-// ── Google Maps API Key ───────────────────────────────────────
-// Leaflet + Nominatim — tidak perlu API Key
-
-// ── AJAX: simpan koordinat dari Places Autocomplete ──────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_geo') {
     requireCsrfToken();
     header('Content-Type: application/json');
@@ -53,12 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     echo json_encode(['ok'=>true]); exit;
 }
 
-// ── AJAX / POST handler ─────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     requireCsrfToken();
     $action = $_POST['action'];
 
-    // ── SIMPAN / EDIT ──
     if ($action === 'save') {
         $id      = (int)($_POST['id'] ?? 0);
         $nama    = trim($_POST['nama_pemohon']  ?? '');
@@ -72,11 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $tgl     = $_POST['tanggal_jemput']     ?: null;
         $jam     = $_POST['jam_jemput']         ?: null;
         
-        // ── New Fields from Excel Format ──
         $place_name   = trim($_POST['place_name']   ?? '');
         $place_type   = trim($_POST['place_type']   ?? '');
         $partner_name = trim($_POST['partner_name'] ?? '');
-        $pickup_type  = 'R'; // default
+        $pickup_type  = 'R'; 
         if ($place_type === 'Household') {
             $pickup_type = 'R';
         } elseif ($place_type === 'Public') {
@@ -88,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $price_per_kg = trim($_POST['price_per_kg'] ?? '');
         $price_val    = ($price_per_kg !== '') ? (float)str_replace(',', '.', $price_per_kg) : null;
         $layanan      = $_POST['jenis_layanan']      ?? 'gratis';
-        // Geo fields dari Places Autocomplete
+        
         $gLat    = trim($_POST['latitude']          ?? '');
         $gLng    = trim($_POST['longitude']         ?? '');
         $gPlid   = trim($_POST['place_id']          ?? '');
@@ -159,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $newId = (int)$db->lastInsertId();
             recordWeighing($db, $newId);
             
-            // Kirim notifikasi email otomatis saat order masuk secara manual
+            
             triggerNewOrderEmail($db, $newId);
 
             $code  = $db->query("SELECT request_code FROM pickup_requests WHERE id=$newId")->fetchColumn();
@@ -170,7 +156,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // ── KONFIRMASI ──
     if ($action === 'confirm') {
         $id   = (int)($_POST['id'] ?? 0);
         $code = $db->query("SELECT request_code FROM pickup_requests WHERE id=$id")->fetchColumn();
@@ -182,7 +167,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // ── HAPUS ──
     if ($action === 'delete') {
         $id   = (int)($_POST['id'] ?? 0);
         $code = $db->query("SELECT request_code FROM pickup_requests WHERE id=$id")->fetchColumn();
@@ -194,7 +178,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // ── INLINE EDIT BERAT (AJAX) ──
     if ($action === 'update_berat') {
         $id        = (int)($_POST['id']    ?? 0);
         $beratRaw  = trim($_POST['berat']  ?? '');
@@ -207,7 +190,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // ── INLINE EDIT ITEM (AJAX) — admin update estimasi/aktual/catatan per item ──
     if ($action === 'update_item') {
         $item_id    = (int)($_POST['item_id']    ?? 0);
         $estimasi   = trim($_POST['estimasi_kg'] ?? '');
@@ -239,7 +221,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// ── FILTER & SEARCH ─────────────────────────────────────────
 $where   = '1=1';
 $params  = [];
 $search  = trim($_GET['q']      ?? '');
@@ -260,7 +241,6 @@ if ($fKec) {
     $params[] = $fKec;
 }
 
-// ── BASE SELECT ─────────────────────────────────────────────
 $baseSql = "SELECT pr.*,
         COALESCE(
             NULLIF(pr.berat_total_kg, 0),
@@ -281,22 +261,18 @@ $baseSql = "SELECT pr.*,
         FROM pickup_requests pr
         LEFT JOIN officers o ON o.id = pr.officer_id";
 
-// ── QUERY AKTIF (belum selesai/dibatalkan) ──────────────────
 $activeWhere  = "pr.status NOT IN ('selesai','dibatalkan') AND $where";
 $stmtActive   = $db->prepare("$baseSql WHERE $activeWhere ORDER BY pr.created_at DESC");
 $stmtActive->execute($params);
 $activeRequests = $stmtActive->fetchAll();
 
-// ── QUERY SELESAI / DIBATALKAN ───────────────────────────────
 $doneWhere  = "pr.status IN ('selesai','dibatalkan') AND $where";
 $stmtDone   = $db->prepare("$baseSql WHERE $doneWhere ORDER BY pr.updated_at DESC LIMIT 200");
 $stmtDone->execute($params);
 $doneRequests = $stmtDone->fetchAll();
 
-// (legacy alias agar kode preview/edit tetap jalan)
 $requests = array_merge($activeRequests, $doneRequests);
 
-// ── STATISTIK ────────────────────────────────────────────────
 $stats = $db->query("SELECT
     COUNT(*)                   AS total,
     SUM(status='menunggu')     AS menunggu,
@@ -308,7 +284,6 @@ $stats = $db->query("SELECT
     ,0)),1) AS total_berat
     FROM pickup_requests")->fetch();
 
-// ── PREVIEW ─────────────────────────────────────────────────
 $previewData  = null;
 $previewItems = [];
 if (!empty($_GET['preview'])) {
@@ -325,12 +300,12 @@ if (!empty($_GET['preview'])) {
         LEFT JOIN officers o ON o.id=pr.officer_id
         WHERE pr.id=$pid")->fetch();
     if ($previewData) {
-        // Jalankan recordWeighing untuk memicu auto-distribusi jika ada data aktual yang kosong pada status selesai
+        
         if ($previewData['status'] === 'selesai' && (float)$previewData['berat_total_kg'] > 0) {
             recordWeighing($db, $pid);
         }
 
-        // Ambil items + kolom lengkap: estimasi_kg, aktual_kg, catatan
+        
         $previewItems = $db->query("SELECT pri.id AS item_id, pri.estimasi_kg, pri.aktual_kg, pri.catatan AS item_catatan,
             wc.name AS kat_nama, wc.ikon_emoji
             FROM pickup_request_items pri
@@ -339,7 +314,6 @@ if (!empty($_GET['preview'])) {
     }
 }
 
-// ── EDIT ────────────────────────────────────────────────────
 $editData = null;
 if (!empty($_GET['edit'])) {
     $eid      = (int)$_GET['edit'];
@@ -355,7 +329,6 @@ require_once __DIR__ . '/layout/header.php';
 ?>
 
 <style>
-/* ═══════════════════════════════════════
    STAT CARDS
 ═══════════════════════════════════════ */
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
@@ -369,7 +342,6 @@ require_once __DIR__ . '/layout/header.php';
 .stat-card.ok   .sc-val{color:#16a34a}
 .stat-card.purple .sc-val{color:#7c3aed}
 
-/* ═══════════════════════════════════════
    TABLE
 ═══════════════════════════════════════ */
 .table-wrap{overflow-x:auto}
@@ -379,7 +351,6 @@ tbody tr{border-bottom:1px solid #f1f5f9;transition:background .15s}
 tbody tr:hover{background:#f8fffe}
 tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 
-/* ═══════════════════════════════════════
    BERAT CELL
 ═══════════════════════════════════════ */
 .berat-cell{display:flex;align-items:center;gap:5px;min-width:100px}
@@ -388,7 +359,6 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 .berat-edit-btn{background:none;border:1px solid #e2e8f0;border-radius:6px;padding:2px 6px;font-size:11px;cursor:pointer;color:#94a3b8;transition:all .15s;line-height:1.4}
 .berat-edit-btn:hover{border-color:var(--green-400,#4ade80);color:var(--green-600,#16a34a);background:#f0fdf4}
 
-/* ═══════════════════════════════════════
    STATUS BADGES
 ═══════════════════════════════════════ */
 .badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap}
@@ -400,7 +370,6 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 .badge-selesai{background:#dcfce7;color:#166534}
 .badge-dibatalkan{background:#fee2e2;color:#991b1b}
 
-/* ═══════════════════════════════════════
    TOOLBAR
 ═══════════════════════════════════════ */
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
@@ -409,7 +378,6 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 .search-input:focus,.filter-select:focus{border-color:var(--green-500,#22c55e)}
 .search-input{min-width:200px}
 
-/* ═══════════════════════════════════════
    ACTION BUTTONS
 ═══════════════════════════════════════ */
 .btn-icon{padding:5px 8px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .15s;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
@@ -417,7 +385,6 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 .btn-danger.btn-icon:hover{border-color:#fca5a5;background:#fff5f5}
 .actions-cell{display:flex;gap:4px;align-items:center;flex-wrap:nowrap}
 
-/* ═══════════════════════════════════════
    MODAL
 ═══════════════════════════════════════ */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
@@ -438,7 +405,6 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 .form-input{border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;transition:border .2s,box-shadow .2s;font-family:inherit;width:100%;box-sizing:border-box;background:#f8fafc}
 .form-input:focus{border-color:var(--green-500,#22c55e);box-shadow:0 0 0 3px rgba(34,197,94,.12);background:#fff}
 
-/* ═══════════════════════════════════════
    PREVIEW CARD
 ═══════════════════════════════════════ */
 .preview-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px}
@@ -448,7 +414,6 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 .pl{min-width:130px;font-weight:700;color:#64748b;font-size:11px;padding-top:2px;text-transform:uppercase;letter-spacing:.3px}
 .pv{color:#1e293b;flex:1;word-break:break-word;font-weight:600}
 
-/* ═══════════════════════════════════════
    ITEMS TABLE (preview) — Sinkron dengan user console
 ═══════════════════════════════════════ */
 .items-section{margin-top:16px}
@@ -480,14 +445,12 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 .item-kat-cell{display:flex;align-items:center;gap:6px;font-weight:700;color:#1e293b}
 .item-kat-emoji{font-size:16px;line-height:1}
 
-/* ═══════════════════════════════════════
    PAGE HEADER
 ═══════════════════════════════════════ */
 .page-header{margin-bottom:20px}
 .page-header h1{font-size:22px;font-weight:800;color:#1e293b;margin:0 0 4px}
 .page-header p{font-size:13px;color:#94a3b8;margin:0}
 
-/* ═══════════════════════════════════════
    ASSIGN OFFICER PILLS & BATCH BAR
 ═══════════════════════════════════════ */
 /* Tombol assign di kolom tabel */
@@ -558,20 +521,17 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 }
 .batch-bar .btn-cancel:hover { background:rgba(255,255,255,.25); }
 
-/* ─── Select-all checkbox header ─── */
 #checkAll {
     width:15px;height:15px;
     accent-color:var(--green-dark);cursor:pointer;
 }
 
-/* ═══════════════════════════════════════
    SYNC INDICATOR
 ═══════════════════════════════════════ */
 .sync-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;margin-bottom:12px;flex-wrap:wrap}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;animation:pulseDot 2s infinite}
 @keyframes pulseDot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(34,197,94,0)}}
 
-/* ═══════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════ */
 @media(max-width:768px){
@@ -600,7 +560,6 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
   <p>Semua data dari mitra masuk langsung — berat, lokasi, jenis sampah dan status tampil real-time</p>
 </div>
 
-<!-- ── STAT CARDS ── -->
 <div class="stat-grid">
   <div class="stat-card">
     <span class="sc-label">Total Request</span>
@@ -635,7 +594,6 @@ tbody td{padding:10px 12px;vertical-align:middle;color:#334155}
 </div>
 
 <?php
-// ── Reusable table-row renderer ──────────────────────────────
 function renderRow(array $r, bool $isDone = false): string {
     $sc  = 'badge-'.str_replace(' ','_',$r['status']);
     $sl  = ucfirst(str_replace('_',' ',$r['status']));
@@ -685,7 +643,7 @@ function renderRow(array $r, bool $isDone = false): string {
         $officerHtml = "<span style='color:#cbd5e1;font-size:11px;font-style:italic'>Belum ditugaskan<br><small style=\"font-size:10px;color:#bbb\">(oleh algoritma)</small></span>";
     }
 
-    $confBtn = ''; // Konfirmasi dilakukan via dashboard — tidak ditampilkan di sini
+    $confBtn = ''; 
 
     $editBtn = $showEdit ? "<a class='btn-icon' href='req_management.php?edit=$id' title='Edit'>✏️</a>" : "";
     $deleteBtn = "<button class='btn-icon btn-danger' title='Hapus' onclick=\"openDeleteModal($id,'$code')\">🗑️</button>";
@@ -777,7 +735,6 @@ function renderRow(array $r, bool $isDone = false): string {
     </div>
   </div>
 
-  <!-- ══ TABEL 1: ORDER AKTIF ══ -->
   <div style="font-size:13px;font-weight:700;color:#1e293b;margin:8px 0 8px;display:flex;align-items:center;gap:8px">
     📋 Order Aktif
     <span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">
@@ -818,7 +775,6 @@ function renderRow(array $r, bool $isDone = false): string {
   </div>
 </div>
 
-<!-- ══ TABEL 2: RIWAYAT SELESAI / DIBATALKAN ══ -->
 <div class="card" style="margin-top:8px">
   <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px">
     ✅ Riwayat Selesai / Dibatalkan
@@ -864,8 +820,6 @@ function renderRow(array $r, bool $isDone = false): string {
   </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════
      MODAL: INLINE EDIT BERAT
 ═══════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalBerat">
@@ -889,7 +843,6 @@ function renderRow(array $r, bool $isDone = false): string {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
      MODAL: INLINE EDIT ITEM (estimasi/aktual/catatan)
 ═══════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalItem" style="z-index: 9999;">
@@ -940,7 +893,6 @@ function renderRow(array $r, bool $isDone = false): string {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
      MODAL: TAMBAH / EDIT REQUEST
 ═══════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalReq" <?= $editData ? 'style="display:flex"' : '' ?>>
@@ -1126,7 +1078,6 @@ function renderRow(array $r, bool $isDone = false): string {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
      MODAL: PREVIEW DETAIL
      Sinkron penuh: estimasi_kg dari user, aktual_kg dari admin
 ═══════════════════════════════════════════════ -->
@@ -1283,7 +1234,6 @@ function renderRow(array $r, bool $isDone = false): string {
 
       </div>
 
-      <!-- ═══════════════════════════════════════════
            TABEL JENIS SAMPAH
            Sinkron penuh dengan user console:
            - Kategori: dari waste_categories (user pilih)
@@ -1439,12 +1389,9 @@ function renderRow(array $r, bool $isDone = false): string {
 </div>
 <?php endif; ?>
 
-<!-- ═══════════════════════════════════════════════
      MODAL: ASSIGN PETUGAS (SINGLE)
 ═══════════════════════════════════════════════ -->
 
-
-<!-- ═══════════════════════════════════════════════
      MODAL: BATCH ASSIGN
 ═══════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalBatchAssign">
@@ -1463,7 +1410,7 @@ function renderRow(array $r, bool $isDone = false): string {
         <label class="form-label">Assign ke Petugas *</label>
         <select class="form-input" id="batchOfficerId">
           <option value="">— Pilih Petugas —</option>
-          <?php // officers loop removed ?>
+          <?php ?>
         </select>
       </div>
 
@@ -1488,7 +1435,6 @@ function renderRow(array $r, bool $isDone = false): string {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
      MODAL: HAPUS
 ═══════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalDelete">
@@ -1518,7 +1464,6 @@ function renderRow(array $r, bool $isDone = false): string {
 </div>
 
 <script>
-/* ── Modal helpers ── */
 function openModal(id){
   document.getElementById(id).style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -1535,7 +1480,6 @@ document.addEventListener('keydown', e => {
     document.querySelectorAll('.modal-overlay[style*="display:flex"]').forEach(m => closeModal(m.id));
 });
 
-/* ── Delete modal ── */
 function openDeleteModal(id, code) {
   document.getElementById('deleteMsg').textContent =
     'Apakah Anda yakin ingin menghapus request ' + code + '?';
@@ -1543,10 +1487,6 @@ function openDeleteModal(id, code) {
   openModal('modalDelete');
 }
 
-
-
-
-/* ── Inline edit berat (AJAX) ── */
 let _beratId = null;
 function inlineEditBerat(id, current) {
   _beratId = id;
@@ -1587,7 +1527,6 @@ document.getElementById('beratInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') saveBerat();
 });
 
-/* ── Inline edit item (AJAX) ── */
 let _itemId = null;
 function calculateModalTotal() {
   const akt = parseFloat(document.getElementById('itemAktInput').value) || 0;
@@ -1681,10 +1620,9 @@ async function saveItem() {
   } catch (e) { alert('Gagal menyimpan data item. Silakan coba lagi.'); }
 }
 
-
 </script>
 
-<?php // Nominatim Autocomplete — gratis, tanpa API Key ?>
+<?php ?>
 <script>
 let _debounceTimer = null;
 

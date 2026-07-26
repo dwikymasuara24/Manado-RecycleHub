@@ -2,11 +2,10 @@
 $page_id    = 'cleanup';
 $page_title = 'Tugas Clean Up';
 require_once __DIR__ . '/../include/config.php';
-require_once __DIR__ . '/layout/header.php'; // auth + $officerId + $officer + $st
+require_once __DIR__ . '/layout/header.php'; 
 
 $db = getDB();
 
-// ── Auto-migrasi: pastikan kolom baru ada di tabel cleanup_requests ────────
 try {
     $existingCols = array_map('strtolower', $db->query("SHOW COLUMNS FROM cleanup_requests")->fetchAll(PDO::FETCH_COLUMN));
     
@@ -20,14 +19,12 @@ try {
     error_log('[MRH Cleanup Tasks Migration Error] ' . $e->getMessage());
 }
 
-// ── Kategori Clean Up (Shared) ──────────────────────────────────
 $cleanup_types = [
     'acara'  => ['label' => 'Bersih-bersih Acara', 'icon' => '🎉'],
     'rumah'  => ['label' => 'Pembersihan Rumah',   'icon' => '🏠'],
     'kantor' => ['label' => 'Pembersihan Kantor',  'icon' => '🏢'],
 ];
 
-// ── Handle Action (Update Status / Input Weight) ────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     $rid    = (int)($_POST['id'] ?? 0);
@@ -38,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
            ->execute([$status, $rid, $officerId]);
         triggerWhatsAppOnStatusChange($db, $rid, $status, 'cleanup');
         
-        // Kirim notifikasi ke Admin
+        
         try {
             $req_code = $db->query("SELECT request_code FROM cleanup_requests WHERE id = $rid")->fetchColumn();
             $officer_name = $db->query("SELECT u.nama FROM users u JOIN officers o ON o.user_id = u.id WHERE o.id = $officerId")->fetchColumn();
@@ -78,19 +75,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             move_uploaded_file($_FILES['foto_sesudah']['tmp_name'], $upl_dir.$foto_sesudah);
         }
 
-        // UPDATE request
+        
         $db->prepare("UPDATE cleanup_requests SET jam_kerja_aktual=?, biaya_aktual=?, foto_sebelum=IFNULL(?, foto_sebelum), foto_sesudah=IFNULL(?, foto_sesudah), catatan_officer=?, status='selesai', completed_at=NOW() WHERE id=?")
            ->execute([$jam_aktual, $biaya, $foto_sebelum, $foto_sesudah, $cat_officer, $rid]);
         triggerWhatsAppOnStatusChange($db, $rid, 'selesai', 'cleanup');
 
-        // Kirim notifikasi ke Admin
+        
         try {
             $req_code = $db->query("SELECT request_code FROM cleanup_requests WHERE id = $rid")->fetchColumn();
             $officer_name = $db->query("SELECT u.nama FROM users u JOIN officers o ON o.user_id = u.id WHERE o.id = $officerId")->fetchColumn();
             createNotification($db, 'admin', 'Update Petugas (Clean Up)', "Petugas $officer_name menyelesaikan tugas untuk request $req_code.", 'sistem', $rid, 'cleanup_requests');
         } catch(Exception $ex) {}
         
-        // Simpan item
+        
         $catatan = "Jenis: $jenis | Hasil: $hasil";
         $db->prepare("INSERT INTO cleanup_items (cleanup_id, category_id, berat_kg, catatan) VALUES (?, 3, ?, ?)")
            ->execute([$rid, $berat, $catatan]);
@@ -103,7 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-// ── Data: tugas clean up ──────────────────────────────────────
 $stmt = $db->prepare("
     SELECT cr.*
     FROM cleanup_requests cr

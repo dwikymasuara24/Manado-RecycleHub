@@ -1,5 +1,5 @@
 <?php
-// officer/api.php — AJAX handler untuk officer console
+
 require_once __DIR__ . '/../include/auth.php';
 requireRole('officer');
 header('Content-Type: application/json');
@@ -14,7 +14,6 @@ if (!$officerId) {
 
 $action = $_POST['ajax'] ?? '';
 
-// ── Update status pickup ──────────────────────────────────────
 if ($action === 'update_status') {
     $pid         = (int)($_POST['pickup_id'] ?? 0);
     $status      = $_POST['status'] ?? '';
@@ -36,14 +35,14 @@ if ($action === 'update_status') {
         if ($status === 'sedang_diproses') $extra .= ', confirmed_at=IF(confirmed_at IS NULL,NOW(),confirmed_at)';
         if (isset($_POST['catatan_officer'])) { $extra .= ', catatan_officer=?'; $params[] = $catatan; }
         
-        // Add pickup_type if present
+        
         $extra .= ', pickup_type=?'; $params[] = $pickup_type !== '' ? $pickup_type : null;
 
         $params[] = $pid;
         try {
             $db->prepare("UPDATE pickup_requests SET status=?, updated_at=NOW()$extra WHERE id=? AND officer_id=$officerId")->execute($params);
             
-            // If item_weights are passed, update them
+            
             if (isset($_POST['item_weights'])) {
                 $itemWeights = json_decode($_POST['item_weights'], true);
                 if (is_array($itemWeights)) {
@@ -63,7 +62,7 @@ if ($action === 'update_status') {
                 recordWeighing($db, $pid);
             }
 
-            // Kirim notifikasi ke Admin
+            
             try {
                 $req_code = $db->query("SELECT request_code FROM pickup_requests WHERE id = $pid")->fetchColumn();
                 $officer_name = $db->query("SELECT u.nama FROM users u JOIN officers o ON o.user_id = u.id WHERE o.id = $officerId")->fetchColumn();
@@ -86,7 +85,6 @@ if ($action === 'update_status') {
     echo json_encode(['ok'=>false,'error'=>'Invalid params']); exit;
 }
 
-// ── Update lokasi GPS ─────────────────────────────────────────
 if ($action === 'update_location') {
     $lat = isset($_POST['lat']) && $_POST['lat'] !== '' ? (float)$_POST['lat'] : null;
     $lng = isset($_POST['lng']) && $_POST['lng'] !== '' ? (float)$_POST['lng'] : null;
@@ -100,7 +98,6 @@ if ($action === 'update_location') {
     echo json_encode(['ok'=>true]); exit;
 }
 
-// ── Get request details ────────────────────────────────────────
 if ($action === 'get_details') {
     $id = (int)($_POST['id'] ?? 0);
     $type = $_POST['type'] ?? '';
@@ -131,7 +128,6 @@ if ($action === 'get_details') {
     echo json_encode(['ok'=>false, 'error'=>'Request not found']); exit;
 }
 
-// ── Revert/Hapus Riwayat Selesai ─────────────────────────────
 if ($action === 'delete_riwayat') {
     $id = (int)($_POST['id'] ?? 0);
     $type = $_POST['type'] ?? '';

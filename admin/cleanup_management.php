@@ -7,7 +7,6 @@ $page_title = 'Manajemen Clean Up';
 $db         = getDB();
 $csrfToken  = csrfToken();
 
-// --- AUTO-MIGRATION: Create tables if not exist ---
 try {
     $db->exec("CREATE TABLE IF NOT EXISTS `cleanup_requests` (
         `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -53,7 +52,7 @@ try {
         KEY `idx_cleanup_item_req` (`cleanup_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
 
-    // Add trigger if not exists (Simplified approach: drop and create)
+    
     $db->exec("DROP TRIGGER IF EXISTS `trg_cleanup_request_code` ");
     $db->exec("CREATE TRIGGER `trg_cleanup_request_code` BEFORE INSERT ON `cleanup_requests` FOR EACH ROW BEGIN
         DECLARE v_code VARCHAR(20);
@@ -66,7 +65,7 @@ try {
             SET NEW.request_code = v_code;
         END IF;
     END");
-    // Pastikan kolom baru ditambahkan jika tabel sudah ada sebelumnya
+    
     try {
         $existingCols = array_map('strtolower', $db->query("SHOW COLUMNS FROM `cleanup_requests`")->fetchAll(PDO::FETCH_COLUMN));
         if (!in_array('jam_kerja_aktual', $existingCols)) {
@@ -77,23 +76,19 @@ try {
         }
     } catch (Exception $e) {}
 } catch (Exception $e) {
-    // Ignore migration errors or log them
+    
 }
 
-
-// ── Kategori Clean Up (Shared) ──────────────────────────────────
 $cleanup_types = [
     'acara'  => ['label' => 'Bersih-bersih Acara', 'icon' => '🎉'],
     'rumah'  => ['label' => 'Pembersihan Rumah',   'icon' => '🏠'],
     'kantor' => ['label' => 'Pembersihan Kantor',  'icon' => '🏢'],
 ];
 
-// ── AJAX / POST handler ─────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     requireCsrfToken();
     $action = $_POST['action'];
 
-    // ── KONFIRMASI & SET BIAYA ──
     if ($action === 'confirm') {
         $id    = (int)($_POST['id'] ?? 0);
         $biaya = floatval($_POST['biaya_estimasi'] ?? 0);
@@ -110,7 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // ── ASSIGN PETUGAS ──
     if ($action === 'assign_officer') {
         $rid  = (int)($_POST['request_id'] ?? 0);
         $oid  = (int)($_POST['officer_id'] ?? 0);
@@ -120,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $biaya = $est * 50000;
         
         if ($rid && $oid) {
-            // Batas maksimal 30 titik per hari per petugas
+            
             $targetTgl = $tgl;
             if ($targetTgl) {
                 $stmtCount = $db->prepare("
@@ -149,7 +143,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // ── HAPUS ──
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         $db->prepare("DELETE FROM cleanup_requests WHERE id=?")->execute([$id]);
@@ -158,7 +151,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         header('Location: cleanup_management.php');
         exit;
     }
-    // ── EDIT ──
     if ($action === 'edit') {
         $id = (int)($_POST['id'] ?? 0);
         $kec = trim($_POST['kecamatan'] ?? '');
@@ -177,7 +169,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// ── FETCH EDIT / PREVIEW DATA ─────────────────────────
 $editData = null;
 if (!empty($_GET['edit'])) {
     $eid = (int)$_GET['edit'];
@@ -200,7 +191,6 @@ if (!empty($_GET['preview'])) {
     }
 }
 
-// ── FILTER & SEARCH ─────────────────────────────────────────
 $where   = '1=1';
 $params  = [];
 $search  = trim($_GET['q']        ?? '');
@@ -224,7 +214,6 @@ if ($fKec !== '') {
     $params[] = $fKec;
 }
 
-// ── QUERY DATA ──────────────────────────────────────────────
 $stmt = $db->prepare("
     SELECT r.*, o.nama AS officer_nama
     FROM cleanup_requests r

@@ -1,9 +1,5 @@
 <?php
-// ============================================================
-//  admin/pivot_pembayaran.php — Admin Panel: Pivot Table Pembayaran Mitra
-//  Manado Recycle Hub
-//  Merekap total berat sampah dan pembayaran otomatis ke mitra/warga
-// ============================================================
+
 require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
@@ -12,7 +8,6 @@ $page_id    = 'pivot_pembayaran';
 $page_title = 'Pivot Table Pembayaran';
 $db         = getDB();
 
-// ── GET FILTERS & PERIODS ────────────────────────────────────
 $period_type = $_GET['period_type'] ?? 'monthly';
 if (!in_array($period_type, ['weekly', 'monthly', 'yearly', 'custom'])) {
     $period_type = 'monthly';
@@ -25,7 +20,6 @@ $start_date = $_GET['start_date'] ?? date('Y-m-01');
 $end_date   = $_GET['end_date'] ?? date('Y-m-t');
 $search     = trim($_GET['search'] ?? '');
 
-// Calculate date range based on period_type
 if ($period_type === 'weekly') {
     $dto = new DateTime();
     $dto->setISODate($year, $week);
@@ -38,12 +32,11 @@ if ($period_type === 'weekly') {
 } elseif ($period_type === 'yearly') {
     $startDate = "$year-01-01";
     $endDate   = "$year-12-31";
-} else { // custom
+} else { 
     $startDate = $start_date;
     $endDate   = $end_date;
 }
 
-// Format period label for UI / Export headers
 $bulanId = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 if ($period_type === 'weekly') {
     $periodLabel = "Minggu Ke-$week Tahun $year (" . date('d M Y', strtotime($startDate)) . " - " . date('d M Y', strtotime($endDate)) . ")";
@@ -55,8 +48,6 @@ if ($period_type === 'weekly') {
     $periodLabel = date('d M Y', strtotime($startDate)) . " s/d " . date('d M Y', strtotime($endDate));
 }
 
-// ── GET DATA FROM DATABASE ────────────────────────────────────
-// Bangun kondisi pencarian tambahan
 $searchCond  = '';
 $searchParams = [];
 if ($search !== '') {
@@ -64,7 +55,6 @@ if ($search !== '') {
     $searchParams = ["%$search%", "%$search%", "%$search%"];
 }
 
-// ── PICKUP REQUESTS (status selesai, filter completed_at) ──────
 $params_pickup = [$startDate, $endDate, ...$searchParams];
 $query_pickup = "
     SELECT 
@@ -84,7 +74,6 @@ $query_pickup = "
       $searchCond
 ";
 
-// ── CLEANUP REQUESTS (status selesai, filter completed_at) ─────
 $params_cleanup = [$startDate, $endDate, ...$searchParams];
 $query_cleanup = "
     SELECT 
@@ -102,7 +91,6 @@ $query_cleanup = "
       $searchCond
 ";
 
-// ── Gabungkan dan aggregate ────────────────────────────────────
 $query_str = "
     SELECT
         request_code,
@@ -126,7 +114,6 @@ $stmt = $db->prepare($query_str);
 $stmt->execute($all_params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate totals
 $grandKunjungan = 0;
 $grandBerat = 0.0;
 $grandBayar = 0.0;
@@ -140,7 +127,6 @@ foreach ($rows as $r) {
 }
 $totalMitraCount = count($uniquePartners);
 
-// Helper function to format decimal lat/lng to DMS if needed (consistent with config)
 if (!function_exists('decToDms')) {
     function decToDms($lat, $lng): string {
         if ($lat === null || $lng === null || $lat == 0 || $lng == 0) return '-';
@@ -160,7 +146,6 @@ if (!function_exists('decToDms')) {
     }
 }
 
-// ── EXPORT HANDLER ────────────────────────────────────────────
 if (isset($_GET['export'])) {
     $export_type = $_GET['export'];
     $filename = 'pivot_pembayaran_mitra_' . str_replace(' ', '_', strtolower($periodLabel));
@@ -416,7 +401,6 @@ if (isset($_GET['export'])) {
     }
 }
 
-// Generate the list of weeks for the week dropdown
 $weeksList = [];
 $dto = new DateTime();
 $dto->setISODate($year, 1);
@@ -431,7 +415,6 @@ for ($w = 1; $w <= 53; $w++) {
     $dto->modify('+1 day');
 }
 
-// Include layout header
 require_once __DIR__ . '/layout/header.php';
 ?>
 
@@ -792,7 +775,7 @@ require_once __DIR__ . '/layout/header.php';
                 $no = 1;
                 if ($rows):
                     foreach ($rows as $r): 
-                        // Determine badge class depending on request prefix (B = Bin, S = Community/Karom, C = Collector)
+                        
                         $badgeClass = '';
                         $code = strtoupper($r['request_code']);
                         if (str_contains($code, '-B-')) {

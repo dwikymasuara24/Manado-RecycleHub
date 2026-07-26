@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/include/config.php';
-// ── Simpan ide ke DB jika dikirim via POST ────────────────────
 $ideaSuccess = false;
 $ideaError   = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ide'])) {
@@ -19,16 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ide'])) {
         $ideaError = 'Ide terlalu singkat (minimal 10 karakter).';
     }
 }
-// Konfigurasi halaman
+
 $site_name = "Manado Recycle Hub";
 $page_title = "Idea Box";
 $whatsapp_number = "6281241092529";
 $whatsapp_url = "https://wa.me/" . $whatsapp_number;
 $google_font_url = "https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap";
-$logo_img = "Home.png"; // Letakkan file logo di folder yang sama
-$banner_img = "ideae.jpeg"; // Letakkan file banner di folder yang sama
+$logo_img = "Home.png"; 
+$banner_img = "ideae.jpeg"; 
 
-// Menu navigasi
 $nav_items = [
     ["label" => "Home",                 "url" => "home.php",                    "active" => false],
     ["label" => "Bin Project",          "url" => "bin_project.php",             "active" => false],
@@ -49,7 +47,6 @@ $nav_items = [
     <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
     <link rel="stylesheet" href="<?= $google_font_url ?>">
     <style>
-        /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Comfortaa', sans-serif;
@@ -60,7 +57,6 @@ $nav_items = [
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; display: block; }
 
-        /* ===== CSS VARIABLES ===== */
         :root {
             --green-primary: rgba(28, 100, 52, 1);
             --green-light: rgba(214, 228, 195, 1);
@@ -71,7 +67,6 @@ $nav_items = [
             --text-dark:        rgba(28, 28, 28, 1);
         }
 
-        /* ===== TOP NAVBAR ===== */
         header {
             position: fixed;
             top: 0;
@@ -111,7 +106,6 @@ $nav_items = [
             color: var(--text-light);
         }
 
-        /* ===== DESKTOP NAV ===== */
         .navbar-nav {
             display: flex;
             list-style: none;
@@ -138,7 +132,6 @@ $nav_items = [
             border-bottom: 2px solid var(--text-light);
         }
 
-        /* ===== HAMBURGER (Mobile) ===== */
         .hamburger {
             display: none;
             flex-direction: column;
@@ -156,7 +149,6 @@ $nav_items = [
             transition: 0.3s;
         }
 
-        /* ===== MOBILE SIDEBAR NAV ===== */
         .sidebar-nav {
             display: none;
             position: fixed;
@@ -209,7 +201,6 @@ $nav_items = [
         }
         .sidebar-overlay.open { display: block; }
 
-        /* ===== HERO / BANNER SECTION ===== */
         .hero-section {
             position: relative;
             height: 660px;
@@ -250,7 +241,6 @@ $nav_items = [
             line-height: 1.38;
         }
 
-        /* ===== SUBTITLE SECTION ===== */
         .subtitle-section {
             padding: 56px 0;
             text-align: center;
@@ -268,7 +258,6 @@ $nav_items = [
             margin-bottom: 0;
         }
 
-        /* ===== CONTENT SECTION (2 kolom) ===== */
         .content-section {
             max-width: 1280px;
             margin: 0 auto;
@@ -298,7 +287,6 @@ $nav_items = [
             margin-bottom: 16px;
         }
 
-        /* ===== CTA BUTTON ===== */
         .cta-wrapper {
             margin-top: 24px;
         }
@@ -329,7 +317,6 @@ $nav_items = [
             transform: scale(0.98);
         }
 
-        /* ===== FOOTER ===== */
         .site-footer {
             padding: 24px 0 32px;
             background: var(--light-bg);
@@ -344,7 +331,6 @@ $nav_items = [
             margin-bottom: 4px;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 767px) {
             .navbar { padding: 0 20px; }
             .navbar-brand .brand-name { font-size: 13pt; }
@@ -371,10 +357,8 @@ $nav_items = [
 </head>
 <body>
 
-<!-- ===== MOBILE SIDEBAR OVERLAY ===== -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- ===== MOBILE SIDEBAR NAV ===== -->
 <nav class="sidebar-nav" id="sidebarNav">
     <div class="sidebar-logo">
         <img src="<?= htmlspecialchars($logo_img) ?>" alt="<?= htmlspecialchars($site_name) ?> logo">
@@ -392,7 +376,6 @@ $nav_items = [
     </ul>
 </nav>
 
-<!-- ===== HEADER / NAVBAR ===== -->
 <header>
     <div class="navbar">
         <a href="home.php" class="navbar-brand">
@@ -419,7 +402,6 @@ $nav_items = [
     </div>
 </header>
 
-<!-- ===== HERO SECTION ===== -->
 <section class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -427,12 +409,10 @@ $nav_items = [
     </div>
 </section>
 
-<!-- ===== SUBTITLE SECTION ===== -->
 <section class="subtitle-section">
     <h2>Punya Ide daur ulang?</h2>
 </section>
 
-<!-- ===== MAIN CONTENT SECTION ===== -->
 <section class="content-section">
     <div class="content-grid">
 
@@ -483,7 +463,6 @@ $nav_items = [
     </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
 <footer class="site-footer" aria-label="Footer">
     <div class="container">
         <small class="footer-text" style="display:block;">
@@ -495,7 +474,6 @@ $nav_items = [
     </div>
 </footer>
 
-<!-- ===== JAVASCRIPT ===== -->
 <script>
     function openSidebar() {
         document.getElementById('sidebarNav').classList.add('open');

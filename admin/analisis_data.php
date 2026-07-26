@@ -1,16 +1,10 @@
 <?php
-// ============================================================
-//  analisis_data.php — Admin Panel: Analisis Data
-//  Manado Recycle Hub
-//  Sinkron penuh dengan kuesioner.php (user console)
-//  Membaca survey_responses + pickup_requests
-// ============================================================
+
 require_once __DIR__ . '/../include/config.php';
 $page_id    = 'analisis_data';
 $page_title = 'Analisis Data';
 $db         = getDB();
 
-// ── Auto-migrasi: pastikan tabel survey_responses ada & memiliki kolom terbaru ────────
 $db->exec("CREATE TABLE IF NOT EXISTS survey_responses (
     id                         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     response_code              VARCHAR(20)  NULL UNIQUE,
@@ -32,7 +26,6 @@ $db->exec("CREATE TABLE IF NOT EXISTS survey_responses (
     INDEX idx_q2 (q2_paham_3r)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-// Pastikan kolom-kolom baru ditambahkan jika tabel sudah ada sebelumnya
 try {
     $existingCols = array_map('strtolower', $db->query("SHOW COLUMNS FROM survey_responses")->fetchAll(PDO::FETCH_COLUMN));
     
@@ -67,7 +60,7 @@ try {
         $db->exec("ALTER TABLE survey_responses ADD COLUMN updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
     }
     
-    // Hapus constraint check JSON yang membatasi format data jika ada
+    
     try {
         $db->exec("ALTER TABLE survey_responses DROP CHECK survey_responses_chk_1");
     } catch (Exception $e) {}
@@ -75,7 +68,7 @@ try {
         $db->exec("ALTER TABLE survey_responses MODIFY q5_jenis_sampah_didaur_ulang TEXT NULL");
     } catch (Exception $e) {}
     
-    // Backfill response_code untuk data yang kosong/NULL agar tidak menyebabkan error unique key atau error query
+    
     $stmtNull = $db->query("SELECT id FROM survey_responses WHERE response_code IS NULL OR response_code = ''");
     $nullRows = $stmtNull->fetchAll(PDO::FETCH_COLUMN);
     if (!empty($nullRows)) {
@@ -89,7 +82,6 @@ try {
     error_log('[MRH Survey Migration Error] ' . $e->getMessage());
 }
 
-// ── POST: hapus response ──────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'delete_survey') {
         $sid  = (int)($_POST['id'] ?? 0);
@@ -102,13 +94,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// ── Filter kuesioner ──────────────────────────────────────────
 $sqSearch = trim($_GET['sq'] ?? '');
 $sqQ1     = $_GET['sq_q1']   ?? '';
 $sqQ2     = $_GET['sq_q2']   ?? '';
 $sqQ7     = $_GET['sq_q7']   ?? '';
 
-// ── Statistik Utama ──────────────────────────────────────────
 $totalSampahPickup = (float)$db->query("SELECT COALESCE(SUM(berat_total_kg),0) FROM pickup_requests WHERE status='selesai' AND MONTH(COALESCE(completed_at, updated_at))=MONTH(CURDATE()) AND YEAR(COALESCE(completed_at, updated_at))=YEAR(CURDATE())")->fetchColumn();
 $totalSampahCleanup = (float)$db->query("SELECT COALESCE(SUM(ci.berat_kg),0) FROM cleanup_items ci JOIN cleanup_requests cr ON cr.id=ci.cleanup_id WHERE cr.status='selesai' AND MONTH(COALESCE(cr.completed_at, cr.updated_at))=MONTH(CURDATE()) AND YEAR(COALESCE(cr.completed_at, cr.updated_at))=YEAR(CURDATE())")->fetchColumn();
 $totalSampahKg = $totalSampahPickup + $totalSampahCleanup;
@@ -130,14 +120,12 @@ $cleanupPend = (float)$db->query("
     WHERE MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())
 ")->fetchColumn();
 
-// ── Request per Kecamatan ─────────────────────────────────────
 $kecData = $db->query("SELECT kecamatan, SUM(cnt) as cnt FROM (
     SELECT kecamatan, COUNT(*) as cnt FROM pickup_requests WHERE kecamatan IS NOT NULL GROUP BY kecamatan
     UNION ALL
     SELECT kecamatan, COUNT(*) as cnt FROM cleanup_requests WHERE kecamatan IS NOT NULL GROUP BY kecamatan
 ) t GROUP BY kecamatan ORDER BY cnt DESC LIMIT 8")->fetchAll();
 
-// ── Jenis Sampah Terbanyak ────────────────────────────────────
 $wasteData = $db->query("
     SELECT wc.name, wc.ikon_emoji, SUM(t.total_kg) as total_kg
     FROM (
@@ -150,7 +138,6 @@ $wasteData = $db->query("
     ORDER BY total_kg DESC LIMIT 8
 ")->fetchAll();
 
-// ── Tren Request per Minggu ───────────────────────────────────
 $trendData = $db->query("
     SELECT yw, SUM(cnt) as cnt FROM (
         SELECT YEARWEEK(created_at, 1) AS yw, COUNT(*) AS cnt FROM pickup_requests WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 WEEK) GROUP BY yw
@@ -159,14 +146,12 @@ $trendData = $db->query("
     ) t GROUP BY yw ORDER BY yw ASC
 ")->fetchAll();
 
-// ── Distribusi Status Request ─────────────────────────────────
 $statusData = $db->query("SELECT status, SUM(cnt) as cnt FROM (
     SELECT status, COUNT(*) as cnt FROM pickup_requests GROUP BY status
     UNION ALL
     SELECT status, COUNT(*) as cnt FROM cleanup_requests GROUP BY status
 ) t GROUP BY status ORDER BY cnt DESC")->fetchAll();
 
-// ── Performa Data Collecting (Petugas, Bin, Sack) ───────────
 $officerPerf = $db->query("
     SELECT 
         o.id, o.nama, o.officer_code, 
@@ -189,7 +174,6 @@ $officerPerf = $db->query("
     ORDER BY total_kg DESC
 ")->fetchAll();
 
-// ── Survey Stats (untuk chart progress bar) ───────────────────
 $surveyTotal = max((int)$db->query("SELECT COUNT(*) FROM survey_responses")->fetchColumn(), 1);
 $sqDef = [
     ['label'=>'Sampah adalah masalah mendesak',  'col'=>'q1_sampah_mendesak'],
@@ -210,7 +194,6 @@ foreach ($sqDef as $q) {
     ];
 }
 
-// ── Jenis sampah terbanyak dari kuesioner (Q5 CSV) ───────────
 $jenisSampahCount = [];
 $allQ5 = $db->query("SELECT q5_jenis_sampah_didaur_ulang FROM survey_responses WHERE q5_jenis_sampah_didaur_ulang IS NOT NULL AND q5_jenis_sampah_didaur_ulang != ''")->fetchAll();
 foreach ($allQ5 as $row) {
@@ -223,7 +206,6 @@ foreach ($allQ5 as $row) {
 }
 arsort($jenisSampahCount);
 
-// ── Tren Kuesioner per Minggu (12 minggu terakhir) ───────────
 $surveyTrend = $db->query("
     SELECT YEARWEEK(created_at, 1) AS yw, COUNT(*) AS cnt
     FROM survey_responses
@@ -231,7 +213,6 @@ $surveyTrend = $db->query("
     GROUP BY yw ORDER BY yw ASC
 ")->fetchAll();
 
-// ── Daftar response kuesioner (dengan filter) ─────────────────
 $sWhere  = '1=1';
 $sParams = [];
 if ($sqSearch) {
@@ -247,14 +228,12 @@ $surveyStmt = $db->prepare("SELECT * FROM survey_responses WHERE $sWhere ORDER B
 $surveyStmt->execute($sParams);
 $surveyList = $surveyStmt->fetchAll();
 
-// ── Preview kuesioner ─────────────────────────────────────────
 $surveyPreview = null;
 if (!empty($_GET['preview_survey'])) {
     $pid = (int)$_GET['preview_survey'];
     $surveyPreview = $db->query("SELECT * FROM survey_responses WHERE id=$pid")->fetch();
 }
 
-// ── Top 5 Request Terbaru ─────────────────────────────────────
 $topRecent = $db->query("
     SELECT request_code, nama_pemohon, place_name, partner_name, kecamatan, status, created_at FROM (
         SELECT request_code, nama_pemohon, place_name, partner_name, kecamatan, status, created_at FROM pickup_requests
@@ -267,14 +246,12 @@ require_once __DIR__ . '/layout/header.php';
 ?>
 
 <style>
-/* ═══════════════════════════════════════
    PAGE HEADER
 ═══════════════════════════════════════ */
 .page-header{margin-bottom:20px}
 .page-header h1{font-size:22px;font-weight:800;color:#1e293b;margin:0 0 4px}
 .page-header p{font-size:13px;color:#94a3b8;margin:0}
 
-/* ═══════════════════════════════════════
    STAT CARDS
 ═══════════════════════════════════════ */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
@@ -289,20 +266,17 @@ require_once __DIR__ . '/layout/header.php';
 .stat-card.amber .stat-value{color:#d97706}
 .stat-card.red   .stat-value{color:#dc2626}
 
-/* ═══════════════════════════════════════
    GRID 2 COLUMNS
 ═══════════════════════════════════════ */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
 
-/* ═══════════════════════════════════════
    CARD (admin panel)
 ═══════════════════════════════════════ */
 .card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .card-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:#1e293b;margin-bottom:16px;flex-wrap:wrap}
 .ct-icon{font-size:18px}
 
-/* ═══════════════════════════════════════
    BAR CHART (vertikal)
 ═══════════════════════════════════════ */
 .bar-chart{display:flex;align-items:flex-end;gap:10px;height:150px;overflow-x:auto;padding-bottom:4px}
@@ -311,13 +285,11 @@ require_once __DIR__ . '/layout/header.php';
 .bar-val{font-size:10px;font-weight:800;color:#2e7d32}
 .bar{background:linear-gradient(180deg,#4caf50,#2e7d32);border-radius:4px 4px 0 0;width:32px;min-height:4px;transition:height .4s}
 
-/* ═══════════════════════════════════════
    PROGRESS BAR
 ═══════════════════════════════════════ */
 .progress-bar{background:#f0f0f0;border-radius:4px;height:8px;overflow:hidden;margin-top:4px}
 .progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#4caf50,#2e7d32);transition:width .4s}
 
-/* ═══════════════════════════════════════
    BADGES
 ═══════════════════════════════════════ */
 .badge{display:inline-flex;align-items:center;gap:3px;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700}
@@ -329,7 +301,6 @@ require_once __DIR__ . '/layout/header.php';
 .badge-tidak{background:#fee2e2;color:#991b1b}
 .badge-none {background:#f1f5f9;color:#64748b}
 
-/* ═══════════════════════════════════════
    TABLE
 ═══════════════════════════════════════ */
 .table-wrap{overflow-x:auto}
@@ -339,7 +310,6 @@ tbody tr{border-bottom:1px solid #f1f5f9;transition:background .15s}
 tbody tr:hover{background:#f8fffe}
 tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 
-/* ═══════════════════════════════════════
    TOOLBAR / FILTER
 ═══════════════════════════════════════ */
 .filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
@@ -347,7 +317,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .search-input:focus,.filter-select:focus{border-color:#22c55e}
 .search-input{min-width:200px}
 
-/* ═══════════════════════════════════════
    BUTTONS
 ═══════════════════════════════════════ */
 .btn{display:inline-flex;align-items:center;gap:5px;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;border:1.5px solid transparent;text-decoration:none}
@@ -360,13 +329,11 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .btn-icon{padding:4px 7px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .15s;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
 .btn-icon:hover{border-color:#4ade80;background:#f0fdf4}
 
-/* ═══════════════════════════════════════
    SECTION TITLE
 ═══════════════════════════════════════ */
 .section-title{font-size:16px;font-weight:800;color:#1e293b;margin:28px 0 14px;display:flex;align-items:center;gap:8px}
 .section-title .sc-line{flex:1;height:1.5px;background:#e2e8f0}
 
-/* ═══════════════════════════════════════
    MODAL
 ═══════════════════════════════════════ */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
@@ -381,7 +348,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .modal-body{padding:20px 24px;flex:1;overflow-y:auto}
 .modal-footer{padding:14px 24px;border-top:1px solid #f1f5f9;display:flex;gap:8px;justify-content:flex-end;background:#fafafa;border-radius:0 0 16px 16px}
 
-/* ═══════════════════════════════════════
    PREVIEW CARD (kuesioner)
 ═══════════════════════════════════════ */
 .preview-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
@@ -390,14 +356,12 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .pl{min-width:160px;font-weight:700;color:#64748b;font-size:11px;padding-top:2px;text-transform:uppercase;letter-spacing:.3px}
 .pv{color:#1e293b;flex:1;word-break:break-word;font-weight:600}
 
-/* ═══════════════════════════════════════
    SYNC INDICATOR
 ═══════════════════════════════════════ */
 .sync-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;margin-bottom:14px;flex-wrap:wrap}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulseDot 2s infinite}
 @keyframes pulseDot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(34,197,94,0)}}
 
-/* ═══════════════════════════════════════
    ANSWER PILL
 ═══════════════════════════════════════ */
 .ans-pill{display:inline-block;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700}
@@ -405,19 +369,16 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .ans-tidak{background:#fee2e2;color:#991b1b}
 .ans-none {background:#f1f5f9;color:#94a3b8;font-style:italic}
 
-/* ═══════════════════════════════════════
    JENIS SAMPAH TAG CLOUD
 ═══════════════════════════════════════ */
 .tag-cloud{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
 .tag{background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;border:1px solid #c8e6c9}
 .tag .tag-cnt{background:#2e7d32;color:#fff;border-radius:10px;padding:0 5px;font-size:10px;margin-left:4px}
 
-/* ═══════════════════════════════════════
    KESULITAN QUOTE
 ═══════════════════════════════════════ */
 .quote-box{background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:#78350f;line-height:1.6;margin-top:8px;font-style:italic}
 
-/* ═══════════════════════════════════════
    EMPTY STATE
 ═══════════════════════════════════════ */
 .empty-state{text-align:center;padding:48px 0;color:#94a3b8}
@@ -454,7 +415,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   <a href="rute_jadwal.php"      class="btn btn-outline btn-sm">🗺️ Rute & Jadwal</a>
 </div>
 
-<!-- ── STAT CARDS ── -->
 <div class="stats-grid mb-24">
   <div class="stat-card green">
     <div class="stat-label">Total Sampah (kg)</div>
@@ -478,7 +438,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   </div>
 </div>
 
-<!-- ── CHARTS ROW 1 ── -->
 <div class="grid-2 mb-24">
   <!-- Request per Kecamatan -->
   <div class="card">
@@ -525,7 +484,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   </div>
 </div>
 
-<!-- ── CHARTS ROW 2 ── -->
 <div class="grid-2 mb-24">
   <!-- Tren Request per Minggu -->
   <div class="card">
@@ -579,7 +537,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   </div>
 </div>
 
-<!-- ── CHARTS ROW 3 (DATA COLLECTING) ── -->
 <div class="grid-2 mb-24">
   <div class="card" style="grid-column:1/-1">
     <div class="card-title"><div class="ct-icon">👷</div> Performa Data Collecting (Petugas, Bin, Sack)</div>
@@ -615,7 +572,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   </div>
 </div>
 
-<!-- ── SURVEY CHARTS ROW ── -->
 <div class="grid-2 mb-24">
   <!-- Hasil Kuesioner — Progress Bar -->
   <div class="card">
@@ -668,7 +624,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   </div>
 </div>
 
-<!-- ── TREN KUESIONER + REQUEST TERBARU ── -->
 <div class="grid-2 mb-24">
   <!-- Tren Kuesioner per Minggu -->
   <div class="card">
@@ -725,7 +680,6 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════
      SECTION: MANAJEMEN DATA KUESIONER
      Sinkron penuh dengan kuesioner.php — data user masuk langsung
 ════════════════════════════════════════════════════════════════ -->
@@ -896,7 +850,6 @@ if (!function_exists('ansPill')) {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
      MODAL: PREVIEW DETAIL KUESIONER
      Sinkron penuh dengan kuesioner.php
 ═══════════════════════════════════════════════ -->
@@ -994,7 +947,6 @@ if (!function_exists('ansPill')) {
 <?php endif; ?>
 
 <script>
-/* ── Modal helpers ── */
 function openModal(id){
   document.getElementById(id).style.display='flex';
   document.body.style.overflow='hidden';
@@ -1011,14 +963,12 @@ document.addEventListener('keydown', e => {
     document.querySelectorAll('.modal-overlay[style*="display:flex"]').forEach(m => closeModal(m.id));
 });
 
-/* ── Last refresh indicator ── */
 function updateLastRefresh() {
   const el = document.getElementById('lastRefresh');
   if (el) el.textContent = '· diperbarui ' + new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
 }
 updateLastRefresh();
 
-/* ── Auto-refresh 60 detik ── */
 setInterval(() => {
   const anyOpen = document.querySelector('.modal-overlay[style*="display:flex"],.modal-overlay.open');
   if (!anyOpen && !document.hidden) location.reload();

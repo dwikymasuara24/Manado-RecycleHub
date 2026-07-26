@@ -1,28 +1,17 @@
 <?php
-// ============================================================
-//  kuesioner.php — Survey Kesadaran 3R
-//  Manado Recycle Hub — User Console
-//  Sinkron penuh dengan analisis_data.php (admin)
-//  Menyimpan semua jawaban ke tabel survey_responses
-// ============================================================
 
-// ── FIX: Session HARUS dimulai sebelum include config.php ────
-// config.php mungkin memanggil session_start() juga, guard ini
-// mencegah "session already started" warning.
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 require_once __DIR__ . '/include/config.php';
 
-// ── Koneksi Database (via include/config.php → getDB()) ──────
 try {
     $pdo = getDB();
 } catch (PDOException $e) {
     $pdo = null;
 }
 
-// ── Auto-migrasi: pastikan tabel & kolom ada ────────────────
 if ($pdo) {
     try {
         $pdo->exec("CREATE TABLE IF NOT EXISTS survey_responses (
@@ -46,7 +35,7 @@ if ($pdo) {
             INDEX idx_q2 (q2_paham_3r)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Pastikan kolom-kolom baru ditambahkan jika tabel sudah ada sebelumnya
+        
         $existingCols = array_map('strtolower', $pdo->query("SHOW COLUMNS FROM survey_responses")->fetchAll(PDO::FETCH_COLUMN));
         
         if (!in_array('response_code', $existingCols)) {
@@ -80,7 +69,7 @@ if ($pdo) {
             $pdo->exec("ALTER TABLE survey_responses ADD COLUMN updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
         }
 
-        // Hapus constraint check JSON yang membatasi format data jika ada
+        
         try {
             $pdo->exec("ALTER TABLE survey_responses DROP CHECK survey_responses_chk_1");
         } catch (Exception $e) {}
@@ -88,7 +77,7 @@ if ($pdo) {
             $pdo->exec("ALTER TABLE survey_responses MODIFY q5_jenis_sampah_didaur_ulang TEXT NULL");
         } catch (Exception $e) {}
 
-        // Backfill response_code untuk data yang kosong/NULL agar tidak menyebabkan error unique key atau error query
+        
         $stmtNull = $pdo->query("SELECT id FROM survey_responses WHERE response_code IS NULL OR response_code = ''");
         $nullRows = $stmtNull->fetchAll(PDO::FETCH_COLUMN);
         if (!empty($nullRows)) {
@@ -103,7 +92,6 @@ if ($pdo) {
     }
 }
 
-// ── Helper: generate kode unik response ─────────────────────
 function generateResponseCode($pdo) {
     if (!$pdo) return 'SRV-' . strtoupper(substr(uniqid(), -6));
     do {
@@ -114,9 +102,6 @@ function generateResponseCode($pdo) {
     return $code;
 }
 
-// ── FIX: Init session hanya jika belum ada (jangan reset) ────
-// Blok ini hanya menetapkan nilai default jika key belum ada,
-// bukan menimpa nilai yang sudah tersimpan dari request sebelumnya.
 if (!isset($_SESSION['step'])) {
     $_SESSION['step'] = 0;
 }
@@ -124,33 +109,32 @@ if (!isset($_SESSION['answers'])) {
     $_SESSION['answers'] = [];
 }
 
-// ── Handle POST ───────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action       = $_POST['action'] ?? '';
     $current_step = (int)($_POST['current_step'] ?? 0);
 
     if ($action === 'start') {
-        // Reset jawaban saat mulai baru
+        
         $_SESSION['answers'] = [];
         $_SESSION['step']    = 1;
 
     } elseif ($action === 'prev') {
-        // FIX: Navigasi prev — kembali satu step dari current_step
+        
         $_SESSION['step'] = max(0, $current_step - 1);
 
     } elseif ($action === 'next') {
-        // Simpan jawaban jika ada, lalu maju
+        
         if (isset($_POST['answer_multi'])) {
-            // Checkbox (bisa kosong array jika tidak ada yang dicentang)
+            
             $_SESSION['answers'][$current_step] = (array)$_POST['answer_multi'];
         } elseif (isset($_POST['answer']) && $_POST['answer'] !== '') {
             $_SESSION['answers'][$current_step] = $_POST['answer'];
         }
-        // FIX: Selalu maju ke step berikutnya meski tidak ada jawaban (step opsional)
+        
         $_SESSION['step'] = $current_step + 1;
 
     } elseif ($action === 'answer_go') {
-        // Klik Ya/Tidak → simpan LALU langsung lanjut
+        
         $val = $_POST['answer'] ?? '';
         if ($val !== '') {
             $_SESSION['answers'][$current_step] = $val;
@@ -158,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['step'] = $current_step + 1;
 
     } elseif ($action === 'submit') {
-        // Simpan data diri ke session
+        
         $_SESSION['answers']['contact'] = [
             'nama'   => trim($_POST['nama']   ?? ''),
             'email'  => trim($_POST['email']  ?? ''),
@@ -166,7 +150,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'alamat' => trim($_POST['alamat'] ?? ''),
         ];
 
-        // ── Simpan ke database ─────────────────────────────
         $saved        = false;
         $db_error_msg = '';
         if ($pdo) {
@@ -175,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ans           = $_SESSION['answers'];
                 $contact       = $ans['contact'] ?? [];
 
-                // Jenis daur ulang (array → CSV)
+                
                 $jenisDaurUlang = '';
                 if (!empty($ans[8]) && is_array($ans[8])) {
                     $jenisDaurUlang = implode(', ', array_map('trim', $ans[8]));
@@ -200,13 +183,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $stmt->execute([
                     ':response_code' => $response_code,
-                    ':q1'  => $ans[1]  ?? null,   // Q1  — step 1
-                    ':q2'  => $ans[3]  ?? null,   // Q2  — step 3
-                    ':q3'  => $ans[6]  ?? null,   // Q3  — step 6
-                    ':q4'  => $ans[7]  ?? null,   // Q4  — step 7
+                    ':q1'  => $ans[1]  ?? null,   
+                    ':q2'  => $ans[3]  ?? null,   
+                    ':q3'  => $ans[6]  ?? null,   
+                    ':q4'  => $ans[7]  ?? null,   
                     ':q5'  => $jenisDaurUlang ?: null,
                     ':q6'  => !empty($ans[9]) ? trim($ans[9]) : null,
-                    ':q7'  => $ans[10] ?? null,   // Q7  — step 10
+                    ':q7'  => $ans[10] ?? null,   
                     ':nama'  => !empty($contact['nama'])   ? $contact['nama']   : null,
                     ':email' => !empty($contact['email'])  ? $contact['email']  : null,
                     ':wa'    => !empty($contact['wa'])     ? $contact['wa']     : null,
@@ -233,20 +216,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // FIX: Gunakan header redirect PRG (Post/Redirect/Get) untuk
-    // semua action agar tombol Back browser tidak re-submit form.
+    
+    
     header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
 
-// ── Baca state dari session (GET request) ────────────────────
 $step          = (int)($_SESSION['step'] ?? 0);
 $answers       = $_SESSION['answers'] ?? [];
 $response_code = $_SESSION['response_code'] ?? '';
 $db_saved      = $_SESSION['db_saved'] ?? false;
-$total         = 9; // total dot pertanyaan
+$total         = 9; 
 
-// ── Helpers ──────────────────────────────────────────────────
 function recycleSvg($w = 60, $h = 60) {
     return "<svg width=\"{$w}\" height=\"{$h}\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">
   <path d=\"M50 8 L63 31 L56 31 L56 46 L44 46 L44 31 L37 31 Z\" fill=\"#8bc34a\"/>
@@ -267,7 +248,6 @@ function renderDots($curr, $total) {
     echo '<p class="page-count">' . $curr . ' of ' . $total . '</p>';
 }
 
-// ── Navbar ────────────────────────────────────────────────────
 $site_name   = "Manado Recycle Hub";
 $logo_img    = "Home.png";
 $banner_img  = "kuesioner.jpeg";
@@ -290,12 +270,10 @@ $nav_items   = [
 <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap">
 <style>
-/* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 a { text-decoration: none; color: inherit; }
 img { max-width: 100%; display: block; }
 
-/* ===== CSS VARIABLES ===== */
 :root {
     --green-primary:  rgba(28,100,52,1);
     --green-mid:      rgba(106,168,79,1);
@@ -309,7 +287,6 @@ img { max-width: 100%; display: block; }
     --red-border:     #e53935;
 }
 
-/* ===== BODY ===== */
 body {
     font-family: 'Comfortaa', sans-serif;
     background: var(--blue-bg);
@@ -319,7 +296,6 @@ body {
     flex-direction: column;
 }
 
-/* ===== NAVBAR ===== */
 header {
     position: fixed;
     top: 0; left: 0;
@@ -420,7 +396,6 @@ header {
     line-height: 1.38;
 }
 
-/* ===== SURVEY WRAP ===== */
 .survey-wrap {
     width: 100%;
     max-width: 860px;
@@ -428,7 +403,6 @@ header {
     padding: calc(var(--nav-height) + 32px) 20px 40px;
 }
 
-/* ===== Cards ===== */
 .card {
     background: #fff;
     border-radius: 8px;
@@ -450,7 +424,6 @@ header {
 .card.question h2       { font-size: 16px; font-weight: 600; color: var(--red-border); margin-bottom: 22px; line-height: 1.5; }
 .card.question h2.dark  { color: #333; }
 
-/* ===== START Button ===== */
 .btn-start {
     display: block; width: 100%;
     background: var(--green-btn); color: #fff;
@@ -461,7 +434,6 @@ header {
 }
 .btn-start:hover { background: #7cb342; }
 
-/* ===== Ya / Tidak buttons ===== */
 .choices { display: flex; gap: 12px; justify-content: center; margin-bottom: 22px; }
 .ch {
     padding: 10px 30px;
@@ -477,7 +449,6 @@ header {
 .ch:hover { background: #e3f2fd; }
 .ch.sel { background: var(--blue-card); color: #fff; }
 
-/* ===== Nav bar bawah ===== */
 .nav {
     background: var(--green-btn);
     border-radius: 0 0 8px 8px;
@@ -501,7 +472,6 @@ header {
 }
 .btn-submit:hover { background: #f0f0f0; }
 
-/* ===== Dots ===== */
 .dots-bar { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
 .dot {
     width: 10px; height: 10px; border-radius: 50%;
@@ -512,7 +482,6 @@ header {
 .dot.active { background: transparent; border-color: #fff; width: 12px; height: 12px; }
 .page-count { color: rgba(255,255,255,.8); font-size: 12px; text-align: center; margin-top: 6px; }
 
-/* ===== Textarea ===== */
 textarea {
     width: 100%; border: 1px solid #ddd;
     border-radius: 4px 4px 0 0;
@@ -528,7 +497,6 @@ textarea:focus { border-color: var(--blue-card); }
 }
 .toolbar span { cursor: pointer; padding: 2px 3px; }
 
-/* ===== Checkboxes ===== */
 .cb-grid {
     display: grid; grid-template-columns: 1fr 1fr 1fr;
     gap: 10px; margin-bottom: 20px; text-align: left;
@@ -536,7 +504,6 @@ textarea:focus { border-color: var(--blue-card); }
 .cb-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #333; cursor: pointer; }
 .cb-item input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue-card); }
 
-/* ===== Form inputs ===== */
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 .fi {
     width: 100%; padding: 10px 13px;
@@ -547,7 +514,6 @@ textarea:focus { border-color: var(--blue-card); }
 .fi:focus { border-color: var(--blue-card); }
 .fi::placeholder { color: #aaa; }
 
-/* ===== Chart ===== */
 .chart-wrap {
     background: #fff; border-radius: 8px;
     padding: 24px 28px; max-width: 780px;
@@ -564,7 +530,6 @@ textarea:focus { border-color: var(--blue-card); }
 .bar-a { height: 7px; border-radius: 2px; background: #5b9bd5; margin-bottom: 2px; }
 .bar-d { height: 7px; border-radius: 2px; background: #70ad47; }
 
-/* ===== Thank you ===== */
 .card.ty { background: var(--blue-card); color: #fff; padding: 56px 40px; max-width: 480px; }
 .card.ty h1 { font-size: 28px; font-weight: 700; margin-bottom: 10px; }
 .card.ty p  { font-size: 14px; opacity: .9; }
@@ -613,7 +578,6 @@ textarea:focus { border-color: var(--blue-card); }
     opacity: .85;
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 767px) {
     .navbar { padding: 0 20px; }
     .navbar-brand .brand-name { font-size: 13pt; }
@@ -629,7 +593,6 @@ textarea:focus { border-color: var(--blue-card); }
     .hero-section { height: 150px; }
     .hero-content h1 { font-size: 16pt; }
 }
-/* ===== FOOTER ===== */
 .site-footer {
     padding: 24px 0 32px;
     background: #ffffff;
@@ -656,10 +619,8 @@ textarea:focus { border-color: var(--blue-card); }
 </head>
 <body>
 
-<!-- ===== MOBILE SIDEBAR OVERLAY ===== -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- ===== MOBILE SIDEBAR NAV ===== -->
 <nav class="sidebar-nav" id="sidebarNav">
     <div class="sidebar-logo">
         <img src="<?= htmlspecialchars($logo_img) ?>" alt="<?= htmlspecialchars($site_name) ?> logo">
@@ -677,7 +638,6 @@ textarea:focus { border-color: var(--blue-card); }
     </ul>
 </nav>
 
-<!-- ===== HEADER / NAVBAR ===== -->
 <header>
     <div class="navbar">
         <a href="home.php" class="navbar-brand">
@@ -700,12 +660,9 @@ textarea:focus { border-color: var(--blue-card); }
     </div>
 </header>
 
-
-<!-- ===== SURVEY CONTENT ===== -->
 <div class="survey-wrap">
 
 <?php if ($step === 0): ?>
-<!-- ══════════ WELCOME ══════════ -->
 <div class="card blue">
     <?= recycleSvg(58,58) ?>
     <h1 style="margin-top:14px">Survey Kesadaran Reduce, Reuse dan Recycle Masyarakat Manado</h1>
@@ -718,7 +675,6 @@ textarea:focus { border-color: var(--blue-card); }
 </div>
 
 <?php elseif ($step === 1): ?>
-<!-- ══════════ Q1 ══════════ -->
 <div class="card question">
     <h2>Apa Anda merasa sampah adalah masalah yang mendesak di perkotaan?*</h2>
     <div class="choices">
@@ -750,7 +706,6 @@ textarea:focus { border-color: var(--blue-card); }
 <?php renderDots(1, $total) ?>
 
 <?php elseif ($step === 2): ?>
-<!-- ══════════ INFO: Chart ══════════ -->
 <div class="chart-wrap">
     <h3 style="font-size:17px;text-align:center;margin-bottom:6px">
         "Sampah rata-rata harian di Manado mencapai 339,89 ton"</h3>
@@ -811,7 +766,6 @@ textarea:focus { border-color: var(--blue-card); }
 <?php renderDots(2, $total) ?>
 
 <?php elseif ($step === 3): ?>
-<!-- ══════════ Q2 ══════════ -->
 <div class="card question">
     <h2>Apa Anda paham bahwa solusi masalah sampah perkotaan dengan cara
         <em>Reduce, Reuse dan Recycle</em> (3R)?*</h2>
@@ -842,7 +796,6 @@ textarea:focus { border-color: var(--blue-card); }
 <?php renderDots(3, $total) ?>
 
 <?php elseif ($step === 4): ?>
-<!-- ══════════ INFO: Tahukah Anda ══════════ -->
 <div class="card blue">
     <h2>Tahukah Anda, masalah volume sampah perkotaan bisa diatasi mulai dari rumah?</h2>
     <p>Dengan mulai memilah sampah anorganik, kita dapat mengurangi jumlah timbulan yang terus
@@ -863,7 +816,6 @@ textarea:focus { border-color: var(--blue-card); }
 </div>
 
 <?php elseif ($step === 5): ?>
-<!-- ══════════ INFO: Salah satu cara ══════════ -->
 <div class="card blue">
     <h2>Salah satu cara partisipatif Reuse dan Recycle/ daur ulang adalah dengan
         pemilahan sampah mulai dari Rumah Anda.</h2>
@@ -885,7 +837,6 @@ textarea:focus { border-color: var(--blue-card); }
 </div>
 
 <?php elseif ($step === 6): ?>
-<!-- ══════════ Q3 ══════════ -->
 <div class="card question">
     <h2>Apa Anda mendaur ulang sampah di rumah?*</h2>
     <div class="choices">
@@ -915,7 +866,6 @@ textarea:focus { border-color: var(--blue-card); }
 <?php renderDots(4, $total) ?>
 
 <?php elseif ($step === 7): ?>
-<!-- ══════════ Q4 ══════════ -->
 <div class="card question">
     <h2>Apa Anda memilah sampah organik dan anorganik?*</h2>
     <div class="choices">
@@ -945,7 +895,6 @@ textarea:focus { border-color: var(--blue-card); }
 <?php renderDots(5, $total) ?>
 
 <?php elseif ($step === 8): ?>
-<!-- ══════════ Q5 – Checkbox ══════════ -->
 <?php
 $opts = ['Kertas', 'Plastik', 'Pecah Belah', 'Logam', 'Kaleng', 'Lain-lain'];
 $chk  = (array)($answers[8] ?? []);
@@ -979,7 +928,6 @@ $chk  = (array)($answers[8] ?? []);
 <?php renderDots(6, $total) ?>
 
 <?php elseif ($step === 9): ?>
-<!-- ══════════ Q6 – Textarea ══════════ -->
 <form method="POST" id="form9">
     <!-- FIX: action default 'next', diubah ke 'prev' oleh tombol PREVIOUS -->
     <input type="hidden" name="action" value="next" id="action9">
@@ -1006,7 +954,6 @@ $chk  = (array)($answers[8] ?? []);
 <?php renderDots(7, $total) ?>
 
 <?php elseif ($step === 10): ?>
-<!-- ══════════ Q7 ══════════ -->
 <div class="card question">
     <h2>Jika ada yang membantu mengangkut sampah daur ulang, apa anda bersedia
         memilah sampah di rumah?*</h2>
@@ -1037,7 +984,6 @@ $chk  = (array)($answers[8] ?? []);
 <?php renderDots(8, $total) ?>
 
 <?php elseif ($step === 11): ?>
-<!-- ══════════ Q8+9 – Data Diri ══════════ -->
 <form method="POST" id="form11">
     <!-- FIX: action default 'submit', JS ubah ke 'prev' saat PREVIOUS diklik -->
     <input type="hidden" name="action" value="submit" id="action11">
@@ -1069,7 +1015,6 @@ $chk  = (array)($answers[8] ?? []);
 <?php renderDots(9, $total) ?>
 
 <?php elseif ($step >= 12): ?>
-<!-- ══════════ THANK YOU ══════════ -->
 <div class="card ty">
     <?= recycleSvg(58,58) ?>
     <h1 style="margin-top:14px">Terima Kasih!</h1>

@@ -1,8 +1,5 @@
 <?php
-// ============================================================
-//  reset_pass.php — Alat Bantu Reset Password Admin / User
-//  ⚠️ PENTING: Segera hapus atau kosongkan file ini setelah digunakan!
-// ============================================================
+
 require_once __DIR__ . '/include/config.php';
 
 if (php_sapi_name() !== 'cli') {
@@ -10,22 +7,21 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
-// Silakan sesuaikan email dan password baru di bawah ini:
-$email = 'admin@admin.com'; // Ganti dengan email akun yang ingin direset
-$password_baru = 'admin123'; // Password baru yang diinginkan
+$email = 'admin@admin.com'; 
+$password_baru = 'admin123'; 
 
 $hash = password_hash($password_baru, PASSWORD_BCRYPT);
 
 try {
     $db = getDB();
     
-    // Periksa apakah user ada
+    
     $check = $db->prepare("SELECT id, nama FROM users WHERE email = ?");
     $check->execute([$email]);
     $user = $check->fetch();
     
     if ($user) {
-        // Lakukan update password_hash
+        
         $stmt = $db->prepare("UPDATE users SET password_hash = ? WHERE email = ?");
         $stmt->execute([$hash, $email]);
         

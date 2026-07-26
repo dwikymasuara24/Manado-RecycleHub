@@ -1,9 +1,5 @@
 <?php
-// ============================================================
-//  admin/weighing_records.php — Admin Panel: Rekaman Hasil Timbang
-//  Manado Recycle Hub
-//  Displays weighing logs for both Pickups & Cleanups with CSV Export
-// ============================================================
+
 require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
@@ -12,8 +8,6 @@ $page_title = 'Rekam Angkut';
 $db         = getDB();
 $csrfToken  = csrfToken();
 
-
-// ── AJAX DETAIL HANDLER ────────────────────────────────────────
 if (isset($_GET['ajax_detail'])) {
     header('Content-Type: application/json');
     $record_id = (int)($_GET['ajax_detail'] ?? 0);
@@ -66,7 +60,6 @@ if (isset($_GET['ajax_detail'])) {
     exit;
 }
 
-// ── UPDATE ITEM HANDLER (AJAX) ─────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_item') {
     requireCsrfToken();
     $item_id    = (int)($_POST['item_id']    ?? 0);
@@ -88,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         if ($cleanup_id) {
             $total_akt = $db->query("SELECT SUM(berat_kg) FROM cleanup_items WHERE cleanup_id = $cleanup_id")->fetchColumn();
             if ($total_akt !== null) {
-                // For cleanup, update the total weight on weighing record
+                
                 recordCleanupWeighing($db, $cleanup_id);
             }
         }
@@ -115,7 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
-// ── DELETE RECORD HANDLER ──────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_record') {
     $record_id = (int)($_POST['id'] ?? 0);
     if ($record_id > 0) {
@@ -136,12 +128,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
-// ── GET FILTERS ──────────────────────────────────────────────
 $search = trim($_GET['search'] ?? '');
 $start_date = trim($_GET['start_date'] ?? '');
 $end_date = trim($_GET['end_date'] ?? '');
 
-// Build query
 $where = [];
 $params = [];
 
@@ -204,7 +194,6 @@ $query_str = "
     ORDER BY wr.tanggal_timbang DESC, wr.id DESC
 ";
 
-// Helper function to format decimal lat/lng to degrees minutes seconds (DMS)
 if (!function_exists('decToDms')) {
     function decToDms($lat, $lng) {
         if (empty($lat) || empty($lng)) return '-';
@@ -230,7 +219,6 @@ if (!function_exists('decToDms')) {
     }
 }
 
-// ── EXPORT HANDLER ────────────────────────────────────────────
 if (isset($_GET['export'])) {
     $stmt = $db->prepare($query_str);
     $stmt->execute($params);
@@ -513,12 +501,10 @@ if (isset($_GET['export'])) {
     }
 }
 
-// Fetch data for view
 $stmt = $db->prepare($query_str);
 $stmt->execute($params);
 $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate totals
 $total_weight = 0.0;
 $total_payout = 0.0;
 foreach ($records as $r) {
@@ -1085,7 +1071,6 @@ if (!function_exists('haversineDistanceLocal')) {
     }
 }
 
-// ── GET POINTS FOR DAUR ULANG ──
 $points_daur_ulang = [
     ['name' => 'Depot', 'lat' => 1.476362, 'lng' => 124.832498]
 ];
@@ -1121,7 +1106,6 @@ try {
     }
 } catch (Exception $e) {}
 
-// ── GET POINTS FOR CLEAN UP ──
 $points_cleanup = [
     ['name' => 'Depot', 'lat' => 1.476362, 'lng' => 124.832498]
 ];
@@ -1283,7 +1267,6 @@ try {
         </div>
     </div>
 </div>
-
 
 <!-- Modal Detail Rekaman Timbang -->
 <div class="modal-overlay" id="modalDetailRecord" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000; opacity:0; visibility:hidden; transition: 0.2s ease-in-out;">

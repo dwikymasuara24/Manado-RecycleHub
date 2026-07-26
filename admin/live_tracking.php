@@ -1,15 +1,14 @@
 <?php
 require_once __DIR__ . '/../include/config.php';
-require_once __DIR__ . '/../include/algorithms.php'; // defines DEPOT_LAT/LNG
+require_once __DIR__ . '/../include/algorithms.php'; 
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
 
-// ── AJAX Endpoint: Fetch Courier Locations & Tasks ───────────────────────────
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_locations') {
     header('Content-Type: application/json');
     $db = getDB();
     
-    // Fetch all active officers
+    
     $officers = $db->query("
         SELECT o.id, o.officer_code, o.nama, o.kendaraan, o.status, o.last_lat, o.last_lng, o.last_seen_at, u.nomor_wa
         FROM officers o
@@ -22,7 +21,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_locations') {
     foreach ($officers as $o) {
         $oid = (int)$o['id'];
         
-        // Fetch active tasks (dijadwalkan, dalam_perjalanan, sedang_diproses / sedang_cleanup)
+        
         $stmtTasks = $db->prepare("
             SELECT id, request_code, nama_pemohon, alamat_jemput, latitude, longitude, status, 'pickup' as tipe_layanan
             FROM pickup_requests
@@ -49,18 +48,18 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_locations') {
             ];
         }
         
-        // Calculate status online
+        
         $lastSeenAgo = '';
         $isOnline = false;
         if ($o['last_seen_at']) {
             $diff = time() - strtotime($o['last_seen_at']);
-            if ($diff < 120) { // less than 2 minutes
+            if ($diff < 120) { 
                 $lastSeenAgo = 'Aktif sekarang';
                 $isOnline = true;
-            } elseif ($diff < 3600) { // less than 1 hour
+            } elseif ($diff < 3600) { 
                 $mins = floor($diff / 60);
                 $lastSeenAgo = "$mins menit lalu";
-                if ($diff < 300) { // less than 5 minutes is considered online
+                if ($diff < 300) { 
                     $isOnline = true;
                 }
             } else {
@@ -96,7 +95,6 @@ require_once __DIR__ . '/layout/header.php';
 ?>
 
 <style>
-/* ── Pulse and Animations ── */
 .pulse-indicator-map {
   box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
   animation: pulse-map 1.6s infinite;
@@ -125,7 +123,6 @@ require_once __DIR__ . '/layout/header.php';
   50% { opacity: 1; }
 }
 
-/* ── Modern Layout CSS ── */
 .tracking-container {
   display: grid;
   grid-template-columns: 340px 1fr;

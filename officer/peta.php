@@ -2,15 +2,13 @@
 $page_id    = 'peta';
 $page_title = 'Peta & Rute';
 require_once __DIR__ . '/../include/config.php';
-require_once __DIR__ . '/../include/algorithms.php'; // defines DEPOT_LAT/LNG
+require_once __DIR__ . '/../include/algorithms.php'; 
 require_once __DIR__ . '/layout/header.php';
 
 $gmapsKey = getGmapsKey();
 
-// ── Filter tipe layanan (all, pickup, cleanup) ─────────────────
 $tipe = $_GET['tipe'] ?? 'all';
 
-// Daur ulang tasks
 $pickupTasks = [];
 if ($tipe === 'all' || $tipe === 'pickup') {
     $stmt = $db->prepare("
@@ -27,7 +25,6 @@ if ($tipe === 'all' || $tipe === 'pickup') {
     $pickupTasks = $stmt->fetchAll();
 }
 
-// Clean up tasks
 $cleanupTasks = [];
 if ($tipe === 'all' || $tipe === 'cleanup') {
     $stmt = $db->prepare("
@@ -46,7 +43,6 @@ if ($tipe === 'all' || $tipe === 'cleanup') {
 
 $mapTasks = array_merge($pickupTasks, $cleanupTasks);
 
-// Sort merged tasks by schedule time so they are plotted in a stable sequence
 usort($mapTasks, function($a, $b) {
     $ta = strtotime($a['jadwal_tanggal'] ?? $a['route_created_at'] ?? 'now') ?: 0;
     $tb = strtotime($b['jadwal_tanggal'] ?? $b['route_created_at'] ?? 'now') ?: 0;

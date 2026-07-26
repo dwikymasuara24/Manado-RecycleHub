@@ -10,12 +10,11 @@ $baseDate->modify("{$monthOffset} months");
 $year  = (int)$baseDate->format('Y');
 $month = (int)$baseDate->format('m');
 
-// Izinkan override langsung lewat parameter GET 'month' dan 'year'
 if (isset($_GET['month']) && isset($_GET['year'])) {
     $month = (int)$_GET['month'];
     $year  = (int)$_GET['year'];
     
-    // Hitung kembali offset agar tombol Bulan Lalu / Bulan Depan tetap sinkron
+    
     $d1 = new DateTime('first day of this month');
     $d2 = new DateTime("$year-$month-01");
     $diff = $d1->diff($d2);
@@ -36,7 +35,6 @@ if ($fKec && !in_array($fKec, $kecamatans)) {
 $type = $_GET['type'] ?? 'pickup';
 if ($type !== 'cleanup') $type = 'pickup';
 
-// Semua request bulan ini
 if ($type === 'pickup') {
     $sql = "
         SELECT pr.id, pr.request_code, pr.nama_pemohon, pr.partner_name, pr.kecamatan, pr.nomor_wa,
@@ -82,7 +80,6 @@ if ($type === 'pickup') {
 }
 $rows = $stmt->fetchAll();
 
-// ── EXPORT HANDLER LAPORAN BULANAN ────────────────────────────
 if (isset($_GET['export'])) {
     $bulanId = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     $export_type = $_GET['export'];
@@ -530,7 +527,6 @@ if (isset($_GET['export'])) {
     }
 }
 
-// Statistik bulanan
 $total    = count($rows);
 $selesai  = count(array_filter($rows, fn($r) => $r['status']==='selesai'));
 $batal    = count(array_filter($rows, fn($r) => $r['status']==='dibatalkan'));
@@ -543,7 +539,6 @@ $pendapatan   = array_sum(array_map(function($r) {
     return 0;
 }, $rows));
 
-// Per minggu dalam bulan
 if ($type === 'pickup') {
     $sqlW = "
         SELECT WEEK(created_at,1) as wk, MIN(DATE(created_at)) as tgl_awal, COUNT(*) as cnt 
@@ -573,7 +568,6 @@ if ($type === 'pickup') {
 }
 $weekData = $perMinggu->fetchAll();
 
-// Per kecamatan bulan ini
 if ($type === 'pickup') {
     $sqlK = "
         SELECT kecamatan, COUNT(*) as cnt, SUM(COALESCE(berat_total_kg,0)) as total_kg 
@@ -605,7 +599,6 @@ if ($type === 'pickup') {
 }
 $kecRows = $kecStmt->fetchAll();
 
-// Jenis sampah bulan ini
 if ($type === 'pickup') {
     $sqlWa = "
         SELECT wc.name, wc.ikon_emoji, SUM(COALESCE(pri.estimasi_kg, 0)) as total_kg
@@ -643,7 +636,6 @@ if ($type === 'pickup') {
 }
 $wasteRows = $wasteStmt->fetchAll();
 
-// Bulan Indonesia
 $bulanId = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 require_once __DIR__ . '/layout/header.php';
@@ -1053,7 +1045,7 @@ require_once __DIR__ . '/layout/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
 <?php
-// Prepare data for Chart.js
+
 $weekLabels = [];
 $weekCounts = [];
 if ($weekData) {

@@ -1,14 +1,5 @@
 <?php
-// ============================================================
-//  dashboard.php — Admin Console: Dashboard Utama
-//  Manado Recycle Hub
-//  - Visualisasi 7 chart interaktif (Chart.js)
-//  - Live stats polling AJAX
-//  - Operational control (quick status change)
-//  - Data analysis: tren, komparasi, efisiensi petugas
-//  - Priority-Rule scheduling preview
-//  - Google Maps mini-map (jika API key tersedia)
-// ============================================================
+
 require_once __DIR__ . '/../include/config.php';
 require_once __DIR__ . '/../include/auth.php';
 requireRole('admin');
@@ -16,7 +7,6 @@ $page_id    = 'dashboard';
 $page_title = 'Dashboard';
 $db = getDB();
 
-// ── Deteksi Petugas Tidak Aktif ──────────────────────────────
 $thresholdDays = 7;
 try {
     $thresholdVal = $db->query("SELECT setting_value FROM site_settings WHERE setting_key='inactivity_threshold_days'")->fetchColumn();
@@ -59,7 +49,6 @@ try {
     }
 } catch (Exception $e) {}
 
-
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'stats') {
     header('Content-Type: application/json');
     $total_req    = (int)$db->query("SELECT (SELECT COUNT(*) FROM pickup_requests) + (SELECT COUNT(*) FROM cleanup_requests)")->fetchColumn();
@@ -87,12 +76,11 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'stats') {
     exit;
 }
 
-// ── AJAX: quick status update (Admin: hanya verifikasi) ──────
 if (isset($_POST['ajax_status'])) {
     header('Content-Type: application/json');
     $id     = (int)($_POST['id'] ?? 0);
     $status = $_POST['status'] ?? '';
-    // Admin dashboard hanya boleh: konfirmasi atau batalkan
+    
     $valid  = ['dikonfirmasi', 'dibatalkan'];
     if ($id && in_array($status, $valid)) {
         $extra = '';
@@ -107,8 +95,6 @@ if (isset($_POST['ajax_status'])) {
     exit;
 }
 
-
-// ── Statistik Utama ───────────────────────────────────────────
 $total_req    = (int)$db->query("SELECT (SELECT COUNT(*) FROM pickup_requests) + (SELECT COUNT(*) FROM cleanup_requests)")->fetchColumn();
 $pending_req  = (int)$db->query("SELECT (SELECT COUNT(*) FROM pickup_requests WHERE status='menunggu') + (SELECT COUNT(*) FROM cleanup_requests WHERE status='menunggu')")->fetchColumn();
 $active_off   = (int)$db->query("SELECT COUNT(*) FROM officers WHERE status='aktif'")->fetchColumn();
@@ -121,7 +107,6 @@ $unassigned   = (int)$db->query("SELECT (SELECT COUNT(*) FROM pickup_requests WH
 $with_gps     = (int)$db->query("SELECT (SELECT COUNT(*) FROM pickup_requests WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND latitude != 0 AND longitude != 0) + (SELECT COUNT(*) FROM cleanup_requests WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND latitude != 0 AND longitude != 0)")->fetchColumn();
 $avg_complete = round((float)$db->query("SELECT AVG(diff) FROM (SELECT TIMESTAMPDIFF(HOUR,created_at,COALESCE(completed_at, updated_at)) as diff FROM pickup_requests WHERE status='selesai' UNION ALL SELECT TIMESTAMPDIFF(HOUR,created_at,COALESCE(completed_at, updated_at)) as diff FROM cleanup_requests WHERE status='selesai') t")->fetchColumn(), 1);
 
-// ── Chart 1: Tren Request 30 Hari ────────────────────────────
 $trendRows = $db->query("SELECT tgl, SUM(cnt) AS cnt FROM (SELECT DATE(created_at) AS tgl, COUNT(*) AS cnt FROM pickup_requests WHERE created_at >= CURDATE() - INTERVAL 29 DAY GROUP BY DATE(created_at) UNION ALL SELECT DATE(created_at) AS tgl, COUNT(*) AS cnt FROM cleanup_requests WHERE created_at >= CURDATE() - INTERVAL 29 DAY GROUP BY DATE(created_at)) t GROUP BY tgl ORDER BY tgl ASC")->fetchAll();
 $trendMap = [];
 foreach ($trendRows as $t) $trendMap[$t['tgl']] = $t['cnt'];
@@ -139,7 +124,6 @@ for ($i = 29; $i >= 0; $i--) {
     $trendSelesai[] = $trendSelesaiMap[$d] ?? 0;
 }
 
-// ── Chart 2: Distribusi Status (Donut) ───────────────────────
 $statusRows = $db->query("SELECT status, SUM(cnt) as cnt FROM (SELECT status, COUNT(*) as cnt FROM pickup_requests GROUP BY status UNION ALL SELECT status, COUNT(*) as cnt FROM cleanup_requests GROUP BY status) t GROUP BY status ORDER BY FIELD(status,'menunggu','dikonfirmasi','dijadwalkan','dalam_perjalanan','sedang_diproses','selesai','dibatalkan')")->fetchAll();
 $statusColorMap    = ['menunggu'=>'#f59e0b','dikonfirmasi'=>'#3b82f6','dijadwalkan'=>'#8b5cf6','dalam_perjalanan'=>'#eab308','sedang_diproses'=>'#f97316','selesai'=>'#22c55e','dibatalkan'=>'#ef4444'];
 $statusDisplayMap  = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=>'Dijadwalkan','dalam_perjalanan'=>'Dalam Perjalanan','sedang_diproses'=>'Sedang Diproses','selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'];
@@ -148,7 +132,6 @@ $statusCounts      = array_column($statusRows,'cnt');
 $statusColors      = array_map(fn($s)=>$statusColorMap[$s]??'#aaa', $statusLabels);
 $statusDisplayLbls = array_map(fn($s)=>$statusDisplayMap[$s]??$s, $statusLabels);
 
-// ── Chart 3: Request per Kecamatan (Grouped Bar) ─────────────
 $kecData = $db->query("SELECT kecamatan, SUM(cnt) as cnt, SUM(selesai) as selesai, SUM(aktif) as aktif FROM (
     SELECT kecamatan, COUNT(*) as cnt, SUM(CASE WHEN status='selesai' THEN 1 ELSE 0 END) as selesai, SUM(CASE WHEN status NOT IN ('selesai','dibatalkan') THEN 1 ELSE 0 END) as aktif FROM pickup_requests WHERE kecamatan IS NOT NULL GROUP BY kecamatan
     UNION ALL
@@ -159,7 +142,6 @@ $kecCounts  = array_column($kecData,'cnt');
 $kecSelesai = array_column($kecData,'selesai');
 $kecAktif   = array_column($kecData,'aktif');
 
-// ── Chart 4: Jenis Sampah kg (Horizontal Bar) ────────────────
 $wasteData = $db->query("SELECT wc.name, wc.ikon_emoji, SUM(t.total_kg) as total_kg FROM (
     SELECT pri.category_id, COALESCE(SUM(COALESCE(pri.aktual_kg, pri.estimasi_kg)),0) as total_kg FROM pickup_request_items pri JOIN pickup_requests pr ON pr.id=pri.pickup_id WHERE pr.status='selesai' GROUP BY pri.category_id
     UNION ALL
@@ -168,7 +150,6 @@ $wasteData = $db->query("SELECT wc.name, wc.ikon_emoji, SUM(t.total_kg) as total
 $wasteLabels = array_map(fn($w)=>$w['ikon_emoji'].' '.$w['name'], $wasteData);
 $wasteKg     = array_column($wasteData,'total_kg');
 
-// ── Chart 5: Tren Mingguan 12 Minggu ─────────────────────────
 $weeklyRows = $db->query("SELECT yw, MIN(tgl) AS tgl, SUM(cnt) AS cnt FROM (
     SELECT YEARWEEK(created_at,1) AS yw, DATE(created_at) AS tgl, COUNT(*) AS cnt FROM pickup_requests WHERE created_at >= CURDATE() - INTERVAL 12 WEEK GROUP BY yw, tgl
     UNION ALL
@@ -177,7 +158,6 @@ $weeklyRows = $db->query("SELECT yw, MIN(tgl) AS tgl, SUM(cnt) AS cnt FROM (
 $weeklyLabels = array_map(fn($w)=>'Mg '.date('d/m',strtotime($w['tgl'])), $weeklyRows);
 $weeklyValues = array_column($weeklyRows,'cnt');
 
-// ── Chart 6: Performa Petugas (Horizontal Bar) ───────────────
 $officerPerf = $db->query("SELECT o.nama, o.officer_code,
     SUM(CASE WHEN t.status='selesai' THEN 1 ELSE 0 END) as selesai,
     SUM(CASE WHEN t.status NOT IN ('selesai','dibatalkan') THEN 1 ELSE 0 END) as aktif,
@@ -194,7 +174,6 @@ $offNames   = array_map(fn($o)=>$o['nama'], $officerPerf);
 $offSelesai = array_map(fn($o)=>(int)$o['selesai'], $officerPerf);
 $offAktif   = array_map(fn($o)=>(int)$o['aktif'], $officerPerf);
 
-// ── Chart 7: Penerimaan per Bulan 6 Bulan ────────────────────
 $monthlyRows = $db->query("SELECT bln, lbl, SUM(cnt) as cnt FROM (
     SELECT DATE_FORMAT(created_at,'%Y-%m') as bln, DATE_FORMAT(created_at,'%b %Y') as lbl, COUNT(*) as cnt FROM pickup_requests WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) GROUP BY bln, lbl
     UNION ALL
@@ -203,7 +182,6 @@ $monthlyRows = $db->query("SELECT bln, lbl, SUM(cnt) as cnt FROM (
 $monthlyLabels = array_column($monthlyRows,'lbl');
 $monthlyValues = array_column($monthlyRows,'cnt');
 
-// ── Chart 8: Tren Sampah Terkumpul per Bulan 6 Bulan (kg) ──────
 $monthlyWeightRows = $db->query("SELECT bln, lbl, SUM(total_kg) as total_kg FROM (
     SELECT DATE_FORMAT(COALESCE(completed_at, updated_at), '%Y-%m') as bln, 
            DATE_FORMAT(COALESCE(completed_at, updated_at), '%b %Y') as lbl, 
@@ -223,9 +201,6 @@ $monthlyWeightRows = $db->query("SELECT bln, lbl, SUM(total_kg) as total_kg FROM
 $monthlyWeightLabels = array_column($monthlyWeightRows, 'lbl');
 $monthlyWeightValues = array_map(fn($v) => (float)$v, array_column($monthlyWeightRows, 'total_kg'));
 
-
-
-// ── Tabel: Pesanan SELESAI (10 terbaru) ──────────────────────
 $pesananSelesai = $db->query("
     SELECT id, request_code, nama_pemohon, place_name, partner_name, kecamatan, status, updated_at, berat_total_kg, officer_nama FROM (
         SELECT pr.id, pr.request_code, pr.nama_pemohon, pr.place_name, pr.partner_name, pr.kecamatan, pr.status, pr.updated_at, pr.berat_total_kg, o.nama AS officer_nama
@@ -236,7 +211,6 @@ $pesananSelesai = $db->query("
     ) t ORDER BY updated_at DESC LIMIT 10
 ")->fetchAll();
 
-// ── Tabel: Request perlu verifikasi (hanya menunggu) ───────
 $needVerification = $db->query("
     (SELECT 'pickup' AS type, id, request_code, nama_pemohon, COALESCE(partner_name, place_name, '') as entity_name, kecamatan, status, created_at 
      FROM pickup_requests WHERE status = 'menunggu')
@@ -246,7 +220,6 @@ $needVerification = $db->query("
     ORDER BY created_at DESC
 ")->fetchAll();
 
-// ── Tabel: Pesanan Aktif (Terintegrasi Algoritma) ────────────────
 $activeOrders = $db->query("
     SELECT id, request_code, nama_pemohon, place_name, partner_name, kecamatan, status, created_at, tanggal_jemput, jam_jemput, officer_nama, officer_code FROM (
         SELECT pr.id, pr.request_code, pr.nama_pemohon, pr.place_name, pr.partner_name, pr.kecamatan, pr.status, pr.created_at, pr.tanggal_jemput, pr.jam_jemput, o.nama AS officer_nama, o.officer_code
@@ -257,7 +230,6 @@ $activeOrders = $db->query("
     ) t ORDER BY FIELD(status, 'sedang_diproses', 'sedang_cleanup', 'dalam_perjalanan', 'dijadwalkan', 'dikonfirmasi', 'menunggu'), created_at DESC LIMIT 15
 ")->fetchAll();
 
-// ── Tabel: Laporan Kendala (is_kendala = 1) ─────────────────────
 $kendalaReports = $db->query("
     SELECT id, request_code, nama_pemohon, kecamatan, status, catatan_officer, updated_at, officer_nama FROM (
         SELECT pr.id, pr.request_code, pr.nama_pemohon, pr.kecamatan, pr.status, pr.catatan_officer, pr.updated_at, o.nama AS officer_nama
@@ -268,8 +240,6 @@ $kendalaReports = $db->query("
     ) t ORDER BY updated_at DESC LIMIT 5
 ")->fetchAll();
 
-
-// ── Beban Petugas ─────────────────────────────────────────────
 $officerLoad = $db->query("SELECT o.id, o.nama, o.officer_code, COUNT(t.id) AS aktif_tugas FROM officers o
     LEFT JOIN (
         SELECT id, officer_id, status FROM pickup_requests WHERE status IN ('dikonfirmasi','dijadwalkan','dalam_perjalanan','sedang_diproses')
@@ -278,10 +248,8 @@ $officerLoad = $db->query("SELECT o.id, o.nama, o.officer_code, COUNT(t.id) AS a
     ) t ON t.officer_id=o.id
     WHERE o.status='aktif' GROUP BY o.id ORDER BY aktif_tugas DESC LIMIT 6")->fetchAll();
 
-// ── Aktivitas ─────────────────────────────────────────────────
 $activities = $db->query("SELECT aksi, entitas, created_at FROM activity_logs ORDER BY created_at DESC LIMIT 5")->fetchAll();
 
-// ── Request Terbaru ───────────────────────────────────────────
 $recent_req = $db->query("
     SELECT id, request_code, nama_pemohon, place_name, partner_name, kecamatan, status, created_at, officer_nama FROM (
         SELECT pr.id, pr.request_code, pr.nama_pemohon, pr.place_name, pr.partner_name, pr.kecamatan, pr.status, pr.created_at, o.nama AS officer_nama FROM pickup_requests pr LEFT JOIN officers o ON o.id=pr.officer_id
@@ -290,14 +258,12 @@ $recent_req = $db->query("
     ) t ORDER BY created_at DESC LIMIT 10
 ")->fetchAll();
 
-// ── Priority Rule: Kecamatan ──────────────────────────────────
 $prio_kec = $db->query("SELECT kecamatan, SUM(cnt) as cnt FROM (
     SELECT kecamatan, COUNT(*) as cnt FROM pickup_requests WHERE status NOT IN ('selesai','dibatalkan') AND kecamatan IS NOT NULL GROUP BY kecamatan
     UNION ALL
     SELECT kecamatan, COUNT(*) as cnt FROM cleanup_requests WHERE status NOT IN ('selesai','dibatalkan') AND kecamatan IS NOT NULL GROUP BY kecamatan
 ) t GROUP BY kecamatan ORDER BY cnt DESC LIMIT 4")->fetchAll();
 
-// ── ADMIN: Evaluasi performa officer ─────────────────────────
 $officerEvalRows = $db->query("SELECT o.id, o.nama, o.officer_code, o.status,
     COUNT(t.id) AS total,
     SUM(CASE WHEN t.status='selesai' THEN 1 ELSE 0 END) AS selesai,
@@ -311,7 +277,6 @@ $officerEvalRows = $db->query("SELECT o.id, o.nama, o.officer_code, o.status,
     ) t ON t.officer_id=o.id
     GROUP BY o.id ORDER BY selesai DESC")->fetchAll();
 
-// ── KPI Analysis ─────────────────────────────────────────────
 $completion_rate = $total_req > 0 ? round($done_month / max($total_req, 1) * 100) : 0;
 $gps_coverage    = $total_req > 0 ? round($with_gps / $total_req * 100) : 0;
 
@@ -328,7 +293,6 @@ require_once __DIR__ . '/layout/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
 <style>
-/* ── Dashboard-specific styles ── */
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
@@ -481,7 +445,6 @@ require_once __DIR__ . '/layout/header.php';
 .pt-title { font-size:12px; font-weight:700; color:#1e293b; }
 .pt-sub   { font-size:11px; color:#94a3b8; margin-top:1px; }
 
-
 /* Status Flow */
 .status-flow {
     display: flex; align-items: center; gap: 8px;
@@ -508,7 +471,6 @@ require_once __DIR__ . '/layout/header.php';
 
 </style>
 
-<!-- ══ PAGE HEADER ══ -->
 <div class="page-header dash-page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:16px">
   <div>
     <h1>Dashboard</h1>
@@ -551,7 +513,6 @@ require_once __DIR__ . '/layout/header.php';
 </div>
 <?php endif; ?>
 
-<!-- ══ KPI STRIP ══ -->
 <div class="kpi-strip">
   <div class="kpi-card green" id="sc-total">
     <div class="kpi-label">Total Request</div>
@@ -600,7 +561,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ SECTION: DATA ANALYSIS ══ -->
 <div class="db-section-title">📊 Data Analysis & Visualisasi</div>
 
 <!-- Charts Row 1: Tren + Status -->
@@ -671,7 +631,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ SECTION: HEATMAP KECAMATAN ══ -->
 <div class="db-section-title">🗺️ Heatmap Permintaan per Kecamatan</div>
 <div class="chart-card mb-24">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
@@ -699,7 +658,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ SECTION: PETA LOKASI (Leaflet + OpenStreetMap) ══ -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <div class="db-section-title">📍 Peta Lokasi Request Aktif</div>
 <div class="chart-card mb-24">
@@ -718,7 +676,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ SECTION: OPERASIONAL CONTROL ══ -->
 <div class="db-section-title">⚡ Kontrol Operasional</div>
 
 <div class="grid-2 mb-24" style="--cols: 1.2fr 0.8fr">
@@ -809,7 +766,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ SECTION: KENDALA LAPANGAN (INTEGRASI PETUGAS) ══ -->
 <?php if ($kendalaReports): ?>
 <div class="db-section-title" style="color:#ef4444">🚨 Laporan Kendala Lapangan</div>
 <div class="grid-1 mb-24">
@@ -849,7 +805,6 @@ require_once __DIR__ . '/layout/header.php';
 </div>
 <?php endif; ?>
 
-<!-- ══ SECTION: PESANAN AKTIF (TERINTEGRASI) ══ -->
 <div class="db-section-title">📦 Pesanan Aktif <span class="action-chip" style="margin-left:8px"><?= count($activeOrders) ?></span> — Admin: Hanya Verifikasi · Jadwal Ditentukan Algoritma</div>
 
 <div class="chart-card mb-24">
@@ -926,7 +881,6 @@ require_once __DIR__ . '/layout/header.php';
     </div>
 </div>
 
-<!-- ══ SECTION: JADWAL & AKTIVITAS ══ -->
 <div class="grid-2 mb-24">
   <!-- Priority Jadwal -->
   <div class="chart-card">
@@ -987,8 +941,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-
-<!-- ══ SECTION: PESANAN SELESAI ══ -->
 <div class="db-section-title">✅ Pesanan Selesai
   <span style="margin-left:auto;font-size:10px;color:#94a3b8;font-weight:500">10 terbaru</span>
 </div>
@@ -1032,7 +984,6 @@ require_once __DIR__ . '/layout/header.php';
   <?php endif; ?>
 </div>
 
-<!-- ══ SECTION: REQUEST TERBARU ══ -->
 <div class="db-section-title">📋 Request Terbaru</div>
 <div class="chart-card mb-24">
   <div style="overflow-x:auto">
@@ -1067,7 +1018,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ SECTION: ADMIN — EVALUASI OFFICER ══ -->
 <div class="db-section-title">👷 Evaluasi Performa Officer</div>
 <div class="chart-card mb-24">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
@@ -1129,7 +1079,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ SECTION: RINGKASAN TARIF ══ -->
 <div class="chart-card mb-24">
   <div class="chart-card-title"><span class="ct-icon">💰</span> Ringkasan Layanan & KPI Bulan Ini</div>
   <div class="grid-3" style="gap:10px;margin-bottom:14px">
@@ -1163,7 +1112,6 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-<!-- ══ JAVASCRIPT ══ -->
 <script>
 Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 Chart.defaults.font.size   = 11;
@@ -1172,7 +1120,6 @@ Chart.defaults.color       = '#666';
 const GREEN  = '#1c6434', GREEN2 = '#22c55e', BLUE = '#3b82f6';
 const AMBER  = '#f59e0b', PURPLE = '#8b5cf6', RED  = '#ef4444';
 
-// ── Chart 1: Tren 30 hari (line dual) ────────────────────────
 new Chart(document.getElementById('chartTrend'), {
   type:'line',
   data:{
@@ -1192,7 +1139,6 @@ new Chart(document.getElementById('chartTrend'), {
             y:{beginAtZero:true,grid:{color:'#f5f5f5'},ticks:{stepSize:1}}}}
 });
 
-// ── Chart 2: Status Donut ─────────────────────────────────────
 new Chart(document.getElementById('chartStatus'), {
   type:'doughnut',
   data:{
@@ -1203,7 +1149,6 @@ new Chart(document.getElementById('chartStatus'), {
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw}`}}}}
 });
 
-// ── Chart 3: Kecamatan Grouped Bar ───────────────────────────
 new Chart(document.getElementById('chartKec'), {
   type:'bar',
   data:{
@@ -1219,7 +1164,6 @@ new Chart(document.getElementById('chartKec'), {
     scales:{x:{grid:{display:false},ticks:{maxRotation:30}},y:{beginAtZero:true,grid:{color:'#f5f5f5'}}}}
 });
 
-// ── Chart 4: Jenis Sampah Horizontal ─────────────────────────
 new Chart(document.getElementById('chartWaste'), {
   type:'bar',
   data:{
@@ -1233,7 +1177,6 @@ new Chart(document.getElementById('chartWaste'), {
     scales:{x:{beginAtZero:true,grid:{color:'#f5f5f5'}},y:{grid:{display:false}}}}
 });
 
-// ── Chart 5: Tren Mingguan ────────────────────────────────────
 new Chart(document.getElementById('chartWeekly'), {
   type:'bar',
   data:{
@@ -1245,7 +1188,6 @@ new Chart(document.getElementById('chartWeekly'), {
     scales:{x:{grid:{display:false},ticks:{maxRotation:40}},y:{beginAtZero:true,grid:{color:'#f5f5f5'}}}}
 });
 
-// ── Chart 6: Monthly ─────────────────────────────────────────
 new Chart(document.getElementById('chartMonthly'), {
   type:'line',
   data:{
@@ -1259,7 +1201,6 @@ new Chart(document.getElementById('chartMonthly'), {
     scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#f5f5f5'}}}}
 });
 
-// ── Chart 8: Monthly Weight (kg) ─────────────────────────────
 new Chart(document.getElementById('chartMonthlyWeight'), {
   type:'line',
   data:{
@@ -1273,7 +1214,6 @@ new Chart(document.getElementById('chartMonthlyWeight'), {
     scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#f5f5f5'}}}}
 });
 
-// ── Chart 7: Performa Officer ─────────────────────────────────
 new Chart(document.getElementById('chartOfficerPerf'), {
   type:'bar',
   data:{
@@ -1288,7 +1228,6 @@ new Chart(document.getElementById('chartOfficerPerf'), {
     scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#f5f5f5'}}}}
 });
 
-// ── Quick Status Update ───────────────────────────────────────
 function quickStatus(id, status, el) {
   fetch('dashboard.php', {
     method:'POST',
@@ -1306,7 +1245,6 @@ function quickStatus(id, status, el) {
   }).catch(()=>showToast('danger','Koneksi error.'));
 }
 
-// ── Live Stats Polling (60 detik) ─────────────────────────────
 function refreshStats() {
   fetch('dashboard.php?ajax=stats').then(r=>r.json()).then(d=>{
     document.querySelector('#sc-total .kpi-value').textContent    = d.total_req.toLocaleString();
@@ -1327,7 +1265,6 @@ function refreshStats() {
 setInterval(refreshStats, 60000);
 refreshStats();
 
-// ── Leaflet Mini Map ──────────────────────────────────────────
 <?php
   $gpsReqs = $db->query("
     SELECT id, request_code, nama_pemohon, kecamatan, status, latitude, longitude, place_name, partner_name, pickup_type FROM (

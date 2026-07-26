@@ -1,15 +1,14 @@
 <?php
 require_once __DIR__ . '/include/auth.php';
 
-// Jika sudah login, langsung arahkan ke dashboard masing-masing
 if (isLoggedIn()) {
     $role = currentUserRole();
     if ($role === 'admin') {
-        header('Location: admin/dashboard.php');
+        header('Location: ' . baseUrl('admin/dashboard'));
     } elseif ($role === 'officer') {
-        header('Location: officer/officer_console.php');
+        header('Location: ' . baseUrl('officer/dashboard'));
     } else {
-        header('Location: index.php');
+        header('Location: ' . baseUrl('home'));
     }
     exit;
 }
@@ -26,16 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $db = getDB();
         if (attemptLogin($db, $email, $pass)) {
-            flash('success', 'Selamat datang kembali, ' . $_SESSION['user_nama'] . '!');
+            flash('success', 'Selamat datang kembali, ' . ($_SESSION['user_nama'] ?? 'User') . '!');
             
-            // Redirect sesuai role
+            
             $role = currentUserRole();
             if ($role === 'admin') {
-                header('Location: admin/dashboard.php');
+                header('Location: ' . baseUrl('admin/dashboard'));
             } elseif ($role === 'officer') {
-                header('Location: officer/officer_console.php');
+                header('Location: ' . baseUrl('officer/dashboard'));
             } else {
-                header('Location: index.php');
+                header('Location: ' . baseUrl('home'));
             }
             exit;
         } else {
@@ -212,7 +211,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transform: translateY(0);
         }
 
-        /* ── Centered Flash Notification Overlay Style ── */
+        body:has(#flashOverlay:not([style*="display: none"])),
+        html:has(#flashOverlay:not([style*="display: none"])) {
+            overflow: hidden !important;
+        }
         .flash-overlay {
             position: fixed;
             inset: 0;
@@ -222,6 +224,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             justify-content: center;
             z-index: 10000;
+            overflow: hidden !important;
+            touch-action: none;
             animation: alert-fade-in 0.25s ease-out;
         }
         .flash {
@@ -239,6 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: none !important;
             animation: alert-scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             font-family: inherit;
+            overflow: hidden !important;
         }
         .flash-icon {
             font-size: 48px;
@@ -375,9 +380,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="flash flash-<?= htmlspecialchars($alert_type) ?>">
                         <div class="flash-icon"><?= $alert_icon ?></div>
                         <div class="flash-msg"><?= htmlspecialchars($alert_msg) ?></div>
-                        <button type="button" class="flash-close-btn" onclick="document.getElementById('flashOverlay').style.display='none'">Tutup</button>
+                        <button type="button" class="flash-close-btn" onclick="closeFlashOverlay()">Tutup</button>
                     </div>
                 </div>
+                <script>
+                  document.body.style.overflow = 'hidden';
+                  document.documentElement.style.overflow = 'hidden';
+                  function closeFlashOverlay() {
+                    var fo = document.getElementById('flashOverlay');
+                    if (fo) fo.style.display = 'none';
+                    document.body.style.overflow = '';
+                    document.documentElement.style.overflow = '';
+                  }
+                  document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') closeFlashOverlay();
+                  });
+                </script>
             <?php endif; ?>
 
             <div class="form-group">
@@ -425,8 +443,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-
-
 <script>
 function togglePasswordVisibility(inputId, btnId) {
     const input = document.getElementById(inputId);
@@ -447,7 +463,6 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.error('Service Worker registration failed:', err));
   });
 }
-
 
 </script>
 

@@ -52,7 +52,6 @@ $bins = [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Comfortaa', sans-serif;
@@ -63,7 +62,6 @@ $bins = [
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; display: block; }
 
-        /* ===== CSS VARIABLES ===== */
         :root {
             --green-primary:  rgba(28, 100, 52, 1);
             --green-light:    rgba(214, 228, 195, 1);
@@ -79,7 +77,6 @@ $bins = [
             --text-dark:        rgba(28, 28, 28, 1);
         }
 
-        /* ===== TOP NAVBAR ===== */
         header {
             position: fixed;
             top: 0; left: 0;
@@ -112,7 +109,6 @@ $bins = [
             color: var(--text-light);
         }
 
-        /* ===== DESKTOP NAV ===== */
         .navbar-nav {
             display: flex;
             list-style: none;
@@ -133,7 +129,6 @@ $bins = [
             border-bottom: 2px solid var(--text-light);
         }
 
-        /* ===== HAMBURGER ===== */
         .hamburger {
             display: none;
             flex-direction: column;
@@ -150,7 +145,6 @@ $bins = [
             transition: .3s;
         }
 
-        /* ===== MOBILE SIDEBAR ===== */
         .sidebar-nav {
             display: flex;
             position: fixed;
@@ -233,7 +227,6 @@ $bins = [
             line-height: 1.38;
         }
 
-        /* ===== SUBTITLE ===== */
         .subtitle-section {
             padding: 48px 24px 24px;
             text-align: center;
@@ -253,14 +246,12 @@ $bins = [
             line-height: 1.6;
         }
 
-        /* ===== CONTENT SECTION ===== */
         .content-section {
             max-width: 1280px;
             margin: 0 auto;
             padding: 0 48px 56px;
         }
 
-        /* ===== BIN GRID ===== */
         .bin-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -347,7 +338,6 @@ $bins = [
             opacity: 0.9;
         }
 
-        /* ===== FOOTER ===== */
         .site-footer {
             padding: 24px 0 32px;
             background: var(--light-bg);
@@ -362,7 +352,6 @@ $bins = [
             margin-bottom: 4px;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 767px) {
             .navbar { padding: 0 20px; }
             .navbar-brand .brand-name { font-size: 13pt; }

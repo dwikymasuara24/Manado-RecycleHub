@@ -1,13 +1,10 @@
 <?php
 require_once __DIR__ . '/include/config.php';
-// Manado Recycle Hub - PHP Version
-// Konversi dari HTML Google Sites
 
 $site_name = "Manado Recycle Hub";
 $page_title = "Home - Manado Recycle Hub";
 $description = "Manado Recycle Hub adalah jasa jemput sampah daur ulang di Manado dan sekitarnya. Kami melakukan pengumpulan sampah anorganik terpilah.";
 
-// Data navigasi
 $nav_items = [
     ["label" => "Home",                 "url" => "index.php",                   "active" => true],
     ["label" => "Bin Project",          "url" => "bin_project.php",             "active" => false],
@@ -19,8 +16,6 @@ $nav_items = [
     ["label" => "Login",                "url" => "login.php",                      "active" => false],
 ];
 
-
-// Data kategori daur ulang
 $recycle_items = [
     ["image" => "hvs.png", "label" => "Kertas HVS"],
     ["image" => "kardus.png", "label" => "Kardus"],
@@ -55,7 +50,6 @@ $card_image_url   = "Footer.jpeg";
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* =====================================================
            RESET & BASE
         ===================================================== */
         *, *::before, *::after {
@@ -95,7 +89,6 @@ $card_image_url   = "Footer.jpeg";
             line-height: 1.6;
         }
 
-        /* =====================================================
            NAVIGATION
         ===================================================== */
         .site-header {
@@ -201,7 +194,6 @@ $card_image_url   = "Footer.jpeg";
 
         .nav-toggle svg { display: block; }
 
-        /* =====================================================
            HERO SECTION
         ===================================================== */
         .hero-section {
@@ -317,7 +309,6 @@ $card_image_url   = "Footer.jpeg";
             }
         }
 
-        /* =====================================================
            GENERIC SECTION
         ===================================================== */
         .section {
@@ -330,7 +321,6 @@ $card_image_url   = "Footer.jpeg";
             padding: 0 48px;
         }
 
-        /* =====================================================
            INTRO TEXT
         ===================================================== */
         .intro-section {
@@ -347,7 +337,6 @@ $card_image_url   = "Footer.jpeg";
             margin-bottom: 0.5em;
         }
 
-        /* =====================================================
            CTA BUTTON
         ===================================================== */
         .cta-section {
@@ -381,7 +370,6 @@ $card_image_url   = "Footer.jpeg";
             transform: scale(0.97);
         }
 
-        /* =====================================================
            SOCIAL ICONS
         ===================================================== */
         .social-section {
@@ -409,7 +397,6 @@ $card_image_url   = "Footer.jpeg";
 
         .social-icons img:hover { transform: scale(1.1); }
 
-        /* =====================================================
            DIVIDER
         ===================================================== */
         .divider-section {
@@ -423,7 +410,6 @@ $card_image_url   = "Footer.jpeg";
             background-color: rgba(0, 0, 0, 0.15);
         }
 
-        /* =====================================================
            RECYCLE INFO SECTION
         ===================================================== */
         .info-section {
@@ -448,7 +434,6 @@ $card_image_url   = "Footer.jpeg";
             margin-bottom: 0;
         }
 
-        /* =====================================================
            RECYCLE ITEMS GRID
         ===================================================== */
         .recycle-grid-section {
@@ -494,7 +479,6 @@ $card_image_url   = "Footer.jpeg";
             color: var(--text-dark);
         }
 
-        /* =====================================================
            NEXT STEPS SECTION (h1 big heading)
         ===================================================== */
         .heading-section {
@@ -510,7 +494,6 @@ $card_image_url   = "Footer.jpeg";
             line-height: 1.38;
         }
 
-        /* =====================================================
            STEP CARDS
         ===================================================== */
         .steps-section {
@@ -538,7 +521,6 @@ $card_image_url   = "Footer.jpeg";
             color: var(--text-dark);
         }
 
-        /* =====================================================
            QR / CARD SECTION
         ===================================================== */
         .qr-section {
@@ -580,7 +562,6 @@ $card_image_url   = "Footer.jpeg";
             color: var(--text-dark);
         }
 
-        /* =====================================================
            FOOTER
         ===================================================== */
         .site-footer {
@@ -597,7 +578,6 @@ $card_image_url   = "Footer.jpeg";
             margin-bottom: 4px;
         }
 
-        /* =====================================================
            RESPONSIVE
         ===================================================== */
         @media (max-width: 767px) {
@@ -673,7 +653,6 @@ $card_image_url   = "Footer.jpeg";
 </head>
 <body>
 
-<!-- =====================================================
      HEADER / NAVIGATION
 ===================================================== -->
 <header class="site-header">
@@ -717,7 +696,6 @@ $card_image_url   = "Footer.jpeg";
     </nav>
 </header>
 
-<!-- =====================================================
      MAIN CONTENT
 ===================================================== -->
 <main id="main-content" tabindex="-1">
@@ -899,7 +877,6 @@ $card_image_url   = "Footer.jpeg";
 
 </main><!-- /main -->
 
-<!-- =====================================================
      FOOTER
 ===================================================== -->
 <footer class="site-footer" aria-label="Footer">
@@ -913,7 +890,6 @@ $card_image_url   = "Footer.jpeg";
     </div>
 </footer>
 
-<!-- =====================================================
      JAVASCRIPT
 ===================================================== -->
 <script>

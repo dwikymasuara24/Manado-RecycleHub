@@ -2,18 +2,16 @@
 $page_id    = 'riwayat';
 $page_title = 'Riwayat Tugas';
 require_once __DIR__ . '/../include/config.php';
-require_once __DIR__ . '/layout/header.php'; // auth + $officerId + $officer + $st
+require_once __DIR__ . '/layout/header.php'; 
 
 $db = getDB();
 
-// Filters & search
 $search = trim($_GET['q'] ?? '');
 $filter_type = trim($_GET['type'] ?? 'semua');
 $filter_status = trim($_GET['status'] ?? 'semua');
 
 $params = [];
 
-// Build dynamic union queries with positional placeholders
 $pickup_sql = "SELECT 
     'daur_ulang' AS type,
     pr.id,
@@ -44,7 +42,6 @@ $cleanup_sql = "SELECT
 FROM cleanup_requests cr
 WHERE cr.officer_id = ? AND cr.status IN ('selesai', 'dibatalkan')";
 
-// Add filters to subqueries if set
 if ($filter_status === 'selesai') {
     $pickup_sql .= " AND pr.status = 'selesai'";
     $cleanup_sql .= " AND cr.status = 'selesai'";
@@ -60,7 +57,6 @@ if ($search) {
     $cleanup_search = " AND (cr.request_code LIKE ? OR cr.nama_pemohon LIKE ? OR cr.alamat_jemput LIKE ?)";
 }
 
-// Assemble final query and compile parameters sequentially
 if ($filter_type === 'daur_ulang') {
     $final_sql = $pickup_sql . $pickup_search . " ORDER BY tgl_selesai DESC";
     $params[] = $officerId;
@@ -79,14 +75,14 @@ if ($filter_type === 'daur_ulang') {
     }
 } else {
     $final_sql = "(" . $pickup_sql . $pickup_search . ") UNION ALL (" . $cleanup_sql . $cleanup_search . ") ORDER BY tgl_selesai DESC";
-    // For pickup part
+    
     $params[] = $officerId;
     if ($search) {
         $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
     }
-    // For cleanup part
+    
     $params[] = $officerId;
     if ($search) {
         $params[] = "%$search%";
@@ -99,7 +95,6 @@ $stmt = $db->prepare($final_sql);
 $stmt->execute($params);
 $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Let's count some quick stats for the officer history using positional placeholders
 $stat_sql = "
     SELECT 
         SUM(CASE WHEN t.status='selesai' THEN 1 ELSE 0 END) as selesai_count,
@@ -220,7 +215,6 @@ $slblMap = ['selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'];
   </div>
 </div>
 
-<!-- ══ MODAL SHEET: DETAIL RIWAYAT ══ -->
 <div class="modal-backdrop" id="historyDetailModal">
   <div class="modal-sheet" style="max-width:600px;margin:auto;border-radius:20px 20px 20px 20px;">
     <div class="modal-handle"></div>

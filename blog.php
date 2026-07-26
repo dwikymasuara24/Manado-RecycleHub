@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/include/config.php';
-// Manado Recycle Hub - Blog dan Media Sosial
+
 $pageTitle = "Manado Recycle Hub - Blog dan Media Sosial";
 $siteTitle = "Manado Recycle Hub";
 $banner_img = "medsos.jpeg";
@@ -15,7 +15,6 @@ $navLinks = [
     ["label" => "Kuesioner",          "href" => "kuesioner.php",        "active" => false],
 ];
 
-// ── Ambil post dari DB jika tersedia, fallback ke data statis ──
 $blogPosts = [];
 try {
     $stmt = getDB()->query("SELECT judul AS title, konten AS content, gambar_url AS image_url, created_at FROM blog_posts WHERE status='published' ORDER BY created_at DESC LIMIT 20");
@@ -25,9 +24,8 @@ try {
             $blogPosts[] = ['image'=>$p['image_url']??'', 'imageAlt'=>htmlspecialchars($p['title']), 'title'=>$p['title'], 'content'=>$p['content']];
         }
     }
-} catch (Exception $e) { /* fallback ke static */ }
+} catch (Exception $e) {  }
 
-// Fallback data statis jika DB kosong
 if (empty($blogPosts)):
 $blogPosts = [
     [
@@ -105,7 +103,6 @@ endif;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== CSS RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
@@ -134,7 +131,6 @@ endif;
         a:hover { text-decoration: underline; }
         img { max-width: 100%; display: block; }
 
-        /* ===== NAVBAR ===== */
         .navbar {
             position: fixed;
             top: 0;
@@ -232,7 +228,6 @@ endif;
         .mobile-nav a:last-child { border-bottom: none; }
         .mobile-nav a.active { font-weight: 700; }
 
-        /* ===== HERO SECTION ===== */
         .hero {
             position: relative;
             height: 250px;
@@ -273,21 +268,18 @@ endif;
             line-height: 1.38;
         }
 
-        /* ===== MAIN CONTENT ===== */
         .main-content {
             max-width: var(--max-width);
             margin: 0 auto;
             padding: 56px 24px;
         }
 
-        /* ===== BLOG GRID ===== */
         .blog-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 32px;
         }
 
-        /* ===== BLOG CARD ===== */
         .blog-card {
             background: var(--white);
             border-radius: 12px;
@@ -350,7 +342,6 @@ endif;
         .blog-card-text p:last-child { margin-bottom: 0; }
         .blog-card-text a { color: var(--green-dark); text-decoration: underline; }
 
-        /* ===== FOOTER ===== */
         .site-footer {
             padding: 24px 0 32px;
             background: var(--white);
@@ -365,7 +356,6 @@ endif;
             margin-bottom: 4px;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 767px) {
             .navbar-nav { display: none; }
             .hamburger  { display: flex; }
@@ -383,7 +373,6 @@ endif;
 </head>
 <body>
 
-    <!-- ===== NAVIGATION ===== -->
     <header>
         <nav class="navbar">
             <div class="navbar-inner">
@@ -423,7 +412,6 @@ endif;
         </nav>
     </header>
 
-    <!-- ===== HERO ===== -->
     <section class="hero" aria-label="Header halaman">
         <div class="hero-overlay" aria-hidden="true"></div>
         <div class="hero-content">
@@ -431,7 +419,6 @@ endif;
         </div>
     </section>
 
-    <!-- ===== BLOG POSTS ===== -->
     <main class="main-content" id="main-content">
         <div class="blog-grid">
             <?php foreach ($blogPosts as $post): ?>
@@ -457,7 +444,6 @@ endif;
         </div>
     </main>
 
-    <!-- ===== FOOTER ===== -->
     <footer class="site-footer" aria-label="Footer">
         <div class="container">
             <small class="footer-text" style="display:block;">
@@ -469,7 +455,6 @@ endif;
         </div>
     </footer>
 
-    <!-- ===== SCRIPTS ===== -->
     <script>
         // Mobile hamburger toggle
         const hamburgerBtn = document.getElementById('hamburgerBtn');

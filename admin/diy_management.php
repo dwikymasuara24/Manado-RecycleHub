@@ -6,7 +6,6 @@ $page_id    = 'diy_management';
 $page_title = 'Manajemen DIY';
 $db         = getDB();
 
-// Handle POST actions (Save, Delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
 
@@ -21,13 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $status          = trim($_POST['status'] ?? 'draft');
         $author_id       = $_SESSION['user_id'] ?? 1;
 
-        // Ensure upload directory exists
+        
         $upload_dir = __DIR__ . '/../uploads/diy/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
 
-        // Handle Ikon Foto upload
+        
         if (isset($_FILES['ikon_foto']) && $_FILES['ikon_foto']['error'] === UPLOAD_ERR_OK) {
             $file_tmp = $_FILES['ikon_foto']['tmp_name'];
             $file_name = $_FILES['ikon_foto']['name'];
@@ -41,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         }
 
-        // Handle Gambar URL upload
+        
         if (isset($_FILES['gambar_file']) && $_FILES['gambar_file']['error'] === UPLOAD_ERR_OK) {
             $file_tmp = $_FILES['gambar_file']['tmp_name'];
             $file_name = $_FILES['gambar_file']['name'];
@@ -61,11 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             exit;
         }
 
-        // Generate slug
+        
         $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower($judul));
         $slug = trim($slug, '-');
 
-        // Check uniqueness of slug
+        
         $checkStmt = $db->prepare("SELECT id FROM diy_projects WHERE slug = ? AND id != ?");
         $checkStmt->execute([$slug, $id]);
         if ($checkStmt->fetch()) {
@@ -88,11 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $project_id = $db->lastInsertId();
             }
 
-            // Save steps
-            // 1. Delete existing steps
+            
+            
             $db->prepare("DELETE FROM diy_steps WHERE project_id = ?")->execute([$project_id]);
 
-            // 2. Insert new steps
+            
             $step_titles = $_POST['step_title'] ?? [];
             $step_descs  = $_POST['step_desc'] ?? [];
             $urutan = 1;
@@ -136,7 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Search and filters
 $search = trim($_GET['q'] ?? '');
 $filter_difficulty = trim($_GET['difficulty'] ?? '');
 $filter_status = trim($_GET['status'] ?? '');
@@ -166,7 +164,6 @@ $stmt = $db->prepare("SELECT dp.*, u.nama AS author_name, (SELECT COUNT(*) FROM 
 $stmt->execute($params);
 $projects = $stmt->fetchAll();
 
-// Edit prefill logic
 $editData = null;
 $editSteps = [];
 if (!empty($_GET['edit'])) {
