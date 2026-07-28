@@ -3,17 +3,17 @@ require_once __DIR__ . '/include/config.php';
 
 $site_name  = "Manado Recycle Hub";
 $page_title = "Lokasi Kami";
-$logo_img   = "Home.png";
-$banner_img = "lokasi.png";
+$logo_img   = "images/Home.png";
+$banner_img = "images/lokasi.png";
 
 $nav_items = [
-    ["label" => "Home",                 "url" => "home.php",                    "active" => false],
-    ["label" => "Bin Project",          "url" => "bin_project.php",             "active" => false],
-    ["label" => "Blog dan Media Sosial","url" => "blog.php",                    "active" => false],
-    ["label" => "Idea Box",             "url" => "idea-box.php",                "active" => false],
-    ["label" => "Lokasi Kami",          "url" => "lokasi_kami.php",             "active" => true],
-    ["label" => "DIY",                  "url" => "diy.php",                     "active" => false],
-    ["label" => "Kuesioner",            "url" => "kuesioner.php",               "active" => false],
+    ["label" => "Home",                 "url" => "home",                        "active" => false],
+    ["label" => "Bin Project",          "url" => "bin_project",                 "active" => false],
+    ["label" => "Blog dan Media Sosial","url" => "blog",                        "active" => false],
+    ["label" => "Idea Box",             "url" => "idea-box",                    "active" => false],
+    ["label" => "Lokasi Kami",          "url" => "lokasi_kami",                 "active" => true],
+    ["label" => "DIY",                  "url" => "diy",                         "active" => false],
+    ["label" => "Kuesioner",            "url" => "kuesioner",                   "active" => false],
 ];
 ?>
 <!DOCTYPE html>
@@ -23,7 +23,7 @@ $nav_items = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Lokasi Kami - Manado Recycle Hub Depot">
     <title><?= htmlspecialchars($site_name) ?> - <?= htmlspecialchars($page_title) ?></title>
-    <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+    <link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">

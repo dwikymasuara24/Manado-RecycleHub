@@ -367,7 +367,7 @@ $track_step_defs = [
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daur Ulang Sekarang — Manado Recycle Hub</title>
-<link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+<link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1302,13 +1302,13 @@ html:has(#flashOverlay:not([style*="display: none"])) {
         Beranda
     </a>
     <span class="site-name" style="display: inline-flex; align-items: center; gap: 8px;">
-        <img src="Home.png" alt="Logo" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'">
+        <img src="<?= baseUrl('images/Home.png') ?>" alt="Logo" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'">
         Manado Recycle Hub
     </span>
 </nav>
 
 <?php if ($submitted): ?>
-     SUCCESS SCREEN
+<!-- SUCCESS SCREEN
 ══════════════════════════════════════════════════════════ -->
 <div class="success-wrap">
     <div class="success-card">
@@ -1371,7 +1371,7 @@ html:has(#flashOverlay:not([style*="display: none"])) {
 </div>
 
 <?php if ($active_tab === 'track'): ?>
-     TRACKING TAB
+<!-- TRACKING TAB
 ══════════════════════════════════════════════════════════ -->
 <div class="track-wrap">
     <div class="track-search">
@@ -1490,7 +1490,7 @@ html:has(#flashOverlay:not([style*="display: none"])) {
 </div>
 
 <?php else: ?>
-     FORM TAB — 5-Step Wizard
+<!-- FORM TAB — 5-Step Wizard
 ══════════════════════════════════════════════════════════ -->
 
 <?php if (!empty($errors) && in_array('database_error', $errors)): ?>
@@ -1567,7 +1567,7 @@ html:has(#flashOverlay:not([style*="display: none"])) {
         <form id="mainForm" method="POST" action="" novalidate>
             <input type="hidden" name="_action" value="submit_form">
 
-                 STEP 1 — JENIS SAMPAH
+            <!-- STEP 1 — JENIS SAMPAH
             ══════════════════════════════ -->
             <div class="form-step <?= $init_step === 1 ? 'active' : '' ?>" id="step-1">
                 <div class="step-title">📦 Jenis Sampah</div>
@@ -1595,7 +1595,7 @@ html:has(#flashOverlay:not([style*="display: none"])) {
                 <div style="height:20px"></div>
             </div>
 
-                 STEP 2 — IDENTITAS
+            <!-- STEP 2 — IDENTITAS
             ══════════════════════════════ -->
             <div class="form-step <?= $init_step === 2 ? 'active' : '' ?>" id="step-2">
                 <div class="step-title">👤 Identitas</div>
@@ -1675,7 +1675,7 @@ html:has(#flashOverlay:not([style*="display: none"])) {
                 <div style="height:20px"></div>
             </div>
 
-                 STEP 3 — LOKASI
+            <!-- STEP 3 — LOKASI
             ══════════════════════════════ -->
             <div class="form-step <?= $init_step === 3 ? 'active' : '' ?>" id="step-3">
                 <div class="step-title">📍 Lokasi Penjemputan</div>
@@ -1764,7 +1764,7 @@ html:has(#flashOverlay:not([style*="display: none"])) {
                 <div style="height:20px"></div>
             </div>
 
-                 STEP 4 — JADWAL & BERAT
+            <!-- STEP 4 — JADWAL & BERAT
             ══════════════════════════════ -->
             <div class="form-step <?= $init_step === 4 ? 'active' : '' ?>" id="step-4">
                 <div class="step-title">⚖️ Berat &amp; Catatan</div>
@@ -1791,7 +1791,7 @@ html:has(#flashOverlay:not([style*="display: none"])) {
                 <div style="height:20px"></div>
             </div>
 
-                 STEP 5 — KONFIRMASI
+            <!-- STEP 5 — KONFIRMASI
             ══════════════════════════════ -->
             <div class="form-step" id="step-5">
                 <div class="step-title">✅ Konfirmasi</div>

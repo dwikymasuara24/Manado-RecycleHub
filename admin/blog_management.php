@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if (!$judul) {
             flash('danger', 'Judul wajib diisi!');
-            header('Location: blog_management.php');
+            header('Location: ' . baseUrl('admin/blog_management'));
             exit;
         }
 
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                ->execute([$author_id, $judul, $slug, $konten, $gambar_url, $gambar_alt, $sumber_gambar, $tags, $platform_asal, $status, $published_at]);
             flash('success', 'Artikel blog baru berhasil ditambahkan!');
         }
-        header('Location: blog_management.php');
+        header('Location: ' . baseUrl('admin/blog_management'));
         exit;
     }
 
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $id = (int)($_POST['id'] ?? 0);
         $db->prepare("DELETE FROM blog_posts WHERE id=?")->execute([$id]);
         flash('success', 'Artikel blog berhasil dihapus.');
-        header('Location: blog_management.php');
+        header('Location: ' . baseUrl('admin/blog_management'));
         exit;
     }
 }
@@ -155,7 +155,7 @@ require_once __DIR__ . '/layout/header.php';
         </select>
 
         <?php if ($search || $filter_status || $filter_platform): ?>
-          <a href="blog_management.php" class="btn btn-outline">Reset</a>
+          <a href="<?= baseUrl('admin/blog_management') ?>" class="btn btn-outline">Reset</a>
         <?php endif; ?>
       </form>
     </div>
@@ -189,7 +189,7 @@ require_once __DIR__ . '/layout/header.php';
             <td><?= $i + 1 ?></td>
             <td>
               <?php if (!empty($p['gambar_url'])): ?>
-                <img src="../<?= htmlspecialchars($p['gambar_url']) ?>" alt="Thumbnail" style="width:50px;height:50px;object-fit:cover;border-radius:4px;border:1px solid #e0e0e0" onerror="this.src='../logo_square.png'; this.onerror=null;">
+                <img src="../<?= htmlspecialchars($p['gambar_url']) ?>" alt="Thumbnail" style="width:50px;height:50px;object-fit:cover;border-radius:4px;border:1px solid #e0e0e0" onerror="this.src='<?= baseUrl('images/logo_square.png') ?>'; this.onerror=null;">
               <?php else: ?>
                 <div style="width:50px;height:50px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;color:#bbb">🖼️</div>
               <?php endif; ?>
@@ -224,7 +224,7 @@ require_once __DIR__ . '/layout/header.php';
             </td>
             <td>
               <div style="display:flex;gap:4px">
-                <a class="btn btn-outline btn-icon" href="blog_management.php?edit=<?= $p['id'] ?>" title="Edit">✏️</a>
+                <a class="btn btn-outline btn-icon" href="<?= baseUrl('admin/blog_management') ?>?edit=<?= $p['id'] ?>" title="Edit">✏️</a>
                 <button class="btn btn-danger btn-icon" title="Hapus" onclick="confirmDelete(<?= $p['id'] ?>, '<?= htmlspecialchars(addslashes($p['judul'])) ?>')">🗑️</button>
               </div>
             </td>
@@ -241,7 +241,7 @@ require_once __DIR__ . '/layout/header.php';
   <div class="modal" style="max-width:720px">
     <div class="modal-header">
       <h3><?= $editData ? 'Edit Postingan Blog' : 'Buat Postingan Baru' ?></h3>
-      <a href="blog_management.php" class="modal-close">✕</a>
+      <a href="<?= baseUrl('admin/blog_management') ?>" class="modal-close">✕</a>
     </div>
     <form method="POST" enctype="multipart/form-data">
       <input type="hidden" name="action" value="save">
@@ -280,7 +280,7 @@ require_once __DIR__ . '/layout/header.php';
           <input type="file" class="form-input" name="gambar_file" style="padding: 8px;">
           <?php if (!empty($editData['gambar_url'])): ?>
             <div style="margin-top:8px; display:flex; align-items:center; gap:12px; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0;">
-              <img src="../<?= htmlspecialchars($editData['gambar_url']) ?>" alt="Preview" style="width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1" onerror="this.src='../logo_square.png'; this.onerror=null;">
+              <img src="../<?= htmlspecialchars($editData['gambar_url']) ?>" alt="Preview" style="width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1" onerror="this.src='<?= baseUrl('images/logo_square.png') ?>'; this.onerror=null;">
               <div>
                 <span style="font-size:12px; color:#475569; font-weight:600; display:block;">Gambar Saat Ini:</span>
                 <code style="font-size:11px; color:#64748b; word-break:break-all;"><?= htmlspecialchars($editData['gambar_url']) ?></code>
@@ -316,7 +316,7 @@ require_once __DIR__ . '/layout/header.php';
         </div>
       </div>
       <div class="modal-footer">
-        <a href="blog_management.php" class="btn btn-outline">Batal</a>
+        <a href="<?= baseUrl('admin/blog_management') ?>" class="btn btn-outline">Batal</a>
         <button type="submit" class="btn btn-primary">💾 Simpan Postingan</button>
       </div>
     </form>

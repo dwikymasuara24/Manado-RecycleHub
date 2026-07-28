@@ -124,7 +124,7 @@ for ($i = 29; $i >= 0; $i--) {
     $trendSelesai[] = $trendSelesaiMap[$d] ?? 0;
 }
 
-$statusRows = $db->query("SELECT status, SUM(cnt) as cnt FROM (SELECT status, COUNT(*) as cnt FROM pickup_requests GROUP BY status UNION ALL SELECT status, COUNT(*) as cnt FROM cleanup_requests GROUP BY status) t GROUP BY status ORDER BY FIELD(status,'menunggu','dikonfirmasi','dijadwalkan','dalam_perjalanan','sedang_diproses','selesai','dibatalkan')")->fetchAll();
+$statusRows = $db->query("SELECT status, SUM(cnt) as cnt FROM (SELECT CONVERT(status USING utf8mb4) AS status, COUNT(*) as cnt FROM pickup_requests GROUP BY status UNION ALL SELECT CONVERT(status USING utf8mb4) AS status, COUNT(*) as cnt FROM cleanup_requests GROUP BY status) t GROUP BY status ORDER BY FIELD(status,'menunggu','dikonfirmasi','dijadwalkan','dalam_perjalanan','sedang_diproses','selesai','dibatalkan')")->fetchAll();
 $statusColorMap    = ['menunggu'=>'#f59e0b','dikonfirmasi'=>'#3b82f6','dijadwalkan'=>'#8b5cf6','dalam_perjalanan'=>'#eab308','sedang_diproses'=>'#f97316','selesai'=>'#22c55e','dibatalkan'=>'#ef4444'];
 $statusDisplayMap  = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=>'Dijadwalkan','dalam_perjalanan'=>'Dalam Perjalanan','sedang_diproses'=>'Sedang Diproses','selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'];
 $statusLabels      = array_column($statusRows,'status');
@@ -133,9 +133,9 @@ $statusColors      = array_map(fn($s)=>$statusColorMap[$s]??'#aaa', $statusLabel
 $statusDisplayLbls = array_map(fn($s)=>$statusDisplayMap[$s]??$s, $statusLabels);
 
 $kecData = $db->query("SELECT kecamatan, SUM(cnt) as cnt, SUM(selesai) as selesai, SUM(aktif) as aktif FROM (
-    SELECT kecamatan, COUNT(*) as cnt, SUM(CASE WHEN status='selesai' THEN 1 ELSE 0 END) as selesai, SUM(CASE WHEN status NOT IN ('selesai','dibatalkan') THEN 1 ELSE 0 END) as aktif FROM pickup_requests WHERE kecamatan IS NOT NULL GROUP BY kecamatan
+    SELECT CONVERT(kecamatan USING utf8mb4) AS kecamatan, COUNT(*) as cnt, SUM(CASE WHEN status='selesai' THEN 1 ELSE 0 END) as selesai, SUM(CASE WHEN status NOT IN ('selesai','dibatalkan') THEN 1 ELSE 0 END) as aktif FROM pickup_requests WHERE kecamatan IS NOT NULL GROUP BY kecamatan
     UNION ALL
-    SELECT kecamatan, COUNT(*) as cnt, SUM(CASE WHEN status='selesai' THEN 1 ELSE 0 END) as selesai, SUM(CASE WHEN status NOT IN ('selesai','dibatalkan') THEN 1 ELSE 0 END) as aktif FROM cleanup_requests WHERE kecamatan IS NOT NULL GROUP BY kecamatan
+    SELECT CONVERT(kecamatan USING utf8mb4) AS kecamatan, COUNT(*) as cnt, SUM(CASE WHEN status='selesai' THEN 1 ELSE 0 END) as selesai, SUM(CASE WHEN status NOT IN ('selesai','dibatalkan') THEN 1 ELSE 0 END) as aktif FROM cleanup_requests WHERE kecamatan IS NOT NULL GROUP BY kecamatan
 ) t GROUP BY kecamatan ORDER BY cnt DESC LIMIT 8")->fetchAll();
 $kecLabels  = array_column($kecData,'kecamatan');
 $kecCounts  = array_column($kecData,'cnt');
@@ -479,13 +479,13 @@ require_once __DIR__ . '/layout/header.php';
   <div class="dash-header-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <div class="live-badge"><span class="live-dot"></span> Live · <span id="lastRefresh">--:--:--</span></div>
     <?php if ($unassigned > 0): ?>
-    <a href="req_management.php" class="action-chip">⚠️ <?= $unassigned ?> belum di-assign</a>
+    <a href="<?= baseUrl('admin/req_management') ?>" class="action-chip">⚠️ <?= $unassigned ?> belum di-assign</a>
     <?php endif; ?>
     <?php if ($pending_req > 0): ?>
-    <a href="req_management.php?status=menunggu" class="action-chip danger">🔴 <?= $pending_req ?> menunggu</a>
+    <a href="<?= baseUrl('admin/req_management') ?>?status=menunggu" class="action-chip danger">🔴 <?= $pending_req ?> menunggu</a>
     <?php endif; ?>
-    <a href="live_tracking.php" class="btn btn-outline btn-sm">🛵 Pelacakan Live</a>
-    <a href="req_management.php" class="btn btn-primary btn-sm">+ Tambah Request</a>
+    <a href="<?= baseUrl('admin/live_tracking') ?>" class="btn btn-outline btn-sm">🛵 Pelacakan Live</a>
+    <a href="<?= baseUrl('admin/req_management') ?>" class="btn btn-primary btn-sm">+ Tambah Request</a>
   </div>
 </div>
 
@@ -500,7 +500,7 @@ require_once __DIR__ . '/layout/header.php';
     </p>
     <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
       <?php foreach ($alertOfficers as $ao): ?>
-        <a href="officer_management.php?preview=<?= $ao['id'] ?>" 
+        <a href="<?= baseUrl('admin/officer_management') ?>?preview=<?= $ao['id'] ?>" 
            style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;" 
            onmouseover="this.style.background='#fca5a5'" 
            onmouseout="this.style.background='#fee2e2'">
@@ -509,7 +509,7 @@ require_once __DIR__ . '/layout/header.php';
       <?php endforeach; ?>
     </div>
   </div>
-  <a href="officer_management.php" class="btn btn-outline btn-sm" style="border-color: #fca5a5; color: #991b1b; background: #fff; flex-shrink: 0; margin-left: auto;">Kelola Petugas</a>
+  <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline btn-sm" style="border-color: #fca5a5; color: #991b1b; background: #fff; flex-shrink: 0; margin-left: auto;">Kelola Petugas</a>
 </div>
 <?php endif; ?>
 
@@ -549,7 +549,7 @@ require_once __DIR__ . '/layout/header.php';
     <div class="kpi-value" id="sc-weight"><?= number_format($total_kg,1) ?></div>
     <div class="kpi-sub">kg terkumpul</div>
   </div>
-  <a href="live_tracking.php" class="kpi-card teal" style="text-decoration:none; border-left:4px solid var(--green-500);">
+  <a href="<?= baseUrl('admin/live_tracking') ?>" class="kpi-card teal" style="text-decoration:none; border-left:4px solid var(--green-500);">
     <div class="kpi-label">Pelacakan Kurir</div>
     <div class="kpi-value">📡 Live</div>
     <div class="kpi-sub">Peta Posisi Kurir</div>
@@ -635,7 +635,7 @@ require_once __DIR__ . '/layout/header.php';
 <div class="chart-card mb-24">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
     <span style="font-size:12px;color:#94a3b8">Intensitas warna = jumlah request aktif. Klik sel untuk filter.</span>
-    <a href="rute_jadwal.php" class="btn btn-outline btn-sm">Lihat Rute & Jadwal →</a>
+    <a href="<?= baseUrl('admin/rute_jadwal') ?>" class="btn btn-outline btn-sm">Lihat Rute & Jadwal →</a>
   </div>
   <div class="kec-heatmap">
     <?php
@@ -672,7 +672,7 @@ require_once __DIR__ . '/layout/header.php';
   <div id="dashMiniMap" style="width:100%;height:280px;border-radius:8px;border:1px solid #e2e8f0"></div>
   <div style="margin-top:8px;font-size:11px;color:#94a3b8;display:flex;gap:14px;flex-wrap:wrap">
     <span>🟡 Menunggu</span><span>🟠 Dikonfirmasi</span><span>🟣 Dijadwalkan</span><span>🟠 Diproses</span>
-    <span style="margin-left:auto"><a href="rute_jadwal.php" style="color:#1c6434;font-weight:700">Buka Peta Rute Lengkap →</a></span>
+    <span style="margin-left:auto"><a href="<?= baseUrl('admin/rute_jadwal') ?>" style="color:#1c6434;font-weight:700">Buka Peta Rute Lengkap →</a></span>
   </div>
 </div>
 
@@ -726,7 +726,7 @@ require_once __DIR__ . '/layout/header.php';
                 </button>
               </div>
               <?php else: ?>
-              <a href="cleanup_management.php?status=menunggu" class="btn btn-outline btn-sm" style="font-size:10px;padding:3px 10px">Set Biaya →</a>
+              <a href="<?= baseUrl('admin/cleanup_management') ?>?status=menunggu" class="btn btn-outline btn-sm" style="font-size:10px;padding:3px 10px">Set Biaya →</a>
               <?php endif; ?>
             </td>
           </tr>
@@ -735,8 +735,8 @@ require_once __DIR__ . '/layout/header.php';
       </table>
     </div>
     <div style="margin-top:10px;text-align:right">
-        <a href="req_management.php?status=menunggu" class="btn btn-outline btn-sm" style="margin-right:4px">Semua Pickup →</a>
-        <a href="cleanup_management.php?status=menunggu" class="btn btn-outline btn-sm">Semua Clean Up →</a>
+        <a href="<?= baseUrl('admin/req_management') ?>?status=menunggu" class="btn btn-outline btn-sm" style="margin-right:4px">Semua Pickup →</a>
+        <a href="<?= baseUrl('admin/cleanup_management') ?>?status=menunggu" class="btn btn-outline btn-sm">Semua Clean Up →</a>
     </div>
     <?php else: ?>
     <div style="text-align:center;padding:28px;color:#94a3b8"><div style="font-size:32px;margin-bottom:8px">✅</div><div style="font-weight:700;font-size:13px">Semua request sudah diverifikasi!</div></div>
@@ -762,7 +762,7 @@ require_once __DIR__ . '/layout/header.php';
     <?php endforeach; else: ?>
     <p style="color:#aaa;font-size:13px;text-align:center;padding:20px">Belum ada petugas aktif.</p>
     <?php endif; ?>
-    <div style="margin-top:10px"><a href="officer_management.php" class="btn btn-outline btn-sm">Kelola Petugas →</a></div>
+    <div style="margin-top:10px"><a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline btn-sm">Kelola Petugas →</a></div>
   </div>
 </div>
 
@@ -794,7 +794,7 @@ require_once __DIR__ . '/layout/header.php';
                     </div>
                 </td>
                 <td style="padding:12px 10px;text-align:center">
-                    <a href="req_management.php?edit=<?= $k['id'] ?>" class="btn btn-sm" style="background:#991b1b;color:#fff;border:none">Reschedule</a>
+                    <a href="<?= baseUrl('admin/req_management') ?>?edit=<?= $k['id'] ?>" class="btn btn-sm" style="background:#991b1b;color:#fff;border:none">Reschedule</a>
                 </td>
               </tr>
               <?php endforeach; ?>
@@ -863,7 +863,7 @@ require_once __DIR__ . '/layout/header.php';
               <?php if ($r['status'] === 'menunggu'): ?>
                 <span style="color:#94a3b8;font-size:10px;font-style:italic">Menunggu Verifikasi</span>
               <?php elseif (in_array($r['status'], ['dikonfirmasi','dijadwalkan'])): ?>
-                <a href="req_management.php?edit=<?= $r['id'] ?>" class="btn btn-outline btn-sm" style="border-color:#bbf7d0;color:#166534;background:#f0fdf4;padding:3px 10px">
+                <a href="<?= baseUrl('admin/req_management') ?>?edit=<?= $r['id'] ?>" class="btn btn-outline btn-sm" style="border-color:#bbf7d0;color:#166534;background:#f0fdf4;padding:3px 10px">
                   📝 Edit Jadwal
                 </a>
               <?php else: ?>
@@ -876,8 +876,8 @@ require_once __DIR__ . '/layout/header.php';
       </table>
     </div>
     <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:11px;color:#94a3b8">Jadwal otomatis diatur algoritma di <a href="rute_jadwal.php" style="color:#1c6434;font-weight:700">Rute & Jadwal</a></span>
-        <a href="req_management.php" class="btn btn-outline btn-sm">Semua Request →</a>
+        <span style="font-size:11px;color:#94a3b8">Jadwal otomatis diatur algoritma di <a href="<?= baseUrl('admin/rute_jadwal') ?>" style="color:#1c6434;font-weight:700">Rute & Jadwal</a></span>
+        <a href="<?= baseUrl('admin/req_management') ?>" class="btn btn-outline btn-sm">Semua Request →</a>
     </div>
 </div>
 
@@ -913,7 +913,7 @@ require_once __DIR__ . '/layout/header.php';
     <p style="color:#aaa;font-size:13px;text-align:center;padding:16px">Tidak ada request aktif.</p>
     <?php endif; ?>
     <div style="margin-top:14px">
-      <a href="rute_jadwal.php" class="btn btn-primary btn-sm">Lihat Rute & Jadwal →</a>
+      <a href="<?= baseUrl('admin/rute_jadwal') ?>" class="btn btn-primary btn-sm">Lihat Rute & Jadwal →</a>
     </div>
   </div>
 
@@ -959,7 +959,7 @@ require_once __DIR__ . '/layout/header.php';
           $stLbl = $r['status']==='selesai' ? '✅ Selesai' : '❌ Dibatalkan';
         ?>
         <tr style="border-bottom:1px solid #f5f5f5;transition:background .12s" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background=''">
-          <td style="padding:8px 10px"><a href="req_management.php?preview=<?= $r['id'] ?>" style="font-weight:800;color:#1c6434;font-size:11px;font-family:monospace"><?= htmlspecialchars($r['request_code']) ?></a></td>
+          <td style="padding:8px 10px"><a href="<?= baseUrl('admin/req_management') ?>?preview=<?= $r['id'] ?>" style="font-weight:800;color:#1c6434;font-size:11px;font-family:monospace"><?= htmlspecialchars($r['request_code']) ?></a></td>
           <td style="padding:8px 10px;font-weight:600;color:#1e293b"><?= htmlspecialchars($r['partner_name'] ?: $r['nama_pemohon']) ?></td>
           <td style="padding:8px 10px;color:#64748b"><?= htmlspecialchars($r['kecamatan']??'-') ?></td>
           <td style="padding:8px 10px">
@@ -974,7 +974,7 @@ require_once __DIR__ . '/layout/header.php';
     </table>
   </div>
   <div style="margin-top:10px;text-align:right">
-    <a href="req_management.php?status=selesai" class="btn btn-outline btn-sm">Lihat Semua Selesai →</a>
+    <a href="<?= baseUrl('admin/req_management') ?>?status=selesai" class="btn btn-outline btn-sm">Lihat Semua Selesai →</a>
   </div>
   <?php else: ?>
   <div style="text-align:center;padding:28px;color:#94a3b8">
@@ -1000,7 +1000,7 @@ require_once __DIR__ . '/layout/header.php';
           $stLbl = $statusDisplayMap[$r['status']] ?? $r['status'];
         ?>
         <tr style="border-bottom:1px solid #f5f5f5;transition:background .12s" onmouseover="this.style.background='#f8fffe'" onmouseout="this.style.background=''">
-          <td style="padding:9px 12px"><a href="req_management.php?preview=<?= $r['id'] ?>" style="font-weight:800;color:#1c6434;font-size:11px;font-family:monospace"><?= htmlspecialchars($r['request_code']) ?></a></td>
+          <td style="padding:9px 12px"><a href="<?= baseUrl('admin/req_management') ?>?preview=<?= $r['id'] ?>" style="font-weight:800;color:#1c6434;font-size:11px;font-family:monospace"><?= htmlspecialchars($r['request_code']) ?></a></td>
           <td style="padding:9px 12px;font-weight:600;color:#1e293b"><?= htmlspecialchars($r['partner_name'] ?: $r['nama_pemohon']) ?></td>
           <td style="padding:9px 12px;color:#64748b"><?= htmlspecialchars($r['kecamatan']??'-') ?></td>
           <td style="padding:9px 12px">
@@ -1014,7 +1014,7 @@ require_once __DIR__ . '/layout/header.php';
     </table>
   </div>
   <div style="margin-top:12px;text-align:right">
-    <a href="req_management.php" class="btn btn-outline btn-sm">Lihat Semua Request →</a>
+    <a href="<?= baseUrl('admin/req_management') ?>" class="btn btn-outline btn-sm">Lihat Semua Request →</a>
   </div>
 </div>
 
@@ -1023,8 +1023,8 @@ require_once __DIR__ . '/layout/header.php';
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <span style="font-size:12px;color:#94a3b8">Pantau efisiensi officer — klik nama untuk detail</span>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
-      <a href="officer_management.php" class="btn btn-outline btn-sm">⚙️ Kelola Petugas</a>
-      <a href="rute_jadwal.php" class="btn btn-outline btn-sm">🗺️ Atur Rute</a>
+      <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline btn-sm">⚙️ Kelola Petugas</a>
+      <a href="<?= baseUrl('admin/rute_jadwal') ?>" class="btn btn-outline btn-sm">🗺️ Atur Rute</a>
     </div>
   </div>
 
@@ -1065,8 +1065,8 @@ require_once __DIR__ . '/layout/header.php';
           </td>
           <td style="padding:9px 12px">
             <div style="display:flex;gap:5px">
-              <a href="officer_management.php?preview=<?= $oe['id'] ?>" class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:10px">👁️</a>
-              <a href="officer_management.php?edit=<?= $oe['id'] ?>" class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:10px">✏️</a>
+              <a href="<?= baseUrl('admin/officer_management') ?>?preview=<?= $oe['id'] ?>" class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:10px">👁️</a>
+              <a href="<?= baseUrl('admin/officer_management') ?>?edit=<?= $oe['id'] ?>" class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:10px">✏️</a>
             </div>
           </td>
         </tr>
@@ -1075,7 +1075,7 @@ require_once __DIR__ . '/layout/header.php';
     </table>
   </div>
   <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-    <a href="officer_management.php" class="btn btn-primary btn-sm">Manajemen Lengkap Petugas →</a>
+    <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-primary btn-sm">Manajemen Lengkap Petugas →</a>
   </div>
 </div>
 
@@ -1106,9 +1106,9 @@ require_once __DIR__ . '/layout/header.php';
     <?php endforeach; ?>
   </div>
   <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-    <a href="laporan_bulanan.php"  class="btn btn-outline btn-sm">Laporan Bulanan</a>
-    <a href="laporan_mingguan.php" class="btn btn-outline btn-sm">Laporan Mingguan</a>
-    <a href="analisis_data.php"    class="btn btn-outline btn-sm">Analisis Data Lengkap</a>
+    <a href="<?= baseUrl('admin/laporan_bulanan') ?>"  class="btn btn-outline btn-sm">Laporan Bulanan</a>
+    <a href="<?= baseUrl('admin/laporan_mingguan') ?>" class="btn btn-outline btn-sm">Laporan Mingguan</a>
+    <a href="<?= baseUrl('admin/analisis_data') ?>"    class="btn btn-outline btn-sm">Analisis Data Lengkap</a>
   </div>
 </div>
 
@@ -1259,9 +1259,25 @@ function refreshStats() {
     if (scGps) scGps.textContent = d.gps_coverage + '%';
     const scGpsSub = document.getElementById('sc-gps-sub');
     if (scGpsSub) scGpsSub.textContent = d.with_gps + ' dari ' + d.total_req + ' request';
-    document.getElementById('lastRefresh').textContent            = d.ts;
+    if (d.ts) {
+      const parts = d.ts.split(':');
+      const sDate = new Date();
+      sDate.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), parseInt(parts[2], 10), 0);
+      serverTimeOffset = sDate.getTime() - Date.now();
+    }
   }).catch(()=>{});
 }
+let serverTimeOffset = <?= time() * 1000 ?> - Date.now();
+function updateClock() {
+  const now = new Date(Date.now() + serverTimeOffset);
+  const hrs = String(now.getHours()).padStart(2, '0');
+  const mins = String(now.getMinutes()).padStart(2, '0');
+  const secs = String(now.getSeconds()).padStart(2, '0');
+  const el = document.getElementById('lastRefresh');
+  if (el) el.textContent = hrs + ':' + mins + ':' + secs;
+}
+setInterval(updateClock, 1000);
+updateClock();
 setInterval(refreshStats, 60000);
 refreshStats();
 
@@ -1317,7 +1333,7 @@ function renderDashMarkers() {
     }
     popupHtml += '<div style="color:#94a3b8;font-size:11px;margin-top:2px">📍 '+(r.kecamatan||'-')+'</div>';
     popupHtml += '<div style="margin-top:6px"><span style="background:'+clr+'22;color:'+clr+';border:1px solid '+clr+'44;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700">'+r.status+'</span></div>';
-    popupHtml += '<a href="req_management.php?preview='+r.id+'" style="font-size:11px;color:#1c6434;font-weight:700;display:block;margin-top:6px">Lihat Detail →</a></div>';
+    popupHtml += '<a href="<?= baseUrl('admin/req_management') ?>?preview='+r.id+'" style="font-size:11px;color:#1c6434;font-weight:700;display:block;margin-top:6px">Lihat Detail →</a></div>';
 
     const m = L.circleMarker([parseFloat(r.latitude), parseFloat(r.longitude)], {
       radius:8, fillColor:clr, fillOpacity:0.9, color:'#fff', weight:2

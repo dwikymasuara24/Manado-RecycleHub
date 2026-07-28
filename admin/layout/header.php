@@ -6,7 +6,7 @@ requireRole('admin');
 
 $_flash = getFlash();
 
-$pfx = '';
+$pfx = baseUrl('admin') . '/';
 
 $current_admin_id = $_SESSION['user_id'] ?? 1;
 $header_db = isset($db) ? $db : getDB();
@@ -34,7 +34,7 @@ try {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($page_title ?? 'Admin') ?> — <?= SITE_NAME ?></title>
-  <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+  <link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -647,6 +647,11 @@ try {
       to { opacity: 1; }
     }
 
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
     @media (max-width:768px) {
       body.sidebar-collapsed {
         --sidebar-w: 220px;
@@ -654,16 +659,25 @@ try {
       .btn-sidebar-toggle {
         display: none !important;
       }
-      .sidebar { transform:translateX(-100%); transition: transform .35s var(--spring-transit); }
+      .sidebar { transform:translateX(-100%); transition: transform .35s var(--spring-transit); max-width: 85vw; }
       .sidebar.open { transform:translateX(0); }
-      .topbar { left:0; padding:0 12px; }
-      .main-wrap { margin-left:0; padding:12px; }
+      .topbar { left:0; width: 100%; padding:0 12px; box-sizing: border-box; }
+      .main-wrap { margin-left:0; padding:10px; width: 100%; box-sizing: border-box; overflow-x: hidden; }
       .hamburger { display:block; }
       .grid-2, .grid-3, .form-row { grid-template-columns:1fr; }
-      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .stats-grid { grid-template-columns:repeat(2,1fr); gap: 10px; }
 
-      /* Card: kurangi padding di mobile */
-      .card { padding:14px; }
+      /* Card: container boundary */
+      .card { padding:14px; max-width: 100%; box-sizing: border-box; overflow-x: hidden; }
+
+      /* Table responsive wrapper */
+      .table-wrap, .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
+      }
 
       /* Aligning bell icon to the right on mobile, next to avatar */
       #notifBellContainer {
@@ -706,16 +720,23 @@ try {
         border: none;
       }
       /* Toolbar wrapping on mobile */
-      .toolbar { flex-direction: column; align-items: flex-start; }
-      .toolbar-left, .toolbar-right { width: 100%; }
-      .search-input { width: 100%; }
+      .toolbar { flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; box-sizing: border-box; }
+      .toolbar-left, .toolbar-right { width: 100%; flex-wrap: wrap; }
+      .search-input { width: 100%; box-sizing: border-box; }
       /* Responsive modal size & padding for mobile */
-      .modal { max-height: 95vh; margin: 10px; width: calc(100% - 20px); }
-      .modal-body { padding: 16px; }
-      .modal-footer { padding: 12px 16px; }
+      .modal { max-height: 95vh; margin: 10px auto; width: calc(100% - 20px); max-width: 100%; box-sizing: border-box; }
+      .modal-body { padding: 16px; overflow-y: auto; max-height: 75vh; }
+      .modal-footer { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
       .modal-header { padding: 14px 16px; }
       /* Page header responsive */
+      .page-header { flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; }
       .page-header h1 { font-size: 17px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .main-wrap { padding: 8px; }
+      .card { padding: 10px; }
     }
   </style>
 </head>
@@ -724,7 +745,7 @@ try {
 <aside class="sidebar" id="adminSidebar">
   <div class="sidebar-brand">
     <?php
-    $logo_src = file_exists('logo_square.png') ? 'logo_square.png' : '../logo_square.png';
+    $logo_src = baseUrl('images/logo_square.png');
     ?>
     <img src="<?= $logo_src ?>" alt="Logo" style="width: 36px; height: 36px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
     <div class="brand-text">

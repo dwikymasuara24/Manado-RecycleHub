@@ -696,17 +696,17 @@ require_once __DIR__ . '/layout/header.php';
 <!-- Navigasi Laporan -->
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
   <span class="btn btn-sm" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;font-weight:700;cursor:default">📅 Harian</span>
-  <a href="laporan_mingguan.php?type=<?= $type ?>" class="btn btn-outline btn-sm">📆 Mingguan</a>
-  <a href="laporan_bulanan.php?type=<?= $type ?>"  class="btn btn-outline btn-sm">📊 Bulanan</a>
-  <a href="pivot_pembayaran.php"                  class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
-  <a href="analisis_data.php"    class="btn btn-outline btn-sm">🔬 Analisis Data</a>
-  <a href="dashboard.php"        class="btn btn-outline btn-sm" style="margin-left:auto">← Dashboard</a>
+  <a href="<?= baseUrl('admin/laporan_mingguan') ?>?type=<?= $type ?>" class="btn btn-outline btn-sm">📆 Mingguan</a>
+  <a href="<?= baseUrl('admin/laporan_bulanan') ?>?type=<?= $type ?>"  class="btn btn-outline btn-sm">📊 Bulanan</a>
+  <a href="<?= baseUrl('admin/pivot_pembayaran') ?>"                  class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
+  <a href="<?= baseUrl('admin/analisis_data') ?>"    class="btn btn-outline btn-sm">🔬 Analisis Data</a>
+  <a href="<?= baseUrl('admin/dashboard') ?>"        class="btn btn-outline btn-sm" style="margin-left:auto">← Dashboard</a>
 </div>
 
 <!-- Tab Filter Layanan -->
 <div class="tabs-container" style="display:flex;gap:12px;margin-bottom:20px;border-bottom:2px solid #f1f5f9;padding-bottom:1px">
-  <a href="?tgl=<?= urlencode($tgl) ?>&type=pickup&kecamatan=<?= urlencode($fKec) ?>&month=<?= $month ?>&year=<?= $year ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'pickup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'pickup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🚛 Daur Ulang (Pickup)</a>
-  <a href="?tgl=<?= urlencode($tgl) ?>&type=cleanup&kecamatan=<?= urlencode($fKec) ?>&month=<?= $month ?>&year=<?= $year ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'cleanup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'cleanup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🧹 Clean Up Service</a>
+  <a href="<?= baseUrl('admin/laporan_harian') ?>?tgl=<?= urlencode($tgl) ?>&type=pickup&kecamatan=<?= urlencode($fKec) ?>&month=<?= $month ?>&year=<?= $year ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'pickup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'pickup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🚛 Daur Ulang (Pickup)</a>
+  <a href="<?= baseUrl('admin/laporan_harian') ?>?tgl=<?= urlencode($tgl) ?>&type=cleanup&kecamatan=<?= urlencode($fKec) ?>&month=<?= $month ?>&year=<?= $year ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'cleanup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'cleanup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🧹 Clean Up Service</a>
 </div>
 
 <!-- Filter Tanggal -->
@@ -746,7 +746,7 @@ require_once __DIR__ . '/layout/header.php';
       </select>
 
       <button type="submit" class="btn btn-primary" style="padding:6px 12px; font-size:12.5px;">Filter</button>
-      <a href="laporan_harian.php?type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline" style="padding:6px 12px; font-size:12.5px;">Hari Ini</a>
+      <a href="<?= baseUrl('admin/laporan_harian') ?>?type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline" style="padding:6px 12px; font-size:12.5px;">Hari Ini</a>
     </div>
 
     <span style="font-size:13px;color:#888;margin-left:8px;"><?= date('l, d F Y', strtotime($tgl)) ?></span>
@@ -1151,9 +1151,9 @@ document.addEventListener('DOMContentLoaded', function() {
     $prev = date('Y-m-d', strtotime($tgl.' -1 day'));
     $next = date('Y-m-d', strtotime($tgl.' +1 day'));
   ?>
-  <a href="laporan_harian.php?tgl=<?= $prev ?>&type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline">◀ <?= date('d M', strtotime($prev)) ?></a>
+  <a href="<?= baseUrl('admin/laporan_harian') ?>?tgl=<?= $prev ?>&type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline">◀ <?= date('d M', strtotime($prev)) ?></a>
   <span style="font-size:12px;color:#888"><?= date('d F Y', strtotime($tgl)) ?></span>
-  <a href="laporan_harian.php?tgl=<?= $next ?>&type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline"><?= date('d M', strtotime($next)) ?> ▶</a>
+  <a href="<?= baseUrl('admin/laporan_harian') ?>?tgl=<?= $next ?>&type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline"><?= date('d M', strtotime($next)) ?> ▶</a>
 </div>
 
 <?php require_once __DIR__ . '/layout/footer.php'; ?>

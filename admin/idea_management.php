@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                ->execute([$status, $catatan_admin, $admin_id, $id]);
             flash('success', 'Status ide berhasil diperbarui!');
         }
-        header('Location: idea_management.php');
+        header('Location: ' . baseUrl('admin/idea_management'));
         exit;
     }
 
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $id = (int)($_POST['id'] ?? 0);
         $db->prepare("DELETE FROM idea_box WHERE id=?")->execute([$id]);
         flash('success', 'Ide berhasil dihapus dari kotak.');
-        header('Location: idea_management.php');
+        header('Location: ' . baseUrl('admin/idea_management'));
         exit;
     }
 }
@@ -86,7 +86,7 @@ require_once __DIR__ . '/layout/header.php';
         </select>
 
         <?php if ($search || $filter_status): ?>
-          <a href="idea_management.php" class="btn btn-outline">Reset</a>
+          <a href="<?= baseUrl('admin/idea_management') ?>" class="btn btn-outline">Reset</a>
         <?php endif; ?>
       </form>
     </div>
@@ -148,7 +148,7 @@ require_once __DIR__ . '/layout/header.php';
             </td>
             <td>
               <div style="display:flex;gap:4px">
-                <a class="btn btn-outline btn-icon" href="idea_management.php?detail=<?= $idm['id'] ?>" title="Tinjau">👁️</a>
+                <a class="btn btn-outline btn-icon" href="<?= baseUrl('admin/idea_management') ?>?detail=<?= $idm['id'] ?>" title="Tinjau">👁️</a>
                 <button class="btn btn-danger btn-icon" title="Hapus" onclick="confirmDelete(<?= $idm['id'] ?>, '<?= htmlspecialchars(addslashes($idm['nama_pengirim'])) ?>')">🗑️</button>
               </div>
             </td>
@@ -165,7 +165,7 @@ require_once __DIR__ . '/layout/header.php';
   <div class="modal" style="max-width:600px">
     <div class="modal-header">
       <h3>Tinjau Ide Masuk</h3>
-      <a href="idea_management.php" class="modal-close">✕</a>
+      <a href="<?= baseUrl('admin/idea_management') ?>" class="modal-close">✕</a>
     </div>
     <form method="POST">
       <input type="hidden" name="action" value="update_status">
@@ -216,7 +216,7 @@ require_once __DIR__ . '/layout/header.php';
 
       </div>
       <div class="modal-footer">
-        <a href="idea_management.php" class="btn btn-outline">Batal</a>
+        <a href="<?= baseUrl('admin/idea_management') ?>" class="btn btn-outline">Batal</a>
         <button type="submit" class="btn btn-primary">💾 Perbarui Ide</button>
       </div>
     </form>

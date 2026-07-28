@@ -3,17 +3,17 @@ require_once __DIR__ . '/include/config.php';
 
 $site_name  = "Manado Recycle Hub";
 $page_title = "Bin Project";
-$logo_img   = "Home.png";
-$banner_img = "bin.png";
+$logo_img   = "images/Home.png";
+$banner_img = "images/bin.png";
 
 $nav_items = [
-    ["label" => "Home",                 "url" => "home.php",                    "active" => false],
-    ["label" => "Bin Project",          "url" => "bin_project.php",             "active" => true],
-    ["label" => "Blog dan Media Sosial","url" => "blog.php",                    "active" => false],
-    ["label" => "Idea Box",             "url" => "idea-box.php",                "active" => false],
-    ["label" => "Lokasi Kami",          "url" => "lokasi_kami.php",             "active" => false],
-    ["label" => "DIY",                  "url" => "diy.php",                     "active" => false],
-    ["label" => "Kuesioner",            "url" => "kuesioner.php",               "active" => false],
+    ["label" => "Home",                 "url" => "home",                        "active" => false],
+    ["label" => "Bin Project",          "url" => "bin_project",                 "active" => true],
+    ["label" => "Blog dan Media Sosial","url" => "blog",                        "active" => false],
+    ["label" => "Idea Box",             "url" => "idea-box",                    "active" => false],
+    ["label" => "Lokasi Kami",          "url" => "lokasi_kami",                 "active" => false],
+    ["label" => "DIY",                  "url" => "diy",                         "active" => false],
+    ["label" => "Kuesioner",            "url" => "kuesioner",                   "active" => false],
 ];
 
 $bins = [
@@ -47,7 +47,7 @@ $bins = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Penempatan Plastic Collection Bin - Manado Recycle Hub">
     <title><?= htmlspecialchars($site_name) ?> - <?= htmlspecialchars($page_title) ?></title>
-    <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+    <link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
@@ -421,7 +421,7 @@ $bins = [
 <!-- SUBTITLE -->
 <section class="subtitle-section">
     <div class="infographic-container" style="margin-bottom: 32px; display: flex; justify-content: center;">
-        <img src="botol_plastik.jpg" alt="Botol Plastik Masuk Ke Sini" style="max-width: 100%; width: 420px; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--border);">
+        <img src="images/botol_plastik.jpg" alt="Botol Plastik Masuk Ke Sini" style="max-width: 100%; width: 420px; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--border);">
     </div>
     <h2>Penempatan Plastic Collection Bin</h2>
     <p>Kami menempatkan tempat pengumpulan botol plastik PET khusus di berbagai titik strategis kota Manado guna mendukung ekosistem sirkular yang mandiri dan bersih.</p>

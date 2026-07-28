@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrasi Akun — <?= SITE_NAME ?></title>
-    <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+    <link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -378,11 +378,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div style="font-size:64px;margin-bottom:16px">✅</div>
             <h2 style="font-size:24px;font-weight:800;color:#0f172a;margin-bottom:8px">Akun Berhasil Dibuat!</h2>
             <p style="color:#64748b;margin-bottom:28px">Silakan login dengan email dan password yang sudah didaftarkan.</p>
-            <a href="login.php" style="display:inline-flex;align-items:center;gap:8px;background:var(--g);color:#fff;padding:13px 28px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;transition:background .2s">
+            <a href="<?= baseUrl('login') ?>" style="display:inline-flex;align-items:center;gap:8px;background:var(--g);color:#fff;padding:13px 28px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;transition:background .2s">
                 🔐 Login
             </a>
             <br>
-            <a href="register.php" class="back-link" style="margin-top:16px;display:inline-flex">+ Daftarkan Akun Lain</a>
+            <a href="<?= baseUrl('register') ?>" class="back-link" style="margin-top:16px;display:inline-flex">+ Daftarkan Akun Lain</a>
         </div>
 
         <?php else: ?>
@@ -558,7 +558,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="divider">sudah punya akun?</div>
-        <a href="login.php" style="display:block;text-align:center;padding:13px;border:2px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:14px;color:#475569;text-decoration:none;transition:all .2s"
+        <a href="<?= baseUrl('login') ?>" style="display:block;text-align:center;padding:13px;border:2px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:14px;color:#475569;text-decoration:none;transition:all .2s"
            onmouseover="this.style.borderColor='#86efac';this.style.color='#1c6434'"
            onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">
             🔐 Login

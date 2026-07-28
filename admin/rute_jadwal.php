@@ -463,13 +463,13 @@ require_once __DIR__ . '/layout/header.php';
 
 <!-- Admin quick action bar -->
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-  <a href="dashboard.php"          class="btn btn-outline btn-sm">🖥️ Dashboard</a>
-  <a href="req_management.php"     class="btn btn-outline btn-sm">📋 Manajemen Request</a>
-  <a href="officer_management.php" class="btn btn-outline btn-sm">👷 Kelola Petugas</a>
+  <a href="<?= baseUrl('admin/dashboard') ?>"          class="btn btn-outline btn-sm">🖥️ Dashboard</a>
+  <a href="<?= baseUrl('admin/req_management') ?>"     class="btn btn-outline btn-sm">📋 Manajemen Request</a>
+  <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline btn-sm">👷 Kelola Petugas</a>
   <?php
     $unassignedRuteCount = (int)$db->query("SELECT COUNT(*) FROM pickup_requests WHERE officer_id IS NULL AND status NOT IN ('selesai','dibatalkan')")->fetchColumn();
     if ($unassignedRuteCount > 0): ?>
-  <a href="officer_management.php" class="btn btn-sm" style="background:#fff3cd;color:#856404;border:1.5px solid #ffc107;font-weight:700">
+  <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-sm" style="background:#fff3cd;color:#856404;border:1.5px solid #ffc107;font-weight:700">
     ⚠️ <?= $unassignedRuteCount ?> request belum di-assign
   </a>
   <?php endif; ?>
@@ -537,7 +537,7 @@ require_once __DIR__ . '/layout/header.php';
           <tr class="<?= $rowCls ?>">
             <td><span class="priority-rank <?= $rankCls ?>"><?= $i+1 ?></span></td>
             <td>
-              <a href="rute_jadwal.php?kec=<?= urlencode($p['kecamatan']) ?>&tipe=<?= $tipe ?>" style="color:var(--green-700);font-weight:700">
+              <a href="<?= baseUrl('admin/rute_jadwal') ?>?kec=<?= urlencode($p['kecamatan']) ?>&tipe=<?= $tipe ?>" style="color:var(--green-700);font-weight:700">
                 Kec. <?= htmlspecialchars($p['kecamatan']) ?>
               </a>
               <div style="margin-top:2px"><?= $jadwalStatus ?></div>

@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    header('Location: settings.php'); exit;
+    header('Location: ' . baseUrl('admin/settings')); exit;
 }
 
 $settings = $db->query("SELECT setting_key, setting_value FROM site_settings")->fetchAll(PDO::FETCH_KEY_PAIR);
@@ -104,10 +104,10 @@ require_once __DIR__ . '/layout/header.php';
 
 <!-- Quick links admin -->
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-  <a href="dashboard.php"        class="btn btn-outline btn-sm">🖥️ Dashboard</a>
-  <a href="officer_management.php" class="btn btn-outline btn-sm">👷 Kelola Petugas</a>
-  <a href="../officer/officer_console.php"  class="btn btn-outline btn-sm">📱 Officer Console</a>
-  <a href="rute_jadwal.php"      class="btn btn-outline btn-sm">🗺️ Rute & Jadwal</a>
+  <a href="<?= baseUrl('admin/dashboard') ?>"          class="btn btn-outline btn-sm">🖥️ Dashboard</a>
+  <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline btn-sm">👷 Kelola Petugas</a>
+  <a href="<?= baseUrl('officer/officer_console') ?>"  class="btn btn-outline btn-sm">📱 Officer Console</a>
+  <a href="<?= baseUrl('admin/rute_jadwal') ?>"        class="btn btn-outline btn-sm">🗺️ Rute & Jadwal</a>
 </div>
 
 <div class="grid-2">

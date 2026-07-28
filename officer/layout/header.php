@@ -13,9 +13,27 @@ if (!$officerId) {
         $r = $db->prepare("SELECT id FROM officers WHERE user_id=? LIMIT 1");
         $r->execute([$uid]);
         $officerId = (int)$r->fetchColumn();
+        if (!$officerId) {
+            $uStmt = $db->prepare("SELECT nama FROM users WHERE id=?");
+            $uStmt->execute([$uid]);
+            $uName = $uStmt->fetchColumn() ?: 'Petugas';
+            $cnt = 1;
+            do {
+                $code = 'S' . str_pad($cnt, 2, '0', STR_PAD_LEFT);
+                $stmtExists = $db->prepare("SELECT COUNT(*) FROM officers WHERE officer_code = ?");
+                $stmtExists->execute([$code]);
+                $exists = (int)$stmtExists->fetchColumn();
+                $cnt++;
+            } while ($exists > 0);
+            try {
+                $db->prepare("INSERT INTO officers (user_id, officer_code, nama, status, created_at) VALUES (?, ?, ?, 'aktif', NOW())")
+                   ->execute([$uid, $code, $uName]);
+                $officerId = (int)$db->lastInsertId();
+            } catch (Exception $e) {}
+        }
         if ($officerId) $_SESSION['officer_id'] = $officerId;
     }
-    if (!$officerId) { session_destroy(); header('Location: '.baseUrl('login.php')); exit; }
+    if (!$officerId) { session_destroy(); header('Location: '.baseUrl('login')); exit; }
     
     try {
         $db->prepare("UPDATE officers SET last_seen_at = NOW() WHERE id = ?")->execute([$officerId]);
@@ -80,7 +98,7 @@ $page_id = $page_id ?? '';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
 <title><?= htmlspecialchars($page_title ?? 'Officer Console') ?> — <?= SITE_NAME ?></title>
-<link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+<link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
 <link rel="manifest" href="<?= baseUrl('manifest.json') ?>">
 <meta name="theme-color" content="#1c6434">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -629,52 +647,73 @@ body.sidebar-collapsed .sidebar-toggle-icon {
     --sidebar-w: 260px;
   }
   body.sidebar-collapsed .sidebar-brand div { display: block !important; }
-  body.sidebar-collapsed .officer-pill .info { display: block !important; }
-  body.sidebar-collapsed .officer-pill .gps-dot { display: block !important; }
-  body.sidebar-collapsed .nav-group-header { display: flex !important; }
-  body.sidebar-collapsed .nav-text { display: inline-block !important; }
-  body.sidebar-collapsed .nav-badge { display: inline-block !important; }
-  body.sidebar-collapsed .nav-group { padding: 0 10px !important; }
-  body.sidebar-collapsed .nav-item { justify-content: flex-start !important; padding: 10px 12px !important; }
-  body.sidebar-collapsed .nav-item:hover { padding-left: 16px !important; transform: translateX(2px) !important; }
-  .btn-sidebar-toggle {
-    display: none !important;
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
   }
-  .sidebar{transform:translateX(-100%);transition:transform .35s var(--spring-transit)}
-  .sidebar.open{transform:translateX(0)}
-  .topbar{left:0}
-  .main-wrap{margin-left:0}
-  .hamburger{display:flex}
-  .stats-row{grid-template-columns:1fr}
 
-  /* Responsive Flash alerts on mobile */
-  .flash {
-    padding: 20px 24px !important;
-    width: 92% !important;
-    max-width: 320px !important;
-    gap: 12px !important;
-    border-radius: 12px !important;
+  @media (max-width: 768px) {
+    body.sidebar-collapsed .officer-pill .info { display: block !important; }
+    body.sidebar-collapsed .officer-pill .gps-dot { display: block !important; }
+    body.sidebar-collapsed .nav-group-header { display: flex !important; }
+    body.sidebar-collapsed .nav-text { display: inline-block !important; }
+    body.sidebar-collapsed .nav-badge { display: inline-block !important; }
+    body.sidebar-collapsed .nav-group { padding: 0 10px !important; }
+    body.sidebar-collapsed .nav-item { justify-content: flex-start !important; padding: 10px 12px !important; }
+    body.sidebar-collapsed .nav-item:hover { padding-left: 16px !important; transform: translateX(2px) !important; }
+    .btn-sidebar-toggle {
+      display: none !important;
+    }
+    .sidebar { transform:translateX(-100%); transition:transform .35s var(--spring-transit); max-width: 85vw; }
+    .sidebar.open { transform:translateX(0); }
+    .topbar { left:0; width: 100%; padding:0 12px; box-sizing: border-box; }
+    .main-wrap { margin-left:0; padding:10px; width: 100%; box-sizing: border-box; overflow-x: hidden; }
+    .hamburger { display:flex; }
+    .stats-row, .grid-2, .grid-3, .form-row { grid-template-columns:1fr !important; }
+    .card { padding: 12px; max-width: 100%; box-sizing: border-box; overflow-x: hidden; }
+
+    /* Table responsive wrapper */
+    .table-wrap, .table-responsive {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+      box-sizing: border-box;
+    }
+
+    /* Responsive Flash alerts on mobile */
+    .flash {
+      padding: 20px 24px !important;
+      width: 92% !important;
+      max-width: 320px !important;
+      gap: 12px !important;
+      border-radius: 12px !important;
+    }
+    .flash-icon {
+      font-size: 38px !important;
+    }
+    .flash-msg {
+      font-size: 13px !important;
+      line-height: 1.4 !important;
+    }
+    .flash-close-btn {
+      padding: 8px 16px !important;
+      font-size: 12px !important;
+    }
+    
+    /* Responsive Toasts on mobile */
+    .toast {
+      padding: 16px 20px !important;
+      width: 92% !important;
+      max-width: 320px !important;
+      gap: 12px !important;
+    }
   }
-  .flash-icon {
-    font-size: 38px !important;
+
+  @media (max-width: 480px) {
+    .main-wrap { padding: 8px; }
+    .card { padding: 10px; }
   }
-  .flash-msg {
-    font-size: 13px !important;
-    line-height: 1.4 !important;
-  }
-  .flash-close-btn {
-    padding: 8px 16px !important;
-    font-size: 12px !important;
-  }
-  
-  /* Responsive Toasts on mobile */
-  .toast {
-    padding: 16px 20px !important;
-    width: 92% !important;
-    max-width: 320px !important;
-    gap: 12px !important;
-  }
-}
 </style>
 <script>
 const SIDEBAR_COLLAPSED_KEY = 'mrh_officer_sidebar_collapsed';
@@ -746,7 +785,7 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand" style="display: flex; align-items: center; gap: 10px;">
     <?php
-    $logo_src = file_exists('logo_square.png') ? 'logo_square.png' : '../logo_square.png';
+    $logo_src = baseUrl('images/logo_square.png');
     ?>
     <img src="<?= $logo_src ?>" alt="Logo" style="width: 36px; height: 36px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
     <div>
@@ -770,10 +809,10 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
       <span class="nav-group-arrow">▼</span>
     </div>
     <div class="nav-group-items">
-      <a href="<?= url('dashboard') ?>" class="nav-item <?= $page_id==='dashboard'?'active':'' ?>" title="Dashboard Statistik">
+      <a href="<?= baseUrl('officer/dashboard') ?>" class="nav-item <?= $page_id==='dashboard'?'active':'' ?>" title="Dashboard Statistik">
         <span class="icon">📊</span> <span class="nav-text">Dashboard</span>
       </a>
-      <a href="<?= url('laporan') ?>" class="nav-item <?= $page_id==='laporan'?'active':'' ?>" title="Laporan Saya">
+      <a href="<?= baseUrl('officer/laporan') ?>" class="nav-item <?= $page_id==='laporan'?'active':'' ?>" title="Laporan Saya">
         <span class="icon">📄</span> <span class="nav-text">Laporan Saya</span>
       </a>
     </div>
@@ -786,18 +825,18 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
       <span class="nav-group-arrow">▼</span>
     </div>
     <div class="nav-group-items">
-      <a href="<?= url('tugas_hari_ini') ?>" class="nav-item <?= $page_id==='tugas'?'active':'' ?>" title="Tugas Hari Ini">
+      <a href="<?= baseUrl('officer/tugas_hari_ini') ?>" class="nav-item <?= $page_id==='tugas'?'active':'' ?>" title="Tugas Hari Ini">
         <span class="icon">📋</span> <span class="nav-text">Tugas Hari Ini</span>
         <?php if($todayCount>0): ?><span class="nav-badge"><?= $todayCount ?></span><?php endif; ?>
       </a>
-      <a href="<?= url('cleanup_tasks') ?>" class="nav-item <?= $page_id==='cleanup'?'active':'' ?>" title="Tugas Clean Up">
+      <a href="<?= baseUrl('officer/cleanup_tasks') ?>" class="nav-item <?= $page_id==='cleanup'?'active':'' ?>" title="Tugas Clean Up">
         <span class="icon">🧹</span> <span class="nav-text">Tugas Clean Up</span>
         <?php if($cleanupCount>0): ?><span class="nav-badge"><?= $cleanupCount ?></span><?php endif; ?>
       </a>
-      <a href="<?= url('semua_tugas') ?>" class="nav-item <?= $page_id==='semua_tugas'?'active':'' ?>" title="Semua Tugas">
+      <a href="<?= baseUrl('officer/semua_tugas') ?>" class="nav-item <?= $page_id==='semua_tugas'?'active':'' ?>" title="Semua Tugas">
         <span class="icon">🗂️</span> <span class="nav-text">Semua Tugas</span>
       </a>
-      <a href="<?= url('riwayat') ?>" class="nav-item <?= $page_id==='riwayat'?'active':'' ?>" title="Riwayat Tugas">
+      <a href="<?= baseUrl('officer/riwayat') ?>" class="nav-item <?= $page_id==='riwayat'?'active':'' ?>" title="Riwayat Tugas">
         <span class="icon">📜</span> <span class="nav-text">Riwayat Tugas</span>
       </a>
     </div>
@@ -810,17 +849,17 @@ document.addEventListener('DOMContentLoaded', restoreNavState);
       <span class="nav-group-arrow">▼</span>
     </div>
     <div class="nav-group-items">
-      <a href="<?= url('peta') ?>" class="nav-item <?= $page_id==='peta'?'active':'' ?>" title="Peta &amp; Rute">
+      <a href="<?= baseUrl('officer/peta') ?>" class="nav-item <?= $page_id==='peta'?'active':'' ?>" title="Peta &amp; Rute">
         <span class="icon">🗺️</span> <span class="nav-text">Peta &amp; Rute</span>
       </a>
-      <a href="<?= url('profil') ?>" class="nav-item <?= $page_id==='profil'?'active':'' ?>" title="Profil Saya">
+      <a href="<?= baseUrl('officer/profil') ?>" class="nav-item <?= $page_id==='profil'?'active':'' ?>" title="Profil Saya">
         <span class="icon">👤</span> <span class="nav-text">Profil Saya</span>
       </a>
     </div>
   </div>
 
   <div class="sidebar-footer">
-    <a href="<?= url('logout') ?>" class="nav-item" style="color:rgba(255,110,110,.85)" title="Keluar">
+    <a href="<?= baseUrl('officer/logout') ?>" class="nav-item" style="color:rgba(255,110,110,.85)" title="Keluar">
       <span class="icon">🚪</span> <span class="nav-text">Keluar</span>
     </a>
   </div>

@@ -2,5 +2,5 @@
 
 require_once __DIR__ . '/../include/auth.php';
 requireRole('officer');
-header('Location: dashboard.php');
+header('Location: ' . baseUrl('officer/dashboard'));
 exit;

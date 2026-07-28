@@ -150,7 +150,7 @@ $slblMap = ['selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'];
     <div style="display:flex;gap:6px">
       <button type="submit" class="btn btn-green btn-sm" style="height:38px">🔍 Cari</button>
       <?php if ($search || $filter_type !== 'semua' || $filter_status !== 'semua'): ?>
-        <a href="riwayat.php" class="btn btn-outline btn-sm" style="height:38px;line-height:22px">Reset</a>
+        <a href="<?= baseUrl('officer/riwayat') ?>" class="btn btn-outline btn-sm" style="height:38px;line-height:22px">Reset</a>
       <?php endif; ?>
     </div>
   </form>

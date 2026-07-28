@@ -6,30 +6,30 @@ $page_title = "Home - Manado Recycle Hub";
 $description = "Manado Recycle Hub adalah jasa jemput sampah daur ulang di Manado dan sekitarnya. Kami melakukan pengumpulan sampah anorganik terpilah.";
 
 $nav_items = [
-    ["label" => "Home",                 "url" => "index.php",                   "active" => true],
-    ["label" => "Bin Project",          "url" => "bin_project.php",             "active" => false],
-    ["label" => "Blog dan Media Sosial","url" => "blog.php",                    "active" => false],
-    ["label" => "Idea Box",             "url" => "idea-box.php",                   "active" => false],
-    ["label" => "Lokasi Kami",          "url" => "lokasi_kami.php",              "active" => false],
-    ["label" => "DIY",                  "url" => "diy.php",                        "active" => false],
-    ["label" => "Kuesioner",            "url" => "kuesioner.php",                  "active" => false],
-    ["label" => "Login",                "url" => "login.php",                      "active" => false],
+    ["label" => "Home",                 "url" => "home",                        "active" => true],
+    ["label" => "Bin Project",          "url" => "bin_project",                 "active" => false],
+    ["label" => "Blog dan Media Sosial","url" => "blog",                        "active" => false],
+    ["label" => "Idea Box",             "url" => "idea-box",                    "active" => false],
+    ["label" => "Lokasi Kami",          "url" => "lokasi_kami",                 "active" => false],
+    ["label" => "DIY",                  "url" => "diy",                         "active" => false],
+    ["label" => "Kuesioner",            "url" => "kuesioner",                   "active" => false],
+    ["label" => "Login",                "url" => "login",                       "active" => false],
 ];
 
 $recycle_items = [
-    ["image" => "hvs.png", "label" => "Kertas HVS"],
-    ["image" => "kardus.png", "label" => "Kardus"],
-    ["image" => "pet.png", "label" => "Botol PET"],
-    ["image" => "pp.png", "label" => "Plastik PP"],
-    ["image" => "hdpe.png", "label" => "Plastik HDPE/LDPE"],
-    ["image" => "bukubekas.png", "label" => "Buku Bekas"],
+    ["image" => "images/hvs.png", "label" => "Kertas HVS"],
+    ["image" => "images/kardus.png", "label" => "Kardus"],
+    ["image" => "images/pet.png", "label" => "Botol PET"],
+    ["image" => "images/pp.png", "label" => "Plastik PP"],
+    ["image" => "images/hdpe.png", "label" => "Plastik HDPE/LDPE"],
+    ["image" => "images/bukubekas.png", "label" => "Buku Bekas"],
 ];
 
 $instagram_url    = "https://www.instagram.com/daurulangsekarang/";
-$logo_url         = "Home.png";
+$logo_url         = "images/Home.png";
 $banner_img       = "https://lh3.googleusercontent.com/sitesv/AA5AbUD0EyDqS92joFFxyKABM0Ex4SbQdmdZEPHsUj_I1dKtXP-ZuOCF8xFdMk0jKN5gv8swHOC_b0B8QVZgZoq2sDz40mDMcKIAuEj4kXH4RqfoNNR5t3yM_IQ-ybSHQOID0XCwQ5VnrfCPByq0rEI6xUEb_acgtV1jRA4oJAykev3KmCx6dRl8k02bMJU=w1600";
-$qr_image_url     = "Utama.png";
-$card_image_url   = "Footer.jpeg";
+$qr_image_url     = "images/Utama.png";
+$card_image_url   = "images/Footer.jpeg";
 
 ?>
 <!DOCTYPE html>
@@ -42,7 +42,7 @@ $card_image_url   = "Footer.jpeg";
     <meta property="og:type" content="website">
     <meta property="og:description" content="<?php echo htmlspecialchars($description); ?>">
     <title><?php echo htmlspecialchars($page_title); ?></title>
-    <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+    <link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,7 +50,7 @@ $card_image_url   = "Footer.jpeg";
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-           RESET & BASE
+        /* RESET & BASE
         ===================================================== */
         *, *::before, *::after {
             box-sizing: border-box;
@@ -89,7 +89,7 @@ $card_image_url   = "Footer.jpeg";
             line-height: 1.6;
         }
 
-           NAVIGATION
+        /* NAVIGATION
         ===================================================== */
         .site-header {
             position: fixed;
@@ -97,13 +97,16 @@ $card_image_url   = "Footer.jpeg";
             left: 0;
             right: 0;
             z-index: 100;
-            background-color: transparent;
+            background-color: #ffffff;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .site-header.scrolled {
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            background-color: #ffffff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
         }
 
         .navbar {
@@ -194,7 +197,7 @@ $card_image_url   = "Footer.jpeg";
 
         .nav-toggle svg { display: block; }
 
-           HERO SECTION
+        /* HERO SECTION
         ===================================================== */
         .hero-section {
             position: relative;
@@ -220,7 +223,7 @@ $card_image_url   = "Footer.jpeg";
             width: 300px;
             height: 300px;
             margin: 0 auto 24px;
-            background-image: url('Utama.png');
+            background-image: url('images/Utama.png');
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
@@ -309,7 +312,7 @@ $card_image_url   = "Footer.jpeg";
             }
         }
 
-           GENERIC SECTION
+        /* GENERIC SECTION
         ===================================================== */
         .section {
             padding: var(--section-padding);
@@ -321,7 +324,7 @@ $card_image_url   = "Footer.jpeg";
             padding: 0 48px;
         }
 
-           INTRO TEXT
+        /* INTRO TEXT
         ===================================================== */
         .intro-section {
             padding: 40px 0 20px;
@@ -337,7 +340,7 @@ $card_image_url   = "Footer.jpeg";
             margin-bottom: 0.5em;
         }
 
-           CTA BUTTON
+        /* CTA BUTTON
         ===================================================== */
         .cta-section {
             padding: 20px 0 30px;
@@ -370,7 +373,7 @@ $card_image_url   = "Footer.jpeg";
             transform: scale(0.97);
         }
 
-           SOCIAL ICONS
+        /* SOCIAL ICONS
         ===================================================== */
         .social-section {
             padding: 16px 0 30px;
@@ -397,7 +400,7 @@ $card_image_url   = "Footer.jpeg";
 
         .social-icons img:hover { transform: scale(1.1); }
 
-           DIVIDER
+        /* DIVIDER
         ===================================================== */
         .divider-section {
             padding: 8px 0;
@@ -410,7 +413,7 @@ $card_image_url   = "Footer.jpeg";
             background-color: rgba(0, 0, 0, 0.15);
         }
 
-           RECYCLE INFO SECTION
+        /* RECYCLE INFO SECTION
         ===================================================== */
         .info-section {
             padding: 40px 0 20px;
@@ -434,7 +437,7 @@ $card_image_url   = "Footer.jpeg";
             margin-bottom: 0;
         }
 
-           RECYCLE ITEMS GRID
+        /* RECYCLE ITEMS GRID
         ===================================================== */
         .recycle-grid-section {
             padding: 24px 0 40px;
@@ -479,7 +482,7 @@ $card_image_url   = "Footer.jpeg";
             color: var(--text-dark);
         }
 
-           NEXT STEPS SECTION (h1 big heading)
+        /* NEXT STEPS SECTION (h1 big heading)
         ===================================================== */
         .heading-section {
             padding: 40px 0 10px;
@@ -494,7 +497,7 @@ $card_image_url   = "Footer.jpeg";
             line-height: 1.38;
         }
 
-           STEP CARDS
+        /* STEP CARDS
         ===================================================== */
         .steps-section {
             padding: 10px 0 40px;
@@ -521,7 +524,7 @@ $card_image_url   = "Footer.jpeg";
             color: var(--text-dark);
         }
 
-           QR / CARD SECTION
+        /* QR / CARD SECTION
         ===================================================== */
         .qr-section {
             padding: 24px 0 40px;
@@ -562,7 +565,7 @@ $card_image_url   = "Footer.jpeg";
             color: var(--text-dark);
         }
 
-           FOOTER
+        /* FOOTER
         ===================================================== */
         .site-footer {
             padding: 24px 0 32px;
@@ -578,7 +581,7 @@ $card_image_url   = "Footer.jpeg";
             margin-bottom: 4px;
         }
 
-           RESPONSIVE
+        /* RESPONSIVE
         ===================================================== */
         @media (max-width: 767px) {
             :root { --hero-height: 250px; }
@@ -588,79 +591,79 @@ $card_image_url   = "Footer.jpeg";
                 box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             }
 
-            .navbar { padding: 0 20px; }
+            .navbar { padding: 8px 16px; height: auto; flex-wrap: wrap; }
             .container { padding: 0 16px; }
 
-            .nav-links { display: none; flex-direction: column; gap: 0; }
+            .nav-links { display: none; flex-direction: column; gap: 4px; width: 100%; padding: 12px 0 8px; border-top: 1px solid #f1f5f9; margin-top: 8px; }
             .nav-links.open { display: flex; }
-            .nav-toggle { display: block; color: #1c1c1c; }
+            .nav-toggle { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: #1c1c1c; background: none; border: none; cursor: pointer; }
 
-            .navbar { flex-wrap: wrap; height: auto; padding: 12px 20px; }
-            .nav-brand { margin-bottom: 0; }
-
-            .nav-links {
-                width: 100%;
-                padding: 8px 0 12px;
-            }
             .nav-links li { width: 100%; }
-            .nav-links a { display: block; padding: 8px 4px; color: #1c1c1c; }
+            .nav-links a { display: block; padding: 10px 12px; color: #1c1c1c; font-size: 14px; font-weight: 600; border-radius: 6px; }
+            .nav-links a:hover { background-color: #f8fafc; }
             .nav-links a.nav-login-btn {
-                display: inline-block;
-                color: var(--text-light) !important;
+                display: block;
+                color: #ffffff !important;
                 background-color: var(--primary-green);
-                margin: 8px 4px;
-                padding: 8px 20px;
-                border-radius: 6px;
-                width: auto;
+                margin: 8px 0 0;
+                padding: 12px 20px;
+                border-radius: 8px;
+                width: 100%;
                 text-align: center;
-            }
-            .nav-links a.nav-login-btn:hover {
-                background-color: #155229;
-                opacity: 1;
+                font-weight: 700;
             }
 
             .hero-section {
-                height: 80vh;
+                height: auto;
+                min-height: 85vh;
+                padding: 100px 16px 60px;
             }
             .hero-title {
-                font-size: 28pt;
+                font-size: 22pt;
+                line-height: 1.25;
             }
             .hero-subtitle, .hero-subtext {
-                font-size: 15pt;
+                font-size: 11pt;
             }
             .hero-content {
-                padding-bottom: 80px;
+                padding-bottom: 40px;
             }
 
             .hero-logo {
-                width: 180px;
-                height: 180px;
+                width: 150px;
+                height: 150px;
                 margin-bottom: 16px;
             }
 
-            .big-heading { font-size: 25pt; }
-            .section-heading { font-size: 17pt; }
+            .big-heading { font-size: 20pt; line-height: 1.3; }
+            .section-heading { font-size: 15pt; }
 
-            .recycle-item { width: 90px; }
-            .recycle-item img { width: 80px; height: 80px; }
+            .recycle-grid { gap: 12px; justify-content: space-around; }
+            .recycle-item { width: 100px; }
+            .recycle-item img { width: 90px; height: 90px; padding: 6px; }
+            .recycle-item p { font-size: 10pt; }
+
+            .btn-primary { width: 100%; max-width: 320px; text-align: center; padding: 14px 24px; }
         }
 
-        @media (min-width: 480px) and (max-width: 767px) {
-            .big-heading { font-size: 30pt; }
-            .section-heading { font-size: 17pt; }
+        @media (max-width: 480px) {
+            .hero-title { font-size: 18pt; }
+            .big-heading { font-size: 17pt; }
+            .recycle-item { width: 90px; }
+            .recycle-item img { width: 76px; height: 76px; }
         }
     </style>
 </head>
 <body>
 
-     HEADER / NAVIGATION
+<!-- HEADER / NAVIGATION
 ===================================================== -->
 <header class="site-header">
     <nav class="navbar" role="navigation" aria-label="Navigasi Utama">
 
         <!-- Brand / Logo -->
-        <a class="nav-brand" href="<?php echo htmlspecialchars($nav_items[0]['url']); ?>">
-            <img src="<?php echo htmlspecialchars($logo_url); ?>"
+        <a class="nav-brand" href="<?php echo htmlspecialchars(baseUrl($nav_items[0]['url'])); ?>">
+            <img src="<?php echo htmlspecialchars(baseUrl($logo_url)); ?>"
                  alt="Logo Manado Recycle Hub"
                  onerror="this.style.display='none'">
             <span><?php echo htmlspecialchars($site_name); ?></span>
@@ -683,7 +686,7 @@ $card_image_url   = "Footer.jpeg";
         <ul class="nav-links" id="navMenu" role="menubar">
             <?php foreach ($nav_items as $item): ?>
             <li <?php if ($item['active']) echo 'class="active"'; ?> role="none">
-                <a href="<?php echo htmlspecialchars($item['url']); ?>"
+                <a href="<?php echo htmlspecialchars(baseUrl($item['url'])); ?>"
                    role="menuitem"
                    <?php if ($item['label'] === 'Login') echo 'class="nav-login-btn"'; ?>
                    <?php if ($item['active']) echo 'aria-current="page"'; ?>>
@@ -696,7 +699,7 @@ $card_image_url   = "Footer.jpeg";
     </nav>
 </header>
 
-     MAIN CONTENT
+<!-- MAIN CONTENT
 ===================================================== -->
 <main id="main-content" tabindex="-1">
 
@@ -741,7 +744,7 @@ $card_image_url   = "Footer.jpeg";
     <section class="cta-section" aria-label="Ajakan Bertindak">
         <div class="container">
             <a class="btn-primary"
-               href="daur_ulang.php"
+               href="<?php echo baseUrl('daur_ulang'); ?>"
                aria-label="Daur Ulang Sekarang">
                 Daur Ulang Sekarang
             </a>
@@ -767,7 +770,7 @@ $card_image_url   = "Footer.jpeg";
                    target="_blank"
                    rel="noopener noreferrer"
                    aria-label="Instagram Daur Ulang Sekarang">
-                    <img src="Instagram.jpg"
+                    <img src="images/Instagram.jpg"
                          alt="Instagram"
                          width="48" height="48"
                          onerror="this.alt='Instagram'">
@@ -795,7 +798,7 @@ $card_image_url   = "Footer.jpeg";
             <div class="recycle-grid">
                 <?php foreach ($recycle_items as $item): ?>
                 <div class="recycle-item">
-                    <img src="<?php echo htmlspecialchars($item['image']); ?>"
+                    <img src="<?php echo htmlspecialchars(baseUrl($item['image'])); ?>"
                          alt="<?php echo htmlspecialchars($item['label']); ?>"
                          onerror="this.style.opacity='0.4'">
                     <p><?php echo htmlspecialchars($item['label']); ?></p>
@@ -833,7 +836,7 @@ $card_image_url   = "Footer.jpeg";
     <section class="cta-section" aria-label="Layanan Jemput Sampah">
         <div class="container">
             <a class="btn-primary"
-               href="cleanup_service.php"
+               href="<?php echo baseUrl('cleanup_service'); ?>"
                aria-label="Layanan Tambahan">
                 Layanan Tambahan
             </a>
@@ -867,7 +870,7 @@ $card_image_url   = "Footer.jpeg";
             <div class="qr-inner">
                 <!-- Card Image -->
                 <div class="qr-card">
-                    <img src="<?php echo htmlspecialchars($card_image_url); ?>"
+                    <img src="<?php echo htmlspecialchars(baseUrl($card_image_url)); ?>"
                          alt="Manado Recycle Hub Card"
                          onerror="this.style.opacity='0.3'">
                 </div>
@@ -877,7 +880,7 @@ $card_image_url   = "Footer.jpeg";
 
 </main><!-- /main -->
 
-     FOOTER
+<!-- FOOTER
 ===================================================== -->
 <footer class="site-footer" aria-label="Footer">
     <div class="container">
@@ -890,7 +893,7 @@ $card_image_url   = "Footer.jpeg";
     </div>
 </footer>
 
-     JAVASCRIPT
+<!-- JAVASCRIPT
 ===================================================== -->
 <script>
     // Mobile nav toggle

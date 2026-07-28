@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         flash('danger','Nama dan email wajib diisi!');
     }
-    header('Location: profile.php'); exit;
+    header('Location: ' . baseUrl('admin/profile')); exit;
 }
 
 $admin_stmt = $db->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
@@ -103,7 +103,7 @@ require_once __DIR__ . '/layout/header.php';
       </div>
     </div>
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0">
-      <a href="logout.php" class="btn btn-danger" style="width:100%;justify-content:center">🚪 Keluar dari Sistem</a>
+      <a href="<?= baseUrl('admin/logout') ?>" class="btn btn-danger" style="width:100%;justify-content:center">🚪 Keluar dari Sistem</a>
     </div>
   </div>
 </div>

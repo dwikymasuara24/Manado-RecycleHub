@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
            
         flash('success', "Data penyelesaian tugas dan foto berhasil disimpan.");
     }
-    echo "<script>window.location.href='cleanup_tasks.php';</script>";
+    echo "<script>window.location.href='cleanup_tasks';</script>";
     exit;
 }
 

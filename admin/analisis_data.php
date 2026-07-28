@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $db->prepare("DELETE FROM survey_responses WHERE id=?")->execute([$sid]);
         if (function_exists('logActivity')) logActivity($db, 1, "hapus_survey $code", 'survey_responses', $sid);
         if (function_exists('flash')) flash('success', "Response $code dihapus.");
-        header('Location: analisis_data.php');
+        header('Location: ' . baseUrl('admin/analisis_data'));
         exit;
     }
 }
@@ -246,13 +246,13 @@ require_once __DIR__ . '/layout/header.php';
 ?>
 
 <style>
-   PAGE HEADER
+/* PAGE HEADER
 ═══════════════════════════════════════ */
 .page-header{margin-bottom:20px}
 .page-header h1{font-size:22px;font-weight:800;color:#1e293b;margin:0 0 4px}
 .page-header p{font-size:13px;color:#94a3b8;margin:0}
 
-   STAT CARDS
+/* STAT CARDS
 ═══════════════════════════════════════ */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
 .mb-24{margin-bottom:24px}
@@ -266,18 +266,18 @@ require_once __DIR__ . '/layout/header.php';
 .stat-card.amber .stat-value{color:#d97706}
 .stat-card.red   .stat-value{color:#dc2626}
 
-   GRID 2 COLUMNS
+/* GRID 2 COLUMNS
 ═══════════════════════════════════════ */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
 
-   CARD (admin panel)
+/* CARD (admin panel)
 ═══════════════════════════════════════ */
 .card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .card-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:#1e293b;margin-bottom:16px;flex-wrap:wrap}
 .ct-icon{font-size:18px}
 
-   BAR CHART (vertikal)
+/* BAR CHART (vertikal)
 ═══════════════════════════════════════ */
 .bar-chart{display:flex;align-items:flex-end;gap:10px;height:150px;overflow-x:auto;padding-bottom:4px}
 .bar-item{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:48px}
@@ -285,12 +285,12 @@ require_once __DIR__ . '/layout/header.php';
 .bar-val{font-size:10px;font-weight:800;color:#2e7d32}
 .bar{background:linear-gradient(180deg,#4caf50,#2e7d32);border-radius:4px 4px 0 0;width:32px;min-height:4px;transition:height .4s}
 
-   PROGRESS BAR
+/* PROGRESS BAR
 ═══════════════════════════════════════ */
 .progress-bar{background:#f0f0f0;border-radius:4px;height:8px;overflow:hidden;margin-top:4px}
 .progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#4caf50,#2e7d32);transition:width .4s}
 
-   BADGES
+/* BADGES
 ═══════════════════════════════════════ */
 .badge{display:inline-flex;align-items:center;gap:3px;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700}
 .badge-green{background:#dcfce7;color:#166534}
@@ -301,7 +301,7 @@ require_once __DIR__ . '/layout/header.php';
 .badge-tidak{background:#fee2e2;color:#991b1b}
 .badge-none {background:#f1f5f9;color:#64748b}
 
-   TABLE
+/* TABLE
 ═══════════════════════════════════════ */
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
@@ -310,14 +310,14 @@ tbody tr{border-bottom:1px solid #f1f5f9;transition:background .15s}
 tbody tr:hover{background:#f8fffe}
 tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 
-   TOOLBAR / FILTER
+/* TOOLBAR / FILTER
 ═══════════════════════════════════════ */
 .filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .search-input,.filter-select{border:1.5px solid #e2e8f0;border-radius:8px;padding:7px 11px;font-size:13px;background:#fff;outline:none;transition:border .2s}
 .search-input:focus,.filter-select:focus{border-color:#22c55e}
 .search-input{min-width:200px}
 
-   BUTTONS
+/* BUTTONS
 ═══════════════════════════════════════ */
 .btn{display:inline-flex;align-items:center;gap:5px;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;border:1.5px solid transparent;text-decoration:none}
 .btn-primary{background:#2e7d32;color:#fff;border-color:#2e7d32}
@@ -329,12 +329,12 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .btn-icon{padding:4px 7px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .15s;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
 .btn-icon:hover{border-color:#4ade80;background:#f0fdf4}
 
-   SECTION TITLE
+/* SECTION TITLE
 ═══════════════════════════════════════ */
 .section-title{font-size:16px;font-weight:800;color:#1e293b;margin:28px 0 14px;display:flex;align-items:center;gap:8px}
 .section-title .sc-line{flex:1;height:1.5px;background:#e2e8f0}
 
-   MODAL
+/* MODAL
 ═══════════════════════════════════════ */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
 .modal-overlay.open,.modal-overlay[style*="display:flex"]{display:flex}
@@ -348,7 +348,7 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .modal-body{padding:20px 24px;flex:1;overflow-y:auto}
 .modal-footer{padding:14px 24px;border-top:1px solid #f1f5f9;display:flex;gap:8px;justify-content:flex-end;background:#fafafa;border-radius:0 0 16px 16px}
 
-   PREVIEW CARD (kuesioner)
+/* PREVIEW CARD (kuesioner)
 ═══════════════════════════════════════ */
 .preview-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
 .preview-row{display:flex;align-items:flex-start;gap:12px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
@@ -356,30 +356,30 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 .pl{min-width:160px;font-weight:700;color:#64748b;font-size:11px;padding-top:2px;text-transform:uppercase;letter-spacing:.3px}
 .pv{color:#1e293b;flex:1;word-break:break-word;font-weight:600}
 
-   SYNC INDICATOR
+/* SYNC INDICATOR
 ═══════════════════════════════════════ */
 .sync-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;margin-bottom:14px;flex-wrap:wrap}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulseDot 2s infinite}
 @keyframes pulseDot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(34,197,94,0)}}
 
-   ANSWER PILL
+/* ANSWER PILL
 ═══════════════════════════════════════ */
 .ans-pill{display:inline-block;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700}
 .ans-ya   {background:#dcfce7;color:#166534}
 .ans-tidak{background:#fee2e2;color:#991b1b}
 .ans-none {background:#f1f5f9;color:#94a3b8;font-style:italic}
 
-   JENIS SAMPAH TAG CLOUD
+/* JENIS SAMPAH TAG CLOUD
 ═══════════════════════════════════════ */
 .tag-cloud{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
 .tag{background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;border:1px solid #c8e6c9}
 .tag .tag-cnt{background:#2e7d32;color:#fff;border-radius:10px;padding:0 5px;font-size:10px;margin-left:4px}
 
-   KESULITAN QUOTE
+/* KESULITAN QUOTE
 ═══════════════════════════════════════ */
 .quote-box{background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:#78350f;line-height:1.6;margin-top:8px;font-style:italic}
 
-   EMPTY STATE
+/* EMPTY STATE
 ═══════════════════════════════════════ */
 .empty-state{text-align:center;padding:48px 0;color:#94a3b8}
 .empty-state .es-icon{font-size:40px;margin-bottom:10px}
@@ -407,12 +407,12 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
 
 <!-- Navigasi cepat -->
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-  <a href="dashboard.php"        class="btn btn-outline btn-sm">🖥️ Dashboard</a>
-  <a href="laporan_harian.php"   class="btn btn-outline btn-sm">📅 Lap. Harian</a>
-  <a href="laporan_mingguan.php" class="btn btn-outline btn-sm">📆 Lap. Mingguan</a>
-  <a href="laporan_bulanan.php"  class="btn btn-outline btn-sm">📊 Lap. Bulanan</a>
-  <a href="pivot_pembayaran.php" class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
-  <a href="rute_jadwal.php"      class="btn btn-outline btn-sm">🗺️ Rute & Jadwal</a>
+  <a href="<?= baseUrl('admin/dashboard') ?>"        class="btn btn-outline btn-sm">🖥️ Dashboard</a>
+  <a href="<?= baseUrl('admin/laporan_harian') ?>"   class="btn btn-outline btn-sm">📅 Lap. Harian</a>
+  <a href="<?= baseUrl('admin/laporan_mingguan') ?>" class="btn btn-outline btn-sm">📆 Lap. Mingguan</a>
+  <a href="<?= baseUrl('admin/laporan_bulanan') ?>"  class="btn btn-outline btn-sm">📊 Lap. Bulanan</a>
+  <a href="<?= baseUrl('admin/pivot_pembayaran') ?>" class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
+  <a href="<?= baseUrl('admin/rute_jadwal') ?>"      class="btn btn-outline btn-sm">🗺️ Rute & Jadwal</a>
 </div>
 
 <div class="stats-grid mb-24">
@@ -675,12 +675,12 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
       </table>
     </div>
     <div style="margin-top:12px;text-align:right">
-      <a href="req_management.php" class="btn btn-outline" style="font-size:12px">Lihat Semua →</a>
+      <a href="<?= baseUrl('admin/req_management') ?>" class="btn btn-outline" style="font-size:12px">Lihat Semua →</a>
     </div>
   </div>
 </div>
 
-     SECTION: MANAJEMEN DATA KUESIONER
+<!--  SECTION: MANAJEMEN DATA KUESIONER
      Sinkron penuh dengan kuesioner.php — data user masuk langsung
 ════════════════════════════════════════════════════════════════ -->
 <div class="section-title">
@@ -722,7 +722,7 @@ tbody td{padding:9px 11px;vertical-align:middle;color:#334155}
       </select>
       <button type="submit" class="btn btn-outline">Cari</button>
       <?php if ($sqSearch || $sqQ1 || $sqQ2 || $sqQ7): ?>
-        <a href="analisis_data.php" class="btn btn-outline">✕ Reset</a>
+        <a href="<?= baseUrl('admin/analisis_data') ?>" class="btn btn-outline">✕ Reset</a>
       <?php endif; ?>
     </div>
   </form>
@@ -815,7 +815,7 @@ if (!function_exists('ansPill')) {
           <!-- Aksi -->
           <td>
             <div style="display:flex;gap:4px;align-items:center">
-              <a class="btn-icon" href="analisis_data.php?preview_survey=<?= $sv['id'] ?>" title="Detail">👁️</a>
+              <a class="btn-icon" href="<?= baseUrl('admin/analisis_data') ?>?preview_survey=<?= $sv['id'] ?>" title="Detail">👁️</a>
               <form method="POST" style="display:inline"
                     onsubmit="return confirm('Hapus response <?= htmlspecialchars($sv['response_code']) ?>?')">
                 <input type="hidden" name="action" value="delete_survey">
@@ -834,7 +834,7 @@ if (!function_exists('ansPill')) {
               <div class="es-icon">📭</div>
               <div class="es-text">Tidak ada data kuesioner<?= ($sqSearch||$sqQ1||$sqQ2||$sqQ7) ? ' yang cocok dengan filter' : '' ?>.</div>
               <?php if ($sqSearch||$sqQ1||$sqQ2||$sqQ7): ?>
-              <a href="analisis_data.php" style="color:#2e7d32;font-size:12px;margin-top:6px;display:inline-block">Tampilkan semua</a>
+              <a href="<?= baseUrl('admin/analisis_data') ?>" style="color:#2e7d32;font-size:12px;margin-top:6px;display:inline-block">Tampilkan semua</a>
               <?php endif; ?>
             </div>
           </td>
@@ -850,7 +850,7 @@ if (!function_exists('ansPill')) {
   </div>
 </div>
 
-     MODAL: PREVIEW DETAIL KUESIONER
+<!--  MODAL: PREVIEW DETAIL KUESIONER
      Sinkron penuh dengan kuesioner.php
 ═══════════════════════════════════════════════ -->
 <?php if ($surveyPreview): ?>
@@ -858,7 +858,7 @@ if (!function_exists('ansPill')) {
   <div class="modal" style="max-width:600px">
     <div class="modal-header">
       <h3>📋 Detail Kuesioner — <?= htmlspecialchars($surveyPreview['response_code']) ?></h3>
-      <a href="analisis_data.php" class="modal-close">✕</a>
+      <a href="<?= baseUrl('admin/analisis_data') ?>" class="modal-close">✕</a>
     </div>
     <div class="modal-body">
 
@@ -934,7 +934,7 @@ if (!function_exists('ansPill')) {
 
     </div>
     <div class="modal-footer">
-      <a href="analisis_data.php" class="btn btn-outline">Tutup</a>
+      <a href="<?= baseUrl('admin/analisis_data') ?>" class="btn btn-outline">Tutup</a>
       <form method="POST" style="display:inline"
             onsubmit="return confirm('Hapus response ini?')">
         <input type="hidden" name="action" value="delete_survey">

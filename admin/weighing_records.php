@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             }
         }
     }
-    header('Location: weighing_records.php');
+    header('Location: ' . baseUrl('admin/weighing_records'));
     exit;
 }
 
@@ -872,7 +872,7 @@ require_once __DIR__ . '/layout/header.php';
 </div>
 
 <!-- Filters Form -->
-<form method="GET" action="weighing_records.php">
+<form method="GET" action="<?= baseUrl('admin/weighing_records') ?>">
     <div class="weigh-filter-row">
         <div class="weigh-filter-group">
             <label>Cari Nama / Request Code</label>
@@ -889,12 +889,12 @@ require_once __DIR__ . '/layout/header.php';
         <div style="display:flex; gap:8px;">
             <button type="submit" class="btn-weigh btn-weigh-primary">🔍 Filter</button>
             <?php if ($search !== '' || $start_date !== '' || $end_date !== ''): ?>
-                <a href="weighing_records.php" class="btn-weigh btn-weigh-secondary">Reset</a>
+                <a href="<?= baseUrl('admin/weighing_records') ?>" class="btn-weigh btn-weigh-secondary">Reset</a>
             <?php endif; ?>
-            <a href="weighing_records.php?<?= http_build_query(array_merge($_GET, ['export' => 'excel'])) ?>" class="btn-weigh btn-weigh-secondary" title="Export Excel (Formatted)">
+            <a href="<?= baseUrl('admin/weighing_records') ?>?<?= http_build_query(array_merge($_GET, ['export' => 'excel'])) ?>" class="btn-weigh btn-weigh-secondary" title="Export Excel (Formatted)">
                 📊 Excel
             </a>
-            <a href="weighing_records.php?<?= http_build_query(array_merge($_GET, ['export' => 'pdf'])) ?>" class="btn-weigh btn-weigh-secondary" target="_blank" title="Export PDF / Cetak Laporan">
+            <a href="<?= baseUrl('admin/weighing_records') ?>?<?= http_build_query(array_merge($_GET, ['export' => 'pdf'])) ?>" class="btn-weigh btn-weigh-secondary" target="_blank" title="Export PDF / Cetak Laporan">
                 📄 PDF
             </a>
         </div>

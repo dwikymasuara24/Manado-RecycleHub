@@ -249,16 +249,16 @@ function renderDots($curr, $total) {
 }
 
 $site_name   = "Manado Recycle Hub";
-$logo_img    = "Home.png";
-$banner_img  = "kuesioner.jpeg";
+$logo_img    = "images/Home.png";
+$banner_img  = "images/kuesioner.jpeg";
 $nav_items   = [
-    ["label" => "Home",                  "url" => "home.php",                    "active" => false],
-    ["label" => "Bin Project",           "url" => "bin_project.php",             "active" => false],
-    ["label" => "Blog dan Media Sosial", "url" => "blog.php",                    "active" => false],
-    ["label" => "Idea Box",              "url" => "idea-box.php",                "active" => false],
-    ["label" => "Lokasi Kami",           "url" => "lokasi_kami.php",             "active" => false],
-    ["label" => "DIY",                   "url" => "diy.php",                     "active" => false],
-    ["label" => "Kuesioner",             "url" => "kuesioner.php",               "active" => true],
+    ["label" => "Home",                  "url" => "home",                        "active" => false],
+    ["label" => "Bin Project",           "url" => "bin_project",                 "active" => false],
+    ["label" => "Blog dan Media Sosial", "url" => "blog",                        "active" => false],
+    ["label" => "Idea Box",              "url" => "idea-box",                    "active" => false],
+    ["label" => "Lokasi Kami",           "url" => "lokasi_kami",                 "active" => false],
+    ["label" => "DIY",                   "url" => "diy",                         "active" => false],
+    ["label" => "Kuesioner",             "url" => "kuesioner",                   "active" => true],
 ];
 ?>
 <!DOCTYPE html>
@@ -267,7 +267,7 @@ $nav_items   = [
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Kuesioner – <?= htmlspecialchars($site_name) ?></title>
-<link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+<link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

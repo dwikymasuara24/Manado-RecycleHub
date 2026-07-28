@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if (!$nama) {
             flash('danger','Field wajib belum diisi!');
-            header('Location: officer_management.php'); exit;
+            header('Location: ' . baseUrl('admin/officer_management')); exit;
         }
 
         if ($id) {
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             logActivity($db,1,"tambah_officer $code",'officers',(int)$db->lastInsertId(),[],['nama'=>$nama]);
             flash('success',"Petugas $nama ($code) ditambahkan!");
         }
-        header('Location: officer_management.php'); exit;
+        header('Location: ' . baseUrl('admin/officer_management')); exit;
     }
 
     if ($action === 'delete') {
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $db->prepare("DELETE FROM officers WHERE id=?")->execute([$id]);
         if ($uid) $db->prepare("DELETE FROM users WHERE id=?")->execute([$uid]);
         logActivity($db,1,"hapus_officer #$id",'officers',$id);
-        flash('success','Petugas dihapus.'); header('Location: officer_management.php'); exit;
+        flash('success','Petugas dihapus.'); header('Location: ' . baseUrl('admin/officer_management')); exit;
     }
 
     if ($action === 'save_threshold') {
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $db->prepare("INSERT INTO site_settings (setting_key, setting_value, updated_by) VALUES ('inactivity_threshold_days', ?, ?) ON DUPLICATE KEY UPDATE setting_value = ?, updated_by = ?")
            ->execute([$days, $uid, $days, $uid]);
         flash('success', "Batas ketidakaktifan diperbarui menjadi $days hari!");
-        header('Location: officer_management.php'); exit;
+        header('Location: ' . baseUrl('admin/officer_management')); exit;
     }
 
     if ($action === 'deactivate') {
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             logActivity($db, $_SESSION['user_id'] ?? 1, "deaktif_officer #$id", 'officers', $id);
             flash('success', 'Petugas berhasil dinonaktifkan.');
         }
-        header('Location: officer_management.php'); exit;
+        header('Location: ' . baseUrl('admin/officer_management')); exit;
     }
 
     if ($action === 'assign_task') {
@@ -249,13 +249,13 @@ require_once __DIR__ . '/layout/header.php';
 ?>
 
 <style>
-   PAGE HEADER
+/* PAGE HEADER
 ═══════════════════════════════════════════ */
 .page-header { margin-bottom: 24px; }
 .page-header h1 { font-size: 22px; font-weight: 800; color: #1e293b; margin: 0 0 4px; }
 .page-header p  { font-size: 13px; color: #94a3b8; margin: 0; }
 
-   STAT BAR
+/* STAT BAR
 ═══════════════════════════════════════════ */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 22px; }
 .stat-card { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.05); transition: transform .15s, box-shadow .2s; }
@@ -267,7 +267,7 @@ require_once __DIR__ . '/layout/header.php';
 .stat-card.info   .sc-val { color: #0284c7; }
 .stat-card.muted  .sc-val { color: #94a3b8; }
 
-   TOOLBAR
+/* TOOLBAR
 ═══════════════════════════════════════════ */
 .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
 .toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -275,7 +275,7 @@ require_once __DIR__ . '/layout/header.php';
 .search-input:focus, .filter-select:focus { border-color: var(--green-500, #22c55e); }
 .search-input { min-width: 200px; }
 
-   OFFICER CARD GRID — layout utama
+/* OFFICER CARD GRID — layout utama
 ═══════════════════════════════════════════ */
 .officer-grid {
     display: grid;
@@ -399,7 +399,7 @@ require_once __DIR__ . '/layout/header.php';
 .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state p { font-weight: 600; font-size: 14px; }
 
-   MODAL
+/* MODAL
 ═══════════════════════════════════════════ */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(3px); }
 .modal-overlay.open, .modal-overlay[style*="display:flex"] { display: flex; }
@@ -503,7 +503,7 @@ require_once __DIR__ . '/layout/header.php';
         </select>
         <button type="submit" class="btn btn-outline">Cari</button>
         <?php if ($search || $fStatus): ?>
-          <a href="officer_management.php" class="btn btn-outline">✕ Reset</a>
+          <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline">✕ Reset</a>
         <?php endif; ?>
       </form>
     </div>
@@ -627,8 +627,8 @@ require_once __DIR__ . '/layout/header.php';
         <span class="oc-footer-date">
           🗓️ <?= $o['tanggal_bergabung'] ? fmtDate($o['tanggal_bergabung']) : '—' ?>
         </span>
-        <a class="btn-icon" href="officer_management.php?preview=<?= $o['id'] ?>" title="Lihat Detail">👁️</a>
-        <a class="btn-icon" href="officer_management.php?edit=<?= $o['id'] ?>" title="Edit">✏️</a>
+        <a class="btn-icon" href="<?= baseUrl('admin/officer_management') ?>?preview=<?= $o['id'] ?>" title="Lihat Detail">👁️</a>
+        <a class="btn-icon" href="<?= baseUrl('admin/officer_management') ?>?edit=<?= $o['id'] ?>" title="Edit">✏️</a>
         <?php if ($o['status'] === 'aktif'): ?>
         <?php if ($isInactive): ?>
         <form method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan petugas <?= htmlspecialchars($o['nama']) ?> karena tidak aktif?')">
@@ -666,7 +666,7 @@ require_once __DIR__ . '/layout/header.php';
       <div class="empty-icon">👷</div>
       <p>Tidak ada petugas ditemukan<?= ($search||$fStatus) ? ' yang cocok dengan filter' : '' ?>.</p>
       <?php if ($search||$fStatus): ?>
-        <a href="officer_management.php" style="color:var(--green-600,#16a34a);font-size:12px;margin-top:6px;display:inline-block">Tampilkan semua</a>
+        <a href="<?= baseUrl('admin/officer_management') ?>" style="color:var(--green-600,#16a34a);font-size:12px;margin-top:6px;display:inline-block">Tampilkan semua</a>
       <?php endif; ?>
     </div>
     <?php endif; ?>
@@ -677,13 +677,13 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-     MODAL: TAMBAH / EDIT PETUGAS
+<!--  MODAL: TAMBAH / EDIT PETUGAS
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalOfficer" <?= $editData ? 'style="display:flex"' : '' ?>>
   <div class="modal" style="max-width:600px">
     <div class="modal-header">
       <h3><?= $editData ? '✏️ Edit Petugas: '.htmlspecialchars($editData['nama']) : '➕ Tambah Petugas Baru' ?></h3>
-      <a href="officer_management.php" class="modal-close">✕</a>
+      <a href="<?= baseUrl('admin/officer_management') ?>" class="modal-close">✕</a>
     </div>
     <form method="POST">
       <input type="hidden" name="action" value="save">
@@ -768,14 +768,14 @@ require_once __DIR__ . '/layout/header.php';
         <?php endif; ?>
       </div>
       <div class="modal-footer">
-        <a href="officer_management.php" class="btn btn-outline">Batal</a>
+        <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline">Batal</a>
         <button type="submit" class="btn btn-primary">💾 Simpan</button>
       </div>
     </form>
   </div>
 </div>
 
-     MODAL: PREVIEW DETAIL — layout dari detail.php
+<!--  MODAL: PREVIEW DETAIL — layout dari detail.php
 ═══════════════════════════════════════════ -->
 <?php if ($previewData):
   $pIni    = getInitials($previewData['nama'] ?? '');
@@ -791,7 +791,7 @@ require_once __DIR__ . '/layout/header.php';
   <div class="modal" style="max-width:1040px; width:100%">
     <div class="modal-header">
       <h3>👷 Detail Petugas</h3>
-      <a href="officer_management.php" class="modal-close">✕</a>
+      <a href="<?= baseUrl('admin/officer_management') ?>" class="modal-close">✕</a>
     </div>
     <div class="modal-body">
       <div class="detail-layout">
@@ -908,7 +908,7 @@ require_once __DIR__ . '/layout/header.php';
       </div><!-- /detail-layout -->
     </div>
     <div class="modal-footer">
-      <a href="officer_management.php" class="btn btn-outline">Tutup</a>
+      <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline">Tutup</a>
       <?php if ($previewData['status'] === 'aktif'): ?>
       <button class="btn btn-outline"
               style="background:#fffbeb;color:#b45309;border-color:#fde68a;font-weight:700"
@@ -916,14 +916,14 @@ require_once __DIR__ . '/layout/header.php';
         📋 Assign Tugas
       </button>
       <?php endif; ?>
-      <a href="req_management.php?status=dijadwalkan" class="btn btn-outline" style="font-size:12px">🗂️ Lihat di Req. Mgmt</a>
-      <a href="officer_management.php?edit=<?= $previewData['id'] ?>" class="btn btn-primary">✏️ Edit Petugas</a>
+      <a href="<?= baseUrl('admin/req_management') ?>?status=dijadwalkan" class="btn btn-outline" style="font-size:12px">🗂️ Lihat di Req. Mgmt</a>
+      <a href="<?= baseUrl('admin/officer_management') ?>?edit=<?= $previewData['id'] ?>" class="btn btn-primary">✏️ Edit Petugas</a>
     </div>
   </div>
 </div>
 <?php endif; ?>
 
-     CSS TAMBAHAN: ASSIGN TUGAS
+<!--  CSS TAMBAHAN: ASSIGN TUGAS
 ═══════════════════════════════════════════ -->
 <style>
 .assign-req-item {
@@ -956,7 +956,7 @@ require_once __DIR__ . '/layout/header.php';
 }
 </style>
 
-     MODAL: ASSIGN TUGAS KE OFFICER
+<!--  MODAL: ASSIGN TUGAS KE OFFICER
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalAssignTask">
   <div class="modal" style="max-width:640px">
@@ -1066,7 +1066,7 @@ require_once __DIR__ . '/layout/header.php';
   </div>
 </div>
 
-     MODAL: HAPUS
+<!--  MODAL: HAPUS
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalDelete">
   <div class="modal" style="max-width:400px">

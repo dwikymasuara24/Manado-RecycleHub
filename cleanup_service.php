@@ -359,7 +359,7 @@ $track_step_defs = [
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clean Up Service — Manado Recycle Hub</title>
-<link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+<link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1008,7 +1008,7 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 <header class="top-nav">
     <a href="home.php" class="back-btn">✕ Keluar</a>
     <div class="site-name" style="display: inline-flex; align-items: center; gap: 8px;">
-        <img src="Home.png" alt="Logo" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'">
+        <img src="<?= baseUrl('images/Home.png') ?>" alt="Logo" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'">
         Clean Up Service
     </div>
 </header>

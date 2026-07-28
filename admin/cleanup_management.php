@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
            
         logActivity($db, 1, "konfirmasi_cleanup $code (Biaya: $biaya)", 'cleanup_requests', $id);
         flash('success', "Layanan $code dikonfirmasi dengan biaya Rp" . number_format($biaya, 0, ',', '.'));
-        header('Location: cleanup_management.php');
+        header('Location: ' . baseUrl('admin/cleanup_management'));
         exit;
     }
 
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $currentCount = (int)$stmtCount->fetchColumn();
                 if ($currentCount >= 30) {
                     flash('danger', "Batas maksimal 30 titik per hari per petugas terlampaui untuk petugas tersebut pada tanggal $targetTgl.");
-                    header('Location: cleanup_management.php');
+                    header('Location: ' . baseUrl('admin/cleanup_management'));
                     exit;
                 }
             }
@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             logActivity($db, 1, "assign_cleanup_officer $code", 'cleanup_requests', $rid);
             flash('success', "Petugas telah ditugaskan untuk $code.");
         }
-        header('Location: cleanup_management.php');
+        header('Location: ' . baseUrl('admin/cleanup_management'));
         exit;
     }
 
@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $db->prepare("DELETE FROM cleanup_requests WHERE id=?")->execute([$id]);
         $db->prepare("DELETE FROM weighing_records WHERE cleanup_request_id=?")->execute([$id]);
         flash('success', "Data berhasil dihapus.");
-        header('Location: cleanup_management.php');
+        header('Location: ' . baseUrl('admin/cleanup_management'));
         exit;
     }
     if ($action === 'edit') {
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
            ->execute([$kec, $al, $waste, $cat, $catOfficer, $st, $id]);
         triggerWhatsAppOnStatusChange($db, $id, $st, 'cleanup');
         flash('success', "Data request berhasil diperbarui.");
-        header('Location: cleanup_management.php');
+        header('Location: ' . baseUrl('admin/cleanup_management'));
         exit;
     }
 }
@@ -237,9 +237,9 @@ require_once __DIR__ . '/layout/header.php';
 </div>
 
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-  <a href="dashboard.php"        class="btn btn-outline btn-sm">🖥️ Dashboard</a>
-  <a href="officer_management.php" class="btn btn-outline btn-sm">👷 Kelola Petugas</a>
-  <a href="rute_jadwal.php?tipe=cleanup"  class="btn btn-primary btn-sm">🗺️ Peta Rute Clean Up</a>
+  <a href="<?= baseUrl('admin/dashboard') ?>"        class="btn btn-outline btn-sm">🖥️ Dashboard</a>
+  <a href="<?= baseUrl('admin/officer_management') ?>" class="btn btn-outline btn-sm">👷 Kelola Petugas</a>
+  <a href="<?= baseUrl('admin/rute_jadwal') ?>?tipe=cleanup"  class="btn btn-primary btn-sm">🗺️ Peta Rute Clean Up</a>
 </div>
 
 <div class="stats-grid mb-24">
@@ -290,7 +290,7 @@ require_once __DIR__ . '/layout/header.php';
                 </select>
                 <button type="submit" class="btn btn-outline">Cari</button>
                 <?php if ($search || $fStatus || $fKec): ?>
-                    <a href="cleanup_management.php" class="btn btn-outline">✕ Reset</a>
+                    <a href="<?= baseUrl('admin/cleanup_management') ?>" class="btn btn-outline">✕ Reset</a>
                 <?php endif; ?>
             </form>
         </div>
@@ -378,9 +378,9 @@ require_once __DIR__ . '/layout/header.php';
                                         onclick="openAssignModal(<?= $r['id'] ?>, '<?= $r['request_code'] ?>', <?= $r['estimasi_jam_kerja'] ?: 1 ?>, '<?= addslashes($r['catatan_officer'] ?? '') ?>')">👷</button>
                             <?php endif; ?>
                             
-                            <a class="btn-icon" title="Preview" href="cleanup_management.php?preview=<?= $r['id'] ?>">👁️</a>
+                            <a class="btn-icon" title="Preview" href="<?= baseUrl('admin/cleanup_management') ?>?preview=<?= $r['id'] ?>">👁️</a>
                             <?php if (!in_array($r['status'], ['selesai', 'dibatalkan'])): ?>
-                            <a class="btn-icon" title="Edit" href="cleanup_management.php?edit=<?= $r['id'] ?>">✏️</a>
+                            <a class="btn-icon" title="Edit" href="<?= baseUrl('admin/cleanup_management') ?>?edit=<?= $r['id'] ?>">✏️</a>
                             <?php endif; ?>
                             <button class="btn-icon btn-danger" onclick="openDeleteModal(<?= $r['id'] ?>, '<?= $r['request_code'] ?>')">🗑️</button>
                         </div>
@@ -499,7 +499,7 @@ require_once __DIR__ . '/layout/header.php';
     <div class="modal" style="max-width:600px">
         <div class="modal-header">
             <h3>✏️ Edit Clean Up Request</h3>
-            <a href="cleanup_management.php" class="modal-close">✕</a>
+            <a href="<?= baseUrl('admin/cleanup_management') ?>" class="modal-close">✕</a>
         </div>
         <form method="POST">
             <div class="modal-body">
@@ -546,7 +546,7 @@ require_once __DIR__ . '/layout/header.php';
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="cleanup_management.php" class="btn btn-outline">Batal</a>
+                <a href="<?= baseUrl('admin/cleanup_management') ?>" class="btn btn-outline">Batal</a>
                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
             </div>
         </form>
@@ -691,7 +691,7 @@ require_once __DIR__ . '/layout/header.php';
     <div class="modal" style="max-width:1100px; width:95%">
         <div class="modal-header">
             <h3>👁️ Detail Request: <?= htmlspecialchars($previewData['request_code']) ?></h3>
-            <a href="cleanup_management.php" class="modal-close">✕</a>
+            <a href="<?= baseUrl('admin/cleanup_management') ?>" class="modal-close">✕</a>
         </div>
         <div class="modal-body grid-2" style="gap: 16px;">
             
@@ -800,7 +800,7 @@ require_once __DIR__ . '/layout/header.php';
 
         </div>
         <div class="modal-footer">
-            <a href="cleanup_management.php" class="btn btn-outline">Tutup</a>
+            <a href="<?= baseUrl('admin/cleanup_management') ?>" class="btn btn-outline">Tutup</a>
         </div>
     </div>
 </div>

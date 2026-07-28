@@ -49,38 +49,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — <?= SITE_NAME ?></title>
-    <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+    <link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --green-primary: #1c6434;
             --green-light: #22c55e;
+            --green-hover: #155229;
             --bg-color: #f8fafc;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: var(--bg-color);
             color: #1e293b;
             display: flex;
             min-height: 100vh;
         }
         
-        /* Layout Split */
         .split-layout {
             display: flex;
             width: 100%;
+            min-height: 100vh;
         }
         
         .left-side {
             flex: 1;
-            background: linear-gradient(135deg, rgba(28,100,52,0.9), rgba(34,197,94,0.8)), url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') center/cover;
+            background: linear-gradient(135deg, rgba(28,100,52,0.94), rgba(34,197,94,0.85)), url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') center/cover;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
+            padding: 48px 40px;
             color: white;
             position: relative;
         }
@@ -89,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.15);
             z-index: 1;
         }
         
@@ -100,42 +101,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .brand-logo {
-            width: 80px;
-            height: 80px;
+            width: 84px;
+            height: 84px;
             background: white;
-            border-radius: 20px;
+            border-radius: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 42px;
             font-weight: 800;
             color: var(--green-primary);
             margin: 0 auto 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.22);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.06) rotate(-3deg);
         }
         
         .brand-title {
             font-family: 'Comfortaa', cursive;
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 700;
             margin-bottom: 16px;
-            line-height: 1.2;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
         }
         
         .brand-desc {
             font-size: 16px;
-            opacity: 0.9;
-            line-height: 1.6;
+            opacity: 0.94;
+            line-height: 1.65;
         }
 
         .right-side {
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
             background: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 60px;
+            padding: 60px 48px;
             box-shadow: -10px 0 30px rgba(0,0,0,0.05);
             z-index: 10;
         }
@@ -406,7 +413,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <label class="form-label" for="password" style="margin-bottom:0;">Password</label>
-                    <a href="forgot_password.php" style="font-size:12px; color:var(--green-primary); text-decoration:none; font-weight:700;">Lupa Password?</a>
+                    <a href="<?= baseUrl('forgot_password') ?>" style="font-size:12px; color:var(--green-primary); text-decoration:none; font-weight:700;">Lupa Password?</a>
                 </div>
                 <div style="position: relative;">
                     <input class="form-input" type="password" id="password" name="password" placeholder="••••••••" required style="padding-right: 46px;">
@@ -433,7 +440,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div style="margin-top:16px;text-align:center">
                 <span style="font-size:13px;color:#94a3b8">Belum punya akun Admin / Petugas?</span><br>
-                <a href="register.php" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:10px 20px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;color:#475569;text-decoration:none;transition:all .2s"
+                <a href="<?= baseUrl('register') ?>" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:10px 20px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;color:#475569;text-decoration:none;transition:all .2s"
                    onmouseover="this.style.borderColor='#86efac';this.style.color='#1c6434'"
                    onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">
                     ✍️ Register

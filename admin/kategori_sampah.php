@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $ikon  = trim($_POST['ikon_emoji'] ?? '♻️');
         $desc  = trim($_POST['deskripsi'] ?? '');
         $aktif = isset($_POST['is_active']) ? 1 : 0;
-        if (!$kode || !$nama) { flash('danger','Kode dan nama wajib!'); header('Location: kategori_sampah.php'); exit; }
+        if (!$kode || !$nama) { flash('danger','Kode dan nama wajib!'); header('Location: ' . baseUrl('admin/kategori_sampah')); exit; }
         if ($id) {
             $db->prepare("UPDATE waste_categories SET kode=?,name=?,ikon_emoji=?,deskripsi=?,is_active=? WHERE id=?")->execute([$kode,$nama,$ikon,$desc,$aktif,$id]);
             flash('success','Kategori diperbarui!');
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $db->prepare("INSERT INTO waste_categories (kode,name,ikon_emoji,deskripsi,is_active) VALUES (?,?,?,?,?)")->execute([$kode,$nama,$ikon,$desc,$aktif]);
             flash('success','Kategori baru ditambahkan!');
         }
-        header('Location: kategori_sampah.php'); exit;
+        header('Location: ' . baseUrl('admin/kategori_sampah')); exit;
     }
 
     if ($action === 'toggle') {
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $id = (int)($_POST['id'] ?? 0);
         try { $db->prepare("DELETE FROM waste_categories WHERE id=?")->execute([$id]); flash('success','Kategori dihapus.'); }
         catch (Exception $e) { flash('danger','Tidak bisa dihapus — masih digunakan oleh data request.'); }
-        header('Location: kategori_sampah.php'); exit;
+        header('Location: ' . baseUrl('admin/kategori_sampah')); exit;
     }
 }
 
@@ -68,7 +68,7 @@ require_once __DIR__ . '/layout/header.php';
     <div class="toolbar-left">
       <form method="GET" style="display:flex;gap:8px;align-items:center">
         <input class="search-input" name="q" type="text" placeholder="Cari kategori..." value="<?= htmlspecialchars($search) ?>">
-        <?php if ($search): ?><a href="kategori_sampah.php" class="btn btn-outline">Reset</a><?php endif; ?>
+        <?php if ($search): ?><a href="<?= baseUrl('admin/kategori_sampah') ?>" class="btn btn-outline">Reset</a><?php endif; ?>
       </form>
     </div>
     <div class="toolbar-right">
@@ -95,7 +95,7 @@ require_once __DIR__ . '/layout/header.php';
           </td>
           <td>
             <div style="display:flex;gap:4px">
-              <a class="btn btn-outline btn-icon" href="kategori_sampah.php?edit=<?= $k['id'] ?>" title="Edit">✏️</a>
+              <a class="btn btn-outline btn-icon" href="<?= baseUrl('admin/kategori_sampah') ?>?edit=<?= $k['id'] ?>" title="Edit">✏️</a>
               <button class="btn btn-danger btn-icon" title="Hapus" onclick="delKat(<?= $k['id'] ?>, '<?= htmlspecialchars($k['name'] ?? '') ?>')">🗑️</button>
             </div>
           </td>
@@ -121,7 +121,7 @@ require_once __DIR__ . '/layout/header.php';
   <div class="modal">
     <div class="modal-header">
       <h3><?= $editData ? 'Edit Kategori: '.htmlspecialchars($editData['name'] ?? '') : 'Tambah Kategori Sampah' ?></h3>
-      <a href="kategori_sampah.php" class="modal-close">✕</a>
+      <a href="<?= baseUrl('admin/kategori_sampah') ?>" class="modal-close">✕</a>
     </div>
     <form method="POST">
       <input type="hidden" name="action" value="save">
@@ -141,7 +141,7 @@ require_once __DIR__ . '/layout/header.php';
         </div>
       </div>
       <div class="modal-footer">
-        <a href="kategori_sampah.php" class="btn btn-outline">Batal</a>
+        <a href="<?= baseUrl('admin/kategori_sampah') ?>" class="btn btn-outline">Batal</a>
         <button type="submit" class="btn btn-primary">Simpan</button>
       </div>
     </form>
@@ -166,7 +166,7 @@ require_once __DIR__ . '/layout/header.php';
 
 <script>
 function toggleKat(id, checked, el) {
-  fetch('kategori_sampah.php', {
+  fetch('<?= baseUrl("admin/kategori_sampah") ?>', {
     method: 'POST',
     headers: {'Content-Type':'application/x-www-form-urlencoded'},
     body: 'action=toggle&id='+id+'&is_active='+(checked?1:0)

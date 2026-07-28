@@ -641,10 +641,10 @@ require_once __DIR__ . '/layout/header.php';
 
 <!-- Navigasi Laporan -->
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-    <a href="laporan_harian.php"    class="btn btn-outline btn-sm">📅 Lap. Harian</a>
-    <a href="laporan_mingguan.php"  class="btn btn-outline btn-sm">📆 Lap. Mingguan</a>
-    <a href="laporan_bulanan.php"   class="btn btn-outline btn-sm">🗓️ Lap. Bulanan</a>
-    <a href="analisis_data.php"     class="btn btn-outline btn-sm">📊 Analisis Data</a>
+    <a href="<?= baseUrl('admin/laporan_harian') ?>"    class="btn btn-outline btn-sm">📅 Lap. Harian</a>
+    <a href="<?= baseUrl('admin/laporan_mingguan') ?>"  class="btn btn-outline btn-sm">📆 Lap. Mingguan</a>
+    <a href="<?= baseUrl('admin/laporan_bulanan') ?>"   class="btn btn-outline btn-sm">🗓️ Lap. Bulanan</a>
+    <a href="<?= baseUrl('admin/analisis_data') ?>"     class="btn btn-outline btn-sm">📊 Analisis Data</a>
     <span class="btn btn-sm" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;font-weight:700;cursor:default">🧩 Pivot Rekap Bayar</span>
 </div>
 
@@ -713,7 +713,7 @@ require_once __DIR__ . '/layout/header.php';
             <!-- Action Buttons -->
             <div class="btn-group-wrapper">
                 <button type="submit" class="btn btn-primary" style="height: 38px; font-weight: 700;">🔍 Terapkan</button>
-                <a href="pivot_pembayaran.php" class="btn btn-outline" style="height: 38px; font-weight: 700; align-items: center; display: inline-flex;">🔄 Reset</a>
+                <a href="<?= baseUrl('admin/pivot_pembayaran') ?>" class="btn btn-outline" style="height: 38px; font-weight: 700; align-items: center; display: inline-flex;">🔄 Reset</a>
             </div>
 
             <!-- Exports -->

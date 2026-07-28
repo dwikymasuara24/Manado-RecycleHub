@@ -13143,3 +13143,30 @@ Salam,
 System Manado Recycle Hub
 ========================================================================
 
+[2026-07-28 06:09:08] EMAIL SENT TO: mdorecyclehub@gmail.com
+Subject: [ORDER BARU] Pickup - Kecamatan Mapanget - 28 Juli 2026
+Headers: From: mdorecyclehub@gmail.com
+Reply-To: mdorecyclehub@gmail.com
+X-Mailer: PHP/8.1.10
+
+Halo Admin,
+
+Terdapat order penjemputan baru yang masuk ke sistem:
+--------------------------------------------------
+ID / Kode Order  : MRH-B-073
+Nama Pemesan     : sdjfu
+PIC              : Esa Massing
+Kecamatan Pickup : Mapanget
+Kelurahan        : Politeknik - Buha
+Alamat Jemput    : kost berkat
+Tanggal & Jam    : 28 Jul 2026 06:09:03 WITA
+Estimasi Berat   : 5 kg
+Jumlah Titik     : 1 titik
+--------------------------------------------------
+
+Silakan login ke Admin Console Manado Recycle Hub untuk memproses order ini.
+
+Salam,
+System Manado Recycle Hub
+========================================================================
+

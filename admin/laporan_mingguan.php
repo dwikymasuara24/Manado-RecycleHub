@@ -716,34 +716,34 @@ require_once __DIR__ . '/layout/header.php';
 
 <!-- Navigasi Laporan -->
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-  <a href="laporan_harian.php?type=<?= $type ?>"   class="btn btn-outline btn-sm">📅 Harian</a>
+  <a href="<?= baseUrl('admin/laporan_harian') ?>?type=<?= $type ?>"   class="btn btn-outline btn-sm">📅 Harian</a>
   <span class="btn btn-sm" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;font-weight:700;cursor:default">📆 Mingguan</span>
-  <a href="laporan_bulanan.php?type=<?= $type ?>"  class="btn btn-outline btn-sm">📊 Bulanan</a>
-  <a href="pivot_pembayaran.php"                  class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
-  <a href="analisis_data.php"    class="btn btn-outline btn-sm">🔬 Analisis Data</a>
-  <a href="dashboard.php"        class="btn btn-outline btn-sm" style="margin-left:auto">← Dashboard</a>
+  <a href="<?= baseUrl('admin/laporan_bulanan') ?>?type=<?= $type ?>"  class="btn btn-outline btn-sm">📊 Bulanan</a>
+  <a href="<?= baseUrl('admin/pivot_pembayaran') ?>"                  class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
+  <a href="<?= baseUrl('admin/analisis_data') ?>"    class="btn btn-outline btn-sm">🔬 Analisis Data</a>
+  <a href="<?= baseUrl('admin/dashboard') ?>"        class="btn btn-outline btn-sm" style="margin-left:auto">← Dashboard</a>
 </div>
 
 <!-- Tab Filter Layanan -->
 <div class="tabs-container" style="display:flex;gap:12px;margin-bottom:20px;border-bottom:2px solid #f1f5f9;padding-bottom:1px">
-  <a href="?offset=<?= $weekOffset ?>&type=pickup&kecamatan=<?= urlencode($fKec) ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'pickup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'pickup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🚛 Daur Ulang (Pickup)</a>
-  <a href="?offset=<?= $weekOffset ?>&type=cleanup&kecamatan=<?= urlencode($fKec) ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'cleanup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'cleanup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🧹 Clean Up Service</a>
+  <a href="<?= baseUrl('admin/laporan_mingguan') ?>?offset=<?= $weekOffset ?>&type=pickup&kecamatan=<?= urlencode($fKec) ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'pickup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'pickup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🚛 Daur Ulang (Pickup)</a>
+  <a href="<?= baseUrl('admin/laporan_mingguan') ?>?offset=<?= $weekOffset ?>&type=cleanup&kecamatan=<?= urlencode($fKec) ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'cleanup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'cleanup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🧹 Clean Up Service</a>
 </div>
 
 <!-- Navigasi Minggu -->
 <div class="card mb-24" style="padding:14px 20px">
-  <form method="GET" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%">
+  <form method="GET" action="<?= baseUrl('admin/laporan_mingguan') ?>" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%">
     <input type="hidden" name="type" value="<?= htmlspecialchars($type) ?>">
     <input type="hidden" name="offset" value="<?= $weekOffset ?>">
     
     <div style="display:flex;align-items:center;gap:8px;">
-      <a href="laporan_mingguan.php?offset=<?= $weekOffset-1 ?>&type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline">◀ Minggu Lalu</a>
+      <a href="<?= baseUrl('admin/laporan_mingguan') ?>?offset=<?= $weekOffset-1 ?>&type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline">◀ Minggu Lalu</a>
       <span style="font-weight:700;font-size:14px;white-space:nowrap">
         Minggu: <?= $monday->format('d M') ?> — <?= $sunday->format('d M Y') ?>
       </span>
-      <a href="laporan_mingguan.php?offset=<?= $weekOffset+1 ?>&type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline">Minggu Depan ▶</a>
+      <a href="<?= baseUrl('admin/laporan_mingguan') ?>?offset=<?= $weekOffset+1 ?>&type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline">Minggu Depan ▶</a>
       <?php if ($weekOffset !== 0): ?>
-      <a href="laporan_mingguan.php?type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline">Minggu Ini</a>
+      <a href="<?= baseUrl('admin/laporan_mingguan') ?>?type=<?= $type ?>&kecamatan=<?= urlencode($fKec) ?>" class="btn btn-outline">Minggu Ini</a>
       <?php endif; ?>
     </div>
 

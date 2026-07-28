@@ -762,34 +762,7 @@ require_once __DIR__ . '/layout/header.php';
     font-family: monospace;
     color: #64748b;
     white-space: nowrap;
-}
-</style>
-
-<div class="page-header">
-  <h1>Laporan Bulanan</h1>
-  <p>Rekap dan analisis <?= $type === 'cleanup' ? 'Clean Up Service' : 'Penjemputan Sampah Daur Ulang' ?> per bulan — <strong><?= $bulanId[$month] ?> <?= $year ?></strong><?= $fKec ? " di <strong>Kecamatan " . htmlspecialchars($fKec) . "</strong>" : "" ?></p>
-</div>
-
-<!-- Navigasi Laporan -->
-<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-  <a href="laporan_harian.php?type=<?= $type ?>"   class="btn btn-outline btn-sm">📅 Harian</a>
-  <a href="laporan_mingguan.php?type=<?= $type ?>" class="btn btn-outline btn-sm">📆 Mingguan</a>
-  <span class="btn btn-sm" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;font-weight:700;cursor:default">📊 Bulanan</span>
-  <a href="pivot_pembayaran.php"                  class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
-  <a href="analisis_data.php"    class="btn btn-outline btn-sm">🔬 Analisis Data</a>
-  <a href="dashboard.php"        class="btn btn-outline btn-sm" style="margin-left:auto">← Dashboard</a>
-</div>
-
-<!-- Tab Filter Layanan -->
-<div class="tabs-container" style="display:flex;gap:12px;margin-bottom:20px;border-bottom:2px solid #f1f5f9;padding-bottom:1px">
-  <a href="?offset=<?= $monthOffset ?>&type=pickup<?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'pickup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'pickup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🚛 Daur Ulang (Pickup)</a>
-  <a href="?offset=<?= $monthOffset ?>&type=cleanup<?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'cleanup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'cleanup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🧹 Clean Up Service</a>
-</div>
-
-<!-- Navigasi Bulan -->
-<div class="card mb-24" style="padding:14px 20px">
-  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-    <a href="laporan_bulanan.php?offset=<?= $monthOffset-1 ?>&type=<?= $type ?><?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="btn btn-outline btn-sm">◀ Bulan Lalu</a>
+    <a href="<?= baseUrl('admin/laporan_bulanan') ?>?offset=<?= $monthOffset-1 ?>&type=<?= $type ?><?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="btn btn-outline btn-sm">◀ Bulan Lalu</a>
     
     <!-- Dropdown Selector untuk Akses Langsung -->
     <form method="GET" style="display:inline-flex;align-items:center;gap:6px;">
@@ -815,14 +788,14 @@ require_once __DIR__ . '/layout/header.php';
       </select>
       <button type="submit" class="btn btn-primary btn-sm">Filter</button>
       <?php if ($fKec): ?>
-        <a href="laporan_bulanan.php?month=<?= $month ?>&year=<?= $year ?>&type=<?= $type ?>" class="btn btn-outline btn-sm" title="Hapus Filter Kecamatan">✕ Reset</a>
+        <a href="<?= baseUrl('admin/laporan_bulanan') ?>?month=<?= $month ?>&year=<?= $year ?>&type=<?= $type ?>" class="btn btn-outline btn-sm" title="Hapus Filter Kecamatan">✕ Reset</a>
       <?php endif; ?>
     </form>
 
-    <a href="laporan_bulanan.php?offset=<?= $monthOffset+1 ?>&type=<?= $type ?><?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="btn btn-outline btn-sm">Bulan Depan ▶</a>
+    <a href="<?= baseUrl('admin/laporan_bulanan') ?>?offset=<?= $monthOffset+1 ?>&type=<?= $type ?><?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="btn btn-outline btn-sm">Bulan Depan ▶</a>
     
     <?php if ($monthOffset !== 0): ?>
-    <a href="laporan_bulanan.php?type=<?= $type ?><?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="btn btn-outline btn-sm">Bulan Ini</a>
+    <a href="<?= baseUrl('admin/laporan_bulanan') ?>?type=<?= $type ?><?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="btn btn-outline btn-sm">Bulan Ini</a>
     <?php endif; ?>
     
     <div style="margin-left:auto; display:flex; gap:8px;">

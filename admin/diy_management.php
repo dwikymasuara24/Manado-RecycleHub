@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if (!$judul) {
             flash('danger', 'Judul DIY wajib diisi!');
-            header('Location: diy_management.php');
+            header('Location: ' . baseUrl('admin/diy_management'));
             exit;
         }
 
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             flash('danger', 'Gagal menyimpan proyek DIY: ' . $e->getMessage());
         }
 
-        header('Location: diy_management.php');
+        header('Location: ' . baseUrl('admin/diy_management'));
         exit;
     }
 
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $db->rollBack();
             flash('danger', 'Gagal menghapus proyek DIY: ' . $e->getMessage());
         }
-        header('Location: diy_management.php');
+        header('Location: ' . baseUrl('admin/diy_management'));
         exit;
     }
 }
@@ -203,7 +203,7 @@ require_once __DIR__ . '/layout/header.php';
         </select>
 
         <?php if ($search || $filter_difficulty || $filter_status): ?>
-          <a href="diy_management.php" class="btn btn-outline">Reset</a>
+          <a href="<?= baseUrl('admin/diy_management') ?>" class="btn btn-outline">Reset</a>
         <?php endif; ?>
       </form>
     </div>
@@ -238,7 +238,7 @@ require_once __DIR__ . '/layout/header.php';
             <td><?= $i + 1 ?></td>
             <td>
               <?php if (!empty($p['ikon_emoji']) && (strpos($p['ikon_emoji'], '/') !== false || strpos($p['ikon_emoji'], '.') !== false)): ?>
-                <img src="../<?= htmlspecialchars($p['ikon_emoji']) ?>" alt="Icon" style="width:32px; height:32px; object-fit:cover; border-radius:4px; border:1px solid #e0e0e0" onerror="this.src='../logo_square.png'; this.onerror=null;">
+                <img src="../<?= htmlspecialchars($p['ikon_emoji']) ?>" alt="Icon" style="width:32px; height:32px; object-fit:cover; border-radius:4px; border:1px solid #e0e0e0" onerror="this.src='<?= baseUrl('images/logo_square.png') ?>'; this.onerror=null;">
               <?php else: ?>
                 <span style="font-size:24px"><?= htmlspecialchars($p['ikon_emoji'] ?: '♻️') ?></span>
               <?php endif; ?>
@@ -272,7 +272,7 @@ require_once __DIR__ . '/layout/header.php';
             <td><?= htmlspecialchars($p['author_name'] ?? 'Admin') ?></td>
             <td>
               <div style="display:flex;gap:4px">
-                <a class="btn btn-outline btn-icon" href="diy_management.php?edit=<?= $p['id'] ?>" title="Edit">✏️</a>
+                <a class="btn btn-outline btn-icon" href="<?= baseUrl('admin/diy_management') ?>?edit=<?= $p['id'] ?>" title="Edit">✏️</a>
                 <button class="btn btn-danger btn-icon" title="Hapus" onclick="confirmDelete(<?= $p['id'] ?>, '<?= htmlspecialchars(addslashes($p['judul'])) ?>')">🗑️</button>
               </div>
             </td>
@@ -289,7 +289,7 @@ require_once __DIR__ . '/layout/header.php';
   <div class="modal" style="max-width:760px">
     <div class="modal-header">
       <h3><?= $editData ? 'Edit Proyek DIY' : 'Tambah Proyek DIY Baru' ?></h3>
-      <a href="diy_management.php" class="modal-close">✕</a>
+      <a href="<?= baseUrl('admin/diy_management') ?>" class="modal-close">✕</a>
     </div>
     <form method="POST" enctype="multipart/form-data">
       <input type="hidden" name="action" value="save">
@@ -310,7 +310,7 @@ require_once __DIR__ . '/layout/header.php';
             <input type="file" class="form-input" name="ikon_foto" style="padding: 8px;">
             <?php if (!empty($editData['ikon_emoji']) && (strpos($editData['ikon_emoji'], '/') !== false || strpos($editData['ikon_emoji'], '.') !== false)): ?>
               <div style="margin-top:6px; display:flex; align-items:center; gap:8px;">
-                <img src="../<?= htmlspecialchars($editData['ikon_emoji']) ?>" alt="Icon Preview" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid #ddd" onerror="this.src='../logo_square.png'; this.onerror=null;">
+                <img src="../<?= htmlspecialchars($editData['ikon_emoji']) ?>" alt="Icon Preview" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid #ddd" onerror="this.src='<?= baseUrl('images/logo_square.png') ?>'; this.onerror=null;">
                 <span style="font-size:11px; color:#666;">Ikon foto aktif</span>
               </div>
             <?php endif; ?>
@@ -346,7 +346,7 @@ require_once __DIR__ . '/layout/header.php';
           <input type="file" class="form-input" name="gambar_file" style="padding: 8px;">
           <?php if (!empty($editData['gambar_url'])): ?>
             <div style="margin-top:8px; display:flex; align-items:center; gap:12px; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0;">
-              <img src="../<?= htmlspecialchars($editData['gambar_url']) ?>" alt="Preview" style="width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1" onerror="this.src='../logo_square.png'; this.onerror=null;">
+              <img src="../<?= htmlspecialchars($editData['gambar_url']) ?>" alt="Preview" style="width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1" onerror="this.src='<?= baseUrl('images/logo_square.png') ?>'; this.onerror=null;">
               <div>
                 <span style="font-size:12px; color:#475569; font-weight:600; display:block;">Gambar Saat Ini:</span>
                 <code style="font-size:11px; color:#64748b; word-break:break-all;"><?= htmlspecialchars($editData['gambar_url']) ?></code>
@@ -393,7 +393,7 @@ require_once __DIR__ . '/layout/header.php';
 
       </div>
       <div class="modal-footer">
-        <a href="diy_management.php" class="btn btn-outline">Batal</a>
+        <a href="<?= baseUrl('admin/diy_management') ?>" class="btn btn-outline">Batal</a>
         <button type="submit" class="btn btn-primary">💾 Simpan Proyek</button>
       </div>
     </form>

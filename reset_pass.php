@@ -7,7 +7,7 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
-$email = 'admin@admin.com'; 
+$emails = ['admin@manadurecyclehub.id', 'admin@admin.com']; 
 $password_baru = 'admin123'; 
 
 $hash = password_hash($password_baru, PASSWORD_BCRYPT);
@@ -15,29 +15,18 @@ $hash = password_hash($password_baru, PASSWORD_BCRYPT);
 try {
     $db = getDB();
     
+    $check = $db->prepare("SELECT id, nama, email FROM users WHERE email IN (?, ?)");
+    $check->execute($emails);
+    $users = $check->fetchAll();
     
-    $check = $db->prepare("SELECT id, nama FROM users WHERE email = ?");
-    $check->execute([$email]);
-    $user = $check->fetch();
-    
-    if ($user) {
-        
-        $stmt = $db->prepare("UPDATE users SET password_hash = ? WHERE email = ?");
-        $stmt->execute([$hash, $email]);
-        
-        echo "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1.5px solid #bbf7d0; background: #f0fdf4; border-radius: 8px;'>";
-        echo "<h3 style='color: #16a34a; margin-top: 0;'>✅ Sukses Mereset Password!</h3>";
-        echo "<p>Akun <b>" . htmlspecialchars($user['nama']) . "</b> ($email) telah diperbarui.</p>";
-        echo "<p>Password baru Anda sekarang: <code style='background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: bold;'>$password_baru</code></p>";
-        echo "<hr style='border: 0; border-top: 1px solid #cbd5e1; margin: 20px 0;'>";
-        echo "<p style='color: #ef4444; font-size: 13px; font-weight: bold;'>⚠️ PENTING: Demi alasan keamanan, segera hapus atau kosongkan kembali isi file <u>reset_pass.php</u> dari folder proyek Anda agar tidak disalahgunakan orang lain!</p>";
-        echo "</div>";
+    if ($users) {
+        foreach ($users as $user) {
+            $stmt = $db->prepare("UPDATE users SET password_hash = ?, is_active = 1 WHERE id = ?");
+            $stmt->execute([$hash, $user['id']]);
+            echo "✅ Sukses Mereset Password Akun {$user['nama']} ({$user['email']}) -> $password_baru\n";
+        }
     } else {
-        echo "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1.5px solid #fecaca; background: #fef2f2; border-radius: 8px;'>";
-        echo "<h3 style='color: #dc2626; margin-top: 0;'>❌ Akun Tidak Ditemukan!</h3>";
-        echo "<p>Tidak ada pengguna dengan email <b>$email</b> di database.</p>";
-        echo "<p>Silakan edit file <code>reset_pass.php</code> dan ganti variabel <code>\$email</code> dengan email yang terdaftar di database Anda.</p>";
-        echo "</div>";
+        echo "❌ Tidak ada user admin ditemukan.\n";
     }
 } catch (Exception $e) {
     echo "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1.5px solid #cbd5e1; background: #f8fafc; border-radius: 8px;'>";

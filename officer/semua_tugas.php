@@ -27,8 +27,8 @@ $slblMap = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=
 
 <!-- Filter bar -->
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-  <a href="semua_tugas.php?status=aktif"  class="btn btn-sm <?= $filter!=='semua'?'btn-green':'btn-outline' ?>">🔄 Aktif</a>
-  <a href="semua_tugas.php?status=semua"  class="btn btn-sm <?= $filter==='semua'?'btn-green':'btn-outline' ?>">📋 Semua</a>
+  <a href="<?= baseUrl('officer/semua_tugas') ?>?status=aktif"  class="btn btn-sm <?= $filter!=='semua'?'btn-green':'btn-outline' ?>">🔄 Aktif</a>
+  <a href="<?= baseUrl('officer/semua_tugas') ?>?status=semua"  class="btn btn-sm <?= $filter==='semua'?'btn-green':'btn-outline' ?>">📋 Semua</a>
   <span style="margin-left:auto;font-size:12px;color:#888;align-self:center;font-family:var(--ui)"><?= count($allTasks) ?> data</span>
 </div>
 

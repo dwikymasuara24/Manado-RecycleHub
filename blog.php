@@ -3,16 +3,16 @@ require_once __DIR__ . '/include/config.php';
 
 $pageTitle = "Manado Recycle Hub - Blog dan Media Sosial";
 $siteTitle = "Manado Recycle Hub";
-$banner_img = "medsos.jpeg";
+$banner_img = "images/medsos.jpeg";
 
 $navLinks = [
-    ["label" => "Home",               "href" => "home.php",             "active" => false],
-    ["label" => "Bin Project",        "href" => "bin_project.php",      "active" => false],
-    ["label" => "Blog dan Media Sosial", "href" => "blog.php",          "active" => true],
-    ["label" => "Idea Box",           "href" => "idea-box.php",         "active" => false],
-    ["label" => "Lokasi Kami",        "href" => "lokasi_kami.php",      "active" => false],
-    ["label" => "DIY",                "href" => "diy.php",              "active" => false],
-    ["label" => "Kuesioner",          "href" => "kuesioner.php",        "active" => false],
+    ["label" => "Home",               "href" => "home",                 "active" => false],
+    ["label" => "Bin Project",        "href" => "bin_project",          "active" => false],
+    ["label" => "Blog dan Media Sosial", "href" => "blog",              "active" => true],
+    ["label" => "Idea Box",           "href" => "idea-box",             "active" => false],
+    ["label" => "Lokasi Kami",        "href" => "lokasi_kami",          "active" => false],
+    ["label" => "DIY",                "href" => "diy",                  "active" => false],
+    ["label" => "Kuesioner",          "href" => "kuesioner",            "active" => false],
 ];
 
 $blogPosts = [];
@@ -95,7 +95,7 @@ endif;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title><?= htmlspecialchars($pageTitle) ?></title>
-    <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+    <link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
     <meta property="og:title" content="<?= htmlspecialchars($pageTitle) ?>">
     <meta property="og:type" content="website">
     <meta property="og:description" content="Global Recycling Day">
@@ -376,15 +376,15 @@ endif;
     <header>
         <nav class="navbar">
             <div class="navbar-inner">
-                <a class="navbar-brand" href="home.php">
-                    <img src="Home.png" alt="daurulangsekarang" onerror="this.style.display='none'">
+                <a class="navbar-brand" href="<?= baseUrl('home') ?>">
+                    <img src="<?= baseUrl('images/Home.png') ?>" alt="daurulangsekarang" onerror="this.style.display='none'">
                     <span><?= htmlspecialchars($siteTitle) ?></span>
                 </a>
 
                 <ul class="navbar-nav">
                     <?php foreach ($navLinks as $link): ?>
                         <li class="nav-item<?= $link['active'] ? ' active' : '' ?>">
-                            <a href="<?= htmlspecialchars($link['href']) ?>"
+                            <a href="<?= baseUrl($link['href']) ?>"
                                <?= $link['active'] ? 'aria-current="page"' : '' ?>>
                                 <?= htmlspecialchars($link['label']) ?>
                             </a>
@@ -402,7 +402,7 @@ endif;
             <!-- Mobile nav -->
             <nav class="mobile-nav" id="mobileNav" role="navigation">
                 <?php foreach ($navLinks as $link): ?>
-                    <a href="<?= htmlspecialchars($link['href']) ?>"
+                    <a href="<?= baseUrl($link['href']) ?>"
                        class="<?= $link['active'] ? 'active' : '' ?>"
                        <?= $link['active'] ? 'aria-current="page"' : '' ?>>
                         <?= htmlspecialchars($link['label']) ?>
@@ -425,13 +425,13 @@ endif;
                 <article class="blog-card">
                     <div class="blog-card-img-wrap">
                         <?php 
-                        $imageSrc = !empty($post['image']) ? htmlspecialchars($post['image']) : 'logo_square.png'; 
+                        $imageSrc = !empty($post['image']) ? htmlspecialchars($post['image']) : baseUrl('images/logo_square.png'); 
                         ?>
                         <img
                             src="<?= $imageSrc ?>"
                             alt="<?= htmlspecialchars($post['imageAlt']) ?>"
                             loading="lazy"
-                            onerror="this.src='logo_square.png'; this.onerror=null;">
+                            onerror="this.src='<?= baseUrl('images/logo_square.png') ?>'; this.onerror=null;">
                     </div>
                     <div class="blog-card-body">
                         <h2 class="blog-card-title"><?= htmlspecialchars($post['title']) ?></h2>

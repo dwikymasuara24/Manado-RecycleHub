@@ -106,15 +106,43 @@ function getDB(): PDO {
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-        
         $pdo->exec("SET time_zone = '+08:00'");
+        $pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+
+        try {
+            $pdo->exec("ALTER TABLE pickup_requests CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        } catch (Exception $e) {}
+        try {
+            $pdo->exec("ALTER TABLE cleanup_requests CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        } catch (Exception $e) {}
+        try {
+            $pdo->exec("ALTER TABLE officers CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        } catch (Exception $e) {}
         
         try {
             $pdo->exec("ALTER TABLE pickup_requests ADD COLUMN is_kendala TINYINT(1) DEFAULT 0 AFTER catatan_officer");
         } catch (Exception $e) {}
         
         try {
-            $pdo->exec("ALTER TABLE pickup_requests MODIFY COLUMN status ENUM('menunggu','dikonfirmasi','dijadwalkan','dalam_perjalanan','sedang_diproses','selesai','dibatalkan') NOT NULL DEFAULT 'menunggu'");
+            $pdo->exec("ALTER TABLE cleanup_requests ADD COLUMN catatan_officer TEXT NULL AFTER catatan");
+        } catch (Exception $e) {}
+
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `diy_steps` (
+              `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+              `project_id` bigint(20) UNSIGNED NOT NULL,
+              `urutan` tinyint(3) UNSIGNED NOT NULL,
+              `judul_langkah` varchar(200) NOT NULL,
+              `deskripsi` text NOT NULL,
+              `gambar_url` varchar(500) DEFAULT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (Exception $e) {}
+        
+        try {
+            $pdo->exec("ALTER TABLE pickup_requests MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'menunggu'");
+        } catch (Exception $e) {}
+        try {
+            $pdo->exec("ALTER TABLE cleanup_requests MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'menunggu'");
         } catch (Exception $e) {}
         try {
             $pdo->exec("ALTER TABLE pickup_requests ADD COLUMN latitude DECIMAL(10, 8) NULL AFTER kelurahan");
@@ -281,21 +309,15 @@ function url(string $path = ''): string {
     $cleanPath = ltrim($path, '/');
     if ($cleanPath === '') return '';
 
-    if (isProduction()) {
-        if (preg_match('/\.php$/i', $cleanPath)) {
-            $cleanPath = preg_replace('/\.php$/i', '', $cleanPath);
-        }
-    } else {
-        if (!preg_match('/\.(php|png|jpg|jpeg|gif|css|js|json|ico|svg|webp|txt|sql)$/i', $cleanPath)) {
-            $cleanPath .= '.php';
-        }
+    if (preg_match('/\.php$/i', $cleanPath)) {
+        $cleanPath = preg_replace('/\.php$/i', '', $cleanPath);
     }
     return $cleanPath;
 }
 
 function baseUrl(string $path = ''): string {
-    $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host    = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
     
     $docRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
     $projDir = rtrim(str_replace('\\', '/', PROJECT_ROOT), '/');
@@ -303,18 +325,26 @@ function baseUrl(string $path = ''): string {
     $docRootLower = strtolower($docRoot);
     $projDirLower = strtolower($projDir);
 
+    $base = '';
     if ($docRootLower !== '' && str_starts_with($projDirLower, $docRootLower)) {
         $base = substr($projDir, strlen($docRoot));
     } else {
         $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
         $dir = dirname($script);
         if (str_contains($dir, '/officer')) {
-            $base = str_replace('/officer', '', $dir);
-        } elseif (str_contains($dir, '/admin')) {
-            $base = str_replace('/admin', '', $dir);
-        } else {
-            $base = ($dir === '/' || $dir === '\\') ? '' : $dir;
+            $dir = str_replace('/officer', '', $dir);
         }
+        if (str_contains($dir, '/admin')) {
+            $dir = str_replace('/admin', '', $dir);
+        }
+        $base = ($dir === '/' || $dir === '\\' || $dir === '.') ? '' : $dir;
+    }
+
+    // Strip any leading drive letters or invalid root paths
+    $base = preg_replace('~^[a-zA-Z]:~', '', $base);
+    $base = '/' . ltrim($base, '/');
+    if ($base === '/') {
+        $base = '';
     }
 
     $formattedPath = url($path);

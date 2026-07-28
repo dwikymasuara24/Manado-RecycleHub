@@ -24,17 +24,17 @@ $page_title = "Idea Box";
 $whatsapp_number = "6281241092529";
 $whatsapp_url = "https://wa.me/" . $whatsapp_number;
 $google_font_url = "https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap";
-$logo_img = "Home.png"; 
-$banner_img = "ideae.jpeg"; 
+$logo_img = "images/Home.png"; 
+$banner_img = "images/ideae.jpeg"; 
 
 $nav_items = [
-    ["label" => "Home",                 "url" => "home.php",                    "active" => false],
-    ["label" => "Bin Project",          "url" => "bin_project.php",             "active" => false],
-    ["label" => "Blog dan Media Sosial","url" => "blog.php",                    "active" => false],
-    ["label" => "Idea Box",             "url" => "idea-box.php",                "active" => true],
-    ["label" => "Lokasi Kami",          "url" => "lokasi_kami.php",             "active" => false],
-    ["label" => "DIY",                  "url" => "diy.php",                     "active" => false],
-    ["label" => "Kuesioner",            "url" => "kuesioner.php",               "active" => false],
+    ["label" => "Home",                 "url" => "home",                        "active" => false],
+    ["label" => "Bin Project",          "url" => "bin_project",                 "active" => false],
+    ["label" => "Blog dan Media Sosial","url" => "blog",                        "active" => false],
+    ["label" => "Idea Box",             "url" => "idea-box",                    "active" => true],
+    ["label" => "Lokasi Kami",          "url" => "lokasi_kami",                 "active" => false],
+    ["label" => "DIY",                  "url" => "diy",                         "active" => false],
+    ["label" => "Kuesioner",            "url" => "kuesioner",                   "active" => false],
 ];
 ?>
 <!DOCTYPE html>
@@ -44,7 +44,7 @@ $nav_items = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Punya Ide daur ulang?">
     <title><?= htmlspecialchars($site_name) ?> - <?= htmlspecialchars($page_title) ?></title>
-    <link rel="icon" type="image/png" href="<?= baseUrl('Title.png') ?>">
+    <link rel="icon" type="image/png" href="<?= baseUrl('images/Title.png') ?>">
     <link rel="stylesheet" href="<?= $google_font_url ?>">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
