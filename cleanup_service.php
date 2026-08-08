@@ -885,6 +885,7 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 @media (max-width: 420px) {
     .cleanup-item { flex: 0 1 calc(50% - 6px); min-width: 120px; }
     .frow { flex-direction: column; gap: 14px; }
+    .latlng-row { flex-direction: column; gap: 12px; }
     .track-form { flex-direction: column; }
 }
 @media (max-width: 360px) {
