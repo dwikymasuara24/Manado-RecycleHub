@@ -235,6 +235,13 @@ $slblMap = ['selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'];
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('historyDetailModal');
+  if (modal) {
+    document.body.appendChild(modal);
+  }
+});
+
 function openHistoryDetailModal() {
   document.getElementById('historyDetailModal').classList.add('open');
   document.body.style.overflow = 'hidden';

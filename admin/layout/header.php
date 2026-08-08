@@ -903,8 +903,30 @@ try {
 function toggleSidebar() {
   document.getElementById('adminSidebar').classList.toggle('open');
 }
-function openModal(id)  { document.getElementById(id).style.display='flex'; document.body.style.overflow='hidden'; }
-function closeModal(id) { document.getElementById(id).style.display='none'; document.body.style.overflow=''; }
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.modal-overlay, .modal-overlay-cl').forEach(function(modal) {
+    if (modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
+  });
+});
+function openModal(id)  {
+  const modal = document.getElementById(id);
+  if (modal) {
+    if (modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  document.body.style.overflow = '';
+}
 document.addEventListener('keydown', e => {
   if(e.key==='Escape') document.querySelectorAll('.modal-overlay[style*="display:flex"]').forEach(m=>closeModal(m.id));
 });

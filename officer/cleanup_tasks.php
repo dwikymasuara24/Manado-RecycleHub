@@ -199,35 +199,38 @@ $slblMap = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=
 
 <!-- Modal Selesai & Timbang -->
 <style>
-.modal-overlay-cl { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); }
+.modal-overlay-cl { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:2000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); }
 .modal-cl { background:#fff; width:100%; max-width:440px; border-radius:16px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column; max-height:90vh; animation:modalIn 0.2s ease; }
 @keyframes modalIn { from{opacity:0; transform:scale(0.95) translateY(10px);} to{opacity:1; transform:scale(1) translateY(0);} }
-.modal-header-cl { padding:18px 24px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; background:#fff; }
-.modal-header-cl h3 { margin:0; font-size:16px; font-weight:800; color:#1e293b; }
+.modal-header-cl { padding:14px 20px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; background:#fff; }
+.modal-header-cl h3 { margin:0; font-size:15px; font-weight:800; color:#1e293b; }
 .modal-close-cl { background:none; border:none; font-size:20px; color:#94a3b8; cursor:pointer; padding:4px; border-radius:6px; transition:0.2s; line-height:1; }
 .modal-close-cl:hover { color:#ef4444; background:#fee2e2; }
-.modal-body-cl { padding:20px 24px; overflow-y:auto; flex:1; }
-.form-grp { margin-bottom:14px; }
-.form-lbl { display:block; font-size:11px; font-weight:700; color:#64748b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px; }
-.form-inp { width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; outline:none; transition:0.2s; background:#fff; }
+.modal-body-cl { padding:14px 20px; overflow-y:auto; flex:1; }
+.form-grp { margin-bottom:10px; }
+.form-lbl { display:block; font-size:10.5px; font-weight:700; color:#64748b; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.4px; }
+.form-inp { width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; outline:none; transition:0.2s; background:#fff; }
 .form-inp:focus { border-color:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,0.1); }
-.file-grp { display:flex; gap:12px; }
-.file-box { flex:1; background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:8px; padding:10px; text-align:center; position:relative; overflow:hidden; }
-.file-box input[type="file"] { font-size:11px; width:100%; color:#475569; }
-.file-box .lbl { font-size:10px; font-weight:700; color:#64748b; margin-bottom:4px; display:block; }
-.modal-footer-cl { padding:16px 24px; border-top:1px solid #f1f5f9; background:#f8fafc; display:flex; gap:12px; }
-.btn-cl { flex:1; padding:12px; border-radius:8px; font-size:13px; font-weight:700; text-align:center; cursor:pointer; transition:0.2s; border:none; outline:none; }
+.file-grp { display:flex; gap:10px; }
+.file-box { flex:1; background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:8px; padding:8px; text-align:center; position:relative; overflow:hidden; }
+.file-box input[type="file"] { font-size:10px; width:100%; color:#475569; }
+.file-box .lbl { font-size:9.5px; font-weight:700; color:#64748b; margin-bottom:3px; display:block; }
+.modal-footer-cl { padding:12px 20px; border-top:1px solid #f1f5f9; background:#f8fafc; display:flex; gap:10px; }
+.btn-cl { flex:1; padding:10px; border-radius:8px; font-size:13px; font-weight:700; text-align:center; cursor:pointer; transition:0.2s; border:none; outline:none; }
 .btn-cancel { background:#fff; border:1px solid #cbd5e1; color:#475569; }
 .btn-cancel:hover { background:#f1f5f9; }
 .btn-submit { background:var(--green); color:#fff; box-shadow:0 4px 12px rgba(46,125,50,0.2); }
 .btn-submit:hover { background:#155229; transform:translateY(-1px); box-shadow:0 6px 16px rgba(46,125,50,0.3); }
+
 @media (max-width: 640px) {
   .modal-overlay-cl { padding: 10px; }
   .modal-cl { max-height: 95vh; }
-  .modal-header-cl { padding: 14px 16px; }
-  .modal-body-cl { padding: 14px 16px; }
-  .modal-footer-cl { padding: 12px 16px; flex-direction: column; gap: 8px; }
-  .file-grp { flex-direction: column; }
+  .modal-header-cl { padding: 10px 14px; }
+  .modal-body-cl { padding: 10px 14px; }
+  .modal-footer-cl { padding: 10px 14px; gap: 8px; }
+  .form-grp { margin-bottom: 8px; }
+  .file-box { padding: 6px; }
+  .file-box input[type="file"] { font-size: 9px; }
 }
 </style>
 
@@ -247,7 +250,7 @@ $slblMap = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=
                     <input type="number" step="0.01" name="berat_sampah" class="form-inp" placeholder="Contoh: 12.5" required>
                 </div>
 
-                <div style="display:flex; gap:12px;">
+                <div style="display:flex; gap:10px;">
                     <div class="form-grp" style="flex:1">
                         <label class="form-lbl">🗑️ Jenis Sampah</label>
                         <input type="text" name="jenis_sampah" class="form-inp" placeholder="Mis. Botol Plastik" required>
@@ -272,24 +275,25 @@ $slblMap = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=
                     </div>
                 </div>
                 
-                <div style="margin:20px 0; border-top:1px dashed #cbd5e1"></div>
+                <div style="margin:10px 0; border-top:1px dashed #cbd5e1"></div>
 
-                <div class="form-grp">
-                    <label class="form-lbl">⏱️ Jam Kerja Aktual</label>
-                    <input type="number" step="0.5" name="jam_kerja_aktual" id="finishJam" class="form-inp" style="background:#f0fdf4; border-color:#bbf7d0; color:#166534; font-weight:700" oninput="calcFinishBiaya()">
-                </div>
-
-                <div class="form-grp" style="margin-bottom:0">
-                    <label class="form-lbl">💰 Biaya Aktual (Rp)</label>
-                    <input type="number" name="biaya_aktual" id="finishBiaya" class="form-inp" readonly style="background:#f8fafc; font-weight:800; color:#b45309; border-color:#e2e8f0">
-                    <div style="font-size:10px; color:#94a3b8; margin-top:6px; font-weight:600">
-                        * Otomatis terhitung: Jam Kerja Aktual × Rp 50.000
+                <div style="display:flex; gap:10px; align-items: flex-start;">
+                    <div class="form-grp" style="flex:1; margin-bottom:0">
+                        <label class="form-lbl">⏱️ Jam Kerja</label>
+                        <input type="number" step="0.5" name="jam_kerja_aktual" id="finishJam" class="form-inp" style="background:#f0fdf4; border-color:#bbf7d0; color:#166534; font-weight:700; padding: 8px 10px;" oninput="calcFinishBiaya()">
+                    </div>
+                    <div class="form-grp" style="flex:1; margin-bottom:0">
+                        <label class="form-lbl">💰 Biaya (Rp)</label>
+                        <input type="number" name="biaya_aktual" id="finishBiaya" class="form-inp" readonly style="background:#f8fafc; font-weight:800; color:#b45309; border-color:#e2e8f0; padding: 8px 10px;">
                     </div>
                 </div>
+                <div style="font-size:9px; color:#94a3b8; margin: 3px 0 10px; font-weight:600; text-align: right;">
+                    * Jam Kerja × Rp 50.000
+                </div>
 
-                <div class="form-grp" style="margin-top:14px">
+                <div class="form-grp" style="margin-top:4px">
                     <label class="form-lbl">📝 Catatan Tambahan Petugas</label>
-                    <textarea name="catatan_officer" class="form-inp" rows="2" placeholder="Catatan hasil pengerjaan, kondisi, dll..."></textarea>
+                    <textarea name="catatan_officer" class="form-inp" rows="2" placeholder="Catatan hasil pengerjaan, kondisi, dll..." style="resize: none;"></textarea>
                 </div>
             </div>
             <div class="modal-footer-cl">
@@ -301,6 +305,14 @@ $slblMap = ['menunggu'=>'Menunggu','dikonfirmasi'=>'Dikonfirmasi','dijadwalkan'=
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Relocate modal to body to bypass any transform/stacking context constraints from .main-wrap
+    const modal = document.getElementById('modalFinish');
+    if (modal) {
+        document.body.appendChild(modal);
+    }
+});
+
 function calcFinishBiaya() {
     let jam = parseFloat(document.getElementById('finishJam').value) || 0;
     document.getElementById('finishBiaya').value = jam * 50000;
@@ -319,3 +331,4 @@ function closeFinishModal() {
 </script>
 
 <?php require_once __DIR__ . '/layout/footer.php'; ?>
+
