@@ -373,6 +373,10 @@ $track_step_defs = [
     --spring-transit: cubic-bezier(0.34, 1.56, 0.64, 1);
     --smooth-transit: cubic-bezier(0.16, 1, 0.3, 1);
 }
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
 body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(--td); display: flex; flex-direction: column; min-height: 100vh; }
 .top-nav { background: var(--gd); padding: 12px 24px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.18); position: sticky; top: 0; z-index: 100; }
 .top-nav a.back-btn { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.80); text-decoration: none; font-size: .82rem; font-weight: 700; padding: 5px 10px; border: 1.5px solid rgba(255,255,255,.30); border-radius: 8px; }
@@ -425,14 +429,16 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 .stepper-labels {
     display: flex;
     justify-content: space-between;
-    padding: 0 4px;
+    padding: 0;
 }
 .stp-lbl {
     font-size: .65rem;
     font-weight: 700;
     color: var(--tl);
     text-align: center;
-    width: 60px;
+    flex: 1;
+    min-width: 0;
+    max-width: 80px;
     line-height: 1.3;
     transition: color .3s;
 }
@@ -624,7 +630,7 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 .s-tl-conn { flex: 1; height: 3px; background: var(--gml); }
 .s-tl-conn.done { background: var(--gm); }
 .s-tl-labels { display: flex; justify-content: space-between; }
-.s-tl-lbl { font-size: .68rem; font-weight: 700; color: var(--tl); text-align: center; width: 76px; line-height: 1.3; margin: 0 -11px; }
+.s-tl-lbl { font-size: .68rem; font-weight: 700; color: var(--tl); text-align: center; flex: 1; min-width: 0; max-width: 90px; line-height: 1.3; margin: 0; }
 .s-tl-lbl.current { color: var(--gd); }
 .detail-recap { background: var(--gl); border: 1.5px solid var(--gml); border-radius: 11px; padding: 12px 15px; margin-bottom: 18px; }
 .dr-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 0; border-bottom: 1px solid var(--gml); font-size: .82rem; gap: 8px; }
@@ -727,8 +733,8 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 }
 .tl-lbl {
     font-size: .68rem; font-weight: 700; color: var(--tl);
-    text-align: center; width: 76px; line-height: 1.3;
-    margin: 0 -11px;
+    text-align: center; flex: 1; min-width: 0; max-width: 90px; line-height: 1.3;
+    margin: 0;
 }
 .tl-lbl.done    { color: var(--gm); }
 .tl-lbl.current { color: var(--gd); }
@@ -883,7 +889,7 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
 }
 @media (max-width: 360px) {
     .cleanup-item { flex: 1 1 100%; max-width: 100%; }
-    .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .55rem; width: 64px; margin: 0 -8px; }
+    .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .55rem; width: auto; margin: 0; }
 }
 .site-footer {
     padding: 24px 0 32px;
@@ -1214,8 +1220,8 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
                                                 </div>
 
                                                 <div class="latlng-row" style="margin-top:10px">
-                                                    <div class="fw gps-inp"><label>Latitude</label><input type="text" id="latitude" name="latitude" value="<?= htmlspecialchars($v['lat']) ?>" placeholder="—" readonly></div>
-                                                    <div class="fw gps-inp"><label>Longitude</label><input type="text" id="longitude" name="longitude" value="<?= htmlspecialchars($v['lng']) ?>" placeholder="—" readonly></div>
+                                                    <div class="fw gps-inp"><label>Latitude</label><input type="text" id="latitude" name="latitude" class="form-input" value="<?= htmlspecialchars($v['lat']) ?>" placeholder="—" readonly></div>
+                                                    <div class="fw gps-inp"><label>Longitude</label><input type="text" id="longitude" name="longitude" class="form-input" value="<?= htmlspecialchars($v['lng']) ?>" placeholder="—" readonly></div>
                                                 </div>
                                                 <input type="hidden" id="koordinatManual" name="koordinat_manual" value="0">
                                             </div>

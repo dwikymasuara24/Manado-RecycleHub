@@ -394,6 +394,10 @@ $track_step_defs = [
     --smooth-transit: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
 body {
     font-family: 'Comfortaa', sans-serif;
     background: var(--bg);
@@ -506,14 +510,16 @@ body {
 .stepper-labels {
     display: flex;
     justify-content: space-between;
-    padding: 0 4px;
+    padding: 0;
 }
 .stp-lbl {
     font-size: .65rem;
     font-weight: 700;
     color: var(--tl);
     text-align: center;
-    width: 60px;
+    flex: 1;
+    min-width: 0;
+    max-width: 80px;
     line-height: 1.3;
     transition: color .3s;
 }
@@ -925,8 +931,8 @@ body {
 }
 .tl-lbl {
     font-size: .68rem; font-weight: 700; color: var(--tl);
-    text-align: center; width: 76px; line-height: 1.3;
-    margin: 0 -11px;
+    text-align: center; flex: 1; min-width: 0; max-width: 90px; line-height: 1.3;
+    margin: 0;
 }
 .tl-lbl.done    { color: var(--gm); }
 .tl-lbl.current { color: var(--gd); }
@@ -983,8 +989,8 @@ body {
 .s-tl-labels { display: flex; justify-content: space-between; }
 .s-tl-lbl {
     font-size: .68rem; font-weight: 700; color: var(--tl);
-    text-align: center; width: 76px; line-height: 1.3;
-    margin: 0 -11px;
+    text-align: center; flex: 1; min-width: 0; max-width: 90px; line-height: 1.3;
+    margin: 0;
 }
 .s-tl-lbl.current { color: var(--gd); }
 
@@ -1167,7 +1173,7 @@ body {
 
 @media (max-width: 360px) {
     .barang-grid { grid-template-columns: repeat(2, 1fr); }
-    .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .55rem; width: 64px; margin: 0 -8px; }
+    .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .55rem; width: auto; margin: 0; }
 }
 .site-footer {
     padding: 24px 0 32px;
