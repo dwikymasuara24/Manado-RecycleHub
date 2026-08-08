@@ -883,14 +883,20 @@ body { font-family: 'Comfortaa', sans-serif; background: var(--bg); color: var(-
     }
 }
 @media (max-width: 420px) {
+    .top-nav { padding: 10px 14px; gap: 8px; }
+    .top-nav .site-name { font-size: 0.9rem; }
+    .tabs { padding: 0 8px; gap: 2px; }
+    .tab-btn { padding: 12px 8px; font-size: 0.8rem; flex: 1; justify-content: center; }
+    .form-step { padding: 20px 14px 8px; }
     .cleanup-item { flex: 0 1 calc(50% - 6px); min-width: 120px; }
     .frow { flex-direction: column; gap: 14px; }
     .latlng-row { flex-direction: column; gap: 12px; }
     .track-form { flex-direction: column; }
+    .fw { min-width: 0; }
 }
 @media (max-width: 360px) {
     .cleanup-item { flex: 1 1 100%; max-width: 100%; }
-    .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .55rem; width: auto; margin: 0; }
+    .tl-lbl, .s-tl-lbl, .stp-lbl { font-size: .53rem; width: auto; margin: 0; }
 }
 .site-footer {
     padding: 24px 0 32px;
