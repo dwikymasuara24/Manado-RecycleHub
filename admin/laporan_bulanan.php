@@ -14,7 +14,6 @@ if (isset($_GET['month']) && isset($_GET['year'])) {
     $month = (int)$_GET['month'];
     $year  = (int)$_GET['year'];
     
-    
     $d1 = new DateTime('first day of this month');
     $d2 = new DateTime("$year-$month-01");
     $diff = $d1->diff($d2);
@@ -46,7 +45,7 @@ if ($type === 'pickup') {
                o.officer_code
         FROM pickup_requests pr
         LEFT JOIN officers o ON o.id = pr.officer_id
-        WHERE YEAR(pr.created_at)=? AND MONTH(pr.created_at)=?
+        WHERE YEAR(COALESCE(pr.completed_at, pr.created_at))=? AND MONTH(COALESCE(pr.completed_at, pr.created_at))=?
     ";
     $params = [$year, $month];
     if ($fKec) {
@@ -67,7 +66,7 @@ if ($type === 'pickup') {
                o.officer_code
         FROM cleanup_requests cr
         LEFT JOIN officers o ON o.id = cr.officer_id
-        WHERE YEAR(cr.created_at)=? AND MONTH(cr.created_at)=?
+        WHERE YEAR(COALESCE(cr.completed_at, cr.created_at))=? AND MONTH(COALESCE(cr.completed_at, cr.created_at))=?
     ";
     $params = [$year, $month];
     if ($fKec) {
@@ -541,28 +540,28 @@ $pendapatan   = array_sum(array_map(function($r) {
 
 if ($type === 'pickup') {
     $sqlW = "
-        SELECT WEEK(created_at,1) as wk, MIN(DATE(created_at)) as tgl_awal, COUNT(*) as cnt 
-        FROM pickup_requests WHERE YEAR(created_at)=? AND MONTH(created_at)=?
+        SELECT WEEK(COALESCE(completed_at, created_at),1) as wk, MIN(DATE(COALESCE(completed_at, created_at))) as tgl_awal, COUNT(*) as cnt 
+        FROM pickup_requests WHERE YEAR(COALESCE(completed_at, created_at))=? AND MONTH(COALESCE(completed_at, created_at))=?
     ";
     $paramsW = [$year, $month];
     if ($fKec) {
         $sqlW .= " AND kecamatan = ?";
         $paramsW[] = $fKec;
     }
-    $sqlW .= " GROUP BY WEEK(created_at,1) ORDER BY wk ASC";
+    $sqlW .= " GROUP BY WEEK(COALESCE(completed_at, created_at),1) ORDER BY wk ASC";
     $perMinggu = $db->prepare($sqlW);
     $perMinggu->execute($paramsW);
 } else {
     $sqlW = "
-        SELECT WEEK(created_at,1) as wk, MIN(DATE(created_at)) as tgl_awal, COUNT(*) as cnt 
-        FROM cleanup_requests WHERE YEAR(created_at)=? AND MONTH(created_at)=?
+        SELECT WEEK(COALESCE(completed_at, created_at),1) as wk, MIN(DATE(COALESCE(completed_at, created_at))) as tgl_awal, COUNT(*) as cnt 
+        FROM cleanup_requests WHERE YEAR(COALESCE(completed_at, created_at))=? AND MONTH(COALESCE(completed_at, created_at))=?
     ";
     $paramsW = [$year, $month];
     if ($fKec) {
         $sqlW .= " AND kecamatan = ?";
         $paramsW[] = $fKec;
     }
-    $sqlW .= " GROUP BY WEEK(created_at,1) ORDER BY wk ASC";
+    $sqlW .= " GROUP BY WEEK(COALESCE(completed_at, created_at),1) ORDER BY wk ASC";
     $perMinggu = $db->prepare($sqlW);
     $perMinggu->execute($paramsW);
 }
@@ -571,7 +570,7 @@ $weekData = $perMinggu->fetchAll();
 if ($type === 'pickup') {
     $sqlK = "
         SELECT kecamatan, COUNT(*) as cnt, SUM(COALESCE(berat_total_kg,0)) as total_kg 
-        FROM pickup_requests WHERE YEAR(created_at)=? AND MONTH(created_at)=? AND kecamatan IS NOT NULL
+        FROM pickup_requests WHERE YEAR(COALESCE(completed_at, created_at))=? AND MONTH(COALESCE(completed_at, created_at))=? AND kecamatan IS NOT NULL
     ";
     $paramsK = [$year, $month];
     if ($fKec) {
@@ -586,7 +585,7 @@ if ($type === 'pickup') {
         SELECT cr.kecamatan, COUNT(*) as cnt, SUM(COALESCE(ci.berat,0)) as total_kg 
         FROM cleanup_requests cr 
         LEFT JOIN (SELECT cleanup_id, SUM(berat_kg) as berat FROM cleanup_items GROUP BY cleanup_id) ci ON ci.cleanup_id=cr.id 
-        WHERE YEAR(cr.created_at)=? AND MONTH(cr.created_at)=? AND cr.kecamatan IS NOT NULL
+        WHERE YEAR(COALESCE(cr.completed_at, cr.created_at))=? AND MONTH(COALESCE(cr.completed_at, cr.created_at))=? AND cr.kecamatan IS NOT NULL
     ";
     $paramsK = [$year, $month];
     if ($fKec) {
@@ -605,7 +604,7 @@ if ($type === 'pickup') {
         FROM pickup_request_items pri
         JOIN pickup_requests pr ON pr.id=pri.pickup_id
         JOIN waste_categories wc ON wc.id=pri.category_id
-        WHERE YEAR(pr.created_at)=? AND MONTH(pr.created_at)=?
+        WHERE YEAR(COALESCE(pr.completed_at, pr.created_at))=? AND MONTH(COALESCE(pr.completed_at, pr.created_at))=?
     ";
     $paramsWa = [$year, $month];
     if ($fKec) {
@@ -622,7 +621,7 @@ if ($type === 'pickup') {
         FROM cleanup_items ci
         JOIN cleanup_requests cr ON cr.id=ci.cleanup_id
         JOIN waste_categories wc ON wc.id=ci.category_id
-        WHERE YEAR(cr.created_at)=? AND MONTH(cr.created_at)=?
+        WHERE YEAR(COALESCE(cr.completed_at, cr.created_at))=? AND MONTH(COALESCE(cr.completed_at, cr.created_at))=?
     ";
     $paramsWa = [$year, $month];
     if ($fKec) {
@@ -762,6 +761,32 @@ require_once __DIR__ . '/layout/header.php';
     font-family: monospace;
     color: #64748b;
     white-space: nowrap;
+}
+</style>
+
+<div class="page-header">
+  <h1>Laporan Bulanan</h1>
+  <p>Rekap <?= $type === 'cleanup' ? 'Clean Up Service' : 'Penjemputan Sampah Daur Ulang' ?> per bulan</p>
+</div>
+
+<!-- Navigasi Laporan -->
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+  <a href="<?= baseUrl('admin/laporan_harian') ?>?type=<?= $type ?>"   class="btn btn-outline btn-sm">📅 Harian</a>
+  <a href="<?= baseUrl('admin/laporan_mingguan') ?>?type=<?= $type ?>" class="btn btn-outline btn-sm">📆 Mingguan</a>
+  <span class="btn btn-sm" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;font-weight:700;cursor:default">📊 Bulanan</span>
+  <a href="<?= baseUrl('admin/pivot_pembayaran') ?>"                  class="btn btn-outline btn-sm">🧩 Pivot Rekap Bayar</a>
+  <a href="<?= baseUrl('admin/analisis_data') ?>"    class="btn btn-outline btn-sm">🔬 Analisis Data</a>
+  <a href="<?= baseUrl('admin/dashboard') ?>"        class="btn btn-outline btn-sm" style="margin-left:auto">← Dashboard</a>
+</div>
+
+<!-- Tab Filter Layanan -->
+<div class="tabs-container" style="display:flex;gap:12px;margin-bottom:20px;border-bottom:2px solid #f1f5f9;padding-bottom:1px">
+  <a href="<?= baseUrl('admin/laporan_bulanan') ?>?offset=<?= $monthOffset ?>&type=pickup&kecamatan=<?= urlencode($fKec) ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'pickup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'pickup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🚛 Daur Ulang (Pickup)</a>
+  <a href="<?= baseUrl('admin/laporan_bulanan') ?>?offset=<?= $monthOffset ?>&type=cleanup&kecamatan=<?= urlencode($fKec) ?>" class="tab-link" style="padding:10px 16px;text-decoration:none;font-weight:700;font-size:14px;color:<?= $type === 'cleanup' ? 'var(--green-700)' : '#64748b' ?>;border-bottom:3px solid <?= $type === 'cleanup' ? 'var(--green-700)' : 'transparent' ?>;margin-bottom:-2px">🧹 Clean Up Service</a>
+</div>
+
+<div class="card mb-24" style="padding:14px 20px">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%">
     <a href="<?= baseUrl('admin/laporan_bulanan') ?>?offset=<?= $monthOffset-1 ?>&type=<?= $type ?><?= $fKec ? '&kecamatan=' . urlencode($fKec) : '' ?>" class="btn btn-outline btn-sm">◀ Bulan Lalu</a>
     
     <!-- Dropdown Selector untuk Akses Langsung -->

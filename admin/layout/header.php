@@ -742,6 +742,36 @@ try {
 </head>
 <body>
 
+<?php if ($_flash): ?>
+<div class="flash-overlay" id="flashOverlay" onclick="closeFlashOverlay()">
+  <div class="flash flash-<?= htmlspecialchars($_flash['type']) ?>" onclick="event.stopPropagation()">
+    <div class="flash-icon"><?= $_flash['type'] === 'success' ? '✅' : '❌' ?></div>
+    <div class="flash-msg"><?= htmlspecialchars($_flash['msg']) ?></div>
+    <button class="flash-close-btn" onclick="closeFlashOverlay()">Tutup</button>
+  </div>
+</div>
+<script>
+  (function() {
+    document.body.classList.add('flash-active');
+    document.documentElement.classList.add('flash-active');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+  })();
+
+  function closeFlashOverlay() {
+    var fo = document.getElementById('flashOverlay');
+    if (fo) fo.style.display = 'none';
+    document.body.classList.remove('flash-active');
+    document.documentElement.classList.remove('flash-active');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeFlashOverlay();
+  });
+</script>
+<?php endif; ?>
+
 <aside class="sidebar" id="adminSidebar">
   <div class="sidebar-brand">
     <?php
@@ -866,36 +896,6 @@ try {
 </div>
 
 <div class="main-wrap">
-
-<?php if ($_flash): ?>
-<div class="flash-overlay" id="flashOverlay" onclick="closeFlashOverlay()">
-  <div class="flash flash-<?= htmlspecialchars($_flash['type']) ?>" onclick="event.stopPropagation()">
-    <div class="flash-icon"><?= $_flash['type'] === 'success' ? '✅' : '❌' ?></div>
-    <div class="flash-msg"><?= htmlspecialchars($_flash['msg']) ?></div>
-    <button class="flash-close-btn" onclick="closeFlashOverlay()">Tutup</button>
-  </div>
-</div>
-<script>
-  (function() {
-    document.body.classList.add('flash-active');
-    document.documentElement.classList.add('flash-active');
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-  })();
-
-  function closeFlashOverlay() {
-    var fo = document.getElementById('flashOverlay');
-    if (fo) fo.style.display = 'none';
-    document.body.classList.remove('flash-active');
-    document.documentElement.classList.remove('flash-active');
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
-  }
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeFlashOverlay();
-  });
-</script>
-<?php endif; ?>
 
 <div id="toastArea"></div>
 
